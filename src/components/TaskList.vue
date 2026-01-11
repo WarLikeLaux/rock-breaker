@@ -22,12 +22,15 @@ function handleAddTask() {
 </script>
 
 <template>
-  <div class="space-y-3">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-semibold text-white">Орудия ({{ tasks.length }}/5)</h3>
+  <div class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-bold text-white">
+        Орудия
+        <span class="text-slate-500 font-normal text-sm ml-2">{{ tasks.length }}/5</span>
+      </h3>
     </div>
 
-    <TransitionGroup name="list" tag="div" class="space-y-2">
+    <TransitionGroup name="list" tag="div" class="space-y-3">
       <TaskItem
         v-for="task in tasks"
         :key="task.id"
@@ -38,43 +41,32 @@ function handleAddTask() {
       />
     </TransitionGroup>
 
-    <div v-if="tasks.length === 0" class="text-center py-8 text-slate-500">
-      Добавь задачи для удара по скале
+    <div v-if="tasks.length === 0" class="text-center py-12">
+      <div class="text-4xl mb-3">🔨</div>
+      <p class="text-slate-400">Добавь задачи для удара по скале</p>
     </div>
 
-    <form @submit.prevent="handleAddTask" class="mt-4">
-      <div class="flex gap-2">
+    <form @submit.prevent="handleAddTask" class="mt-6">
+      <div class="flex gap-3">
         <input
           ref="taskInput"
           v-model="newTaskText"
           :disabled="!canAddTask"
           type="text"
           placeholder="Новая задача..."
-          class="flex-1 px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          class="flex-1 px-4 py-4 bg-slate-800/80 border border-slate-700 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-all text-base"
         />
         <button
           type="submit"
           :disabled="!canAddTask || !newTaskText.trim()"
-          class="px-6 py-3 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all"
+          class="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:from-slate-600 disabled:to-slate-700 disabled:cursor-not-allowed text-white text-2xl font-bold rounded-2xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center"
         >
           +
         </button>
       </div>
-      <p v-if="!canAddTask" class="text-sm text-amber-500 mt-2">
-        Максимум 5 задач. Удали что-нибудь, чтобы добавить новое.
+      <p v-if="!canAddTask" class="text-sm text-amber-500/80 mt-3 text-center">
+        Максимум 5 задач — фокус важнее количества
       </p>
     </form>
   </div>
 </template>
-
-<style scoped>
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.3s ease;
-}
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateX(-20px);
-}
-</style>

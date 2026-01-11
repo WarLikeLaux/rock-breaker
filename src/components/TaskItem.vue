@@ -13,6 +13,7 @@ const emit = defineEmits(['toggle', 'update', 'remove'])
 const isEditing = ref(false)
 const editText = ref('')
 const inputRef = ref(null)
+const isAnimating = ref(false)
 
 let clickTimer = null
 
@@ -24,9 +25,19 @@ function handleClick() {
   } else {
     clickTimer = setTimeout(() => {
       clickTimer = null
-      emit('toggle', props.task.id)
+      handleToggle()
     }, 200)
   }
+}
+
+function handleToggle() {
+  if (!props.task.completed) {
+    isAnimating.value = true
+    setTimeout(() => {
+      isAnimating.value = false
+    }, 400)
+  }
+  emit('toggle', props.task.id)
 }
 
 function startEdit() {
@@ -50,19 +61,24 @@ function cancelEdit() {
 
 <template>
   <div
-    class="group flex items-center gap-3 p-3 bg-slate-800/50 rounded-xl border border-slate-700 transition-all hover:border-slate-600"
-    :class="{ 'opacity-60': task.completed }"
+    class="group flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300"
+    :class="[
+      task.completed
+        ? 'bg-emerald-900/20 border-emerald-800/50'
+        : 'bg-slate-800/50 border-slate-700 hover:border-slate-500 hover:bg-slate-800/80',
+      { 'animate-complete': isAnimating }
+    ]"
   >
     <button
-      @click="emit('toggle', task.id)"
-      class="flex-shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all"
+      @click="handleToggle"
+      class="flex-shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all duration-300"
       :class="
         task.completed
-          ? 'bg-emerald-500 border-emerald-500 text-white'
-          : 'border-slate-500 hover:border-amber-500'
+          ? 'bg-emerald-500 border-emerald-500 text-white scale-110'
+          : 'border-slate-500 hover:border-amber-400 hover:scale-110'
       "
     >
-      <span v-if="task.completed" class="text-sm">✓</span>
+      <span v-if="task.completed" class="text-sm font-bold">✓</span>
     </button>
 
     <div class="flex-1 min-w-0">
@@ -73,13 +89,13 @@ function cancelEdit() {
         @blur="saveEdit"
         @keyup.enter="saveEdit"
         @keyup.escape="cancelEdit"
-        class="w-full bg-slate-700 rounded px-2 py-1 text-white outline-none focus:ring-2 focus:ring-amber-500"
+        class="w-full bg-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:ring-2 focus:ring-amber-500 transition-all"
       />
       <span
         v-else
         @click="handleClick"
-        class="block truncate cursor-pointer select-none"
-        :class="task.completed ? 'line-through text-slate-500' : 'text-white'"
+        class="block truncate cursor-pointer select-none text-base transition-all duration-300"
+        :class="task.completed ? 'line-through text-slate-500' : 'text-white hover:text-amber-300'"
       >
         {{ task.text }}
       </span>
@@ -87,7 +103,7 @@ function cancelEdit() {
 
     <button
       @click="emit('remove', task.id)"
-      class="flex-shrink-0 opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 transition-all"
+      class="flex-shrink-0 w-8 h-8 rounded-lg opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-all"
     >
       ✕
     </button>

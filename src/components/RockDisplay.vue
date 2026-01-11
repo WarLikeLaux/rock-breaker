@@ -1,8 +1,25 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useGameStore } from '../composables/useGameStore'
 
 const { goalName, currentHp, maxHp, hpPercent } = useGameStore()
+
+const isShaking = ref(false)
+const prevHp = ref(currentHp.value)
+
+watch(currentHp, (newVal, oldVal) => {
+  if (newVal < oldVal) {
+    triggerShake()
+  }
+  prevHp.value = newVal
+})
+
+function triggerShake() {
+  isShaking.value = true
+  setTimeout(() => {
+    isShaking.value = false
+  }, 300)
+}
 
 const hpColor = computed(() => {
   const percent = hpPercent.value
@@ -12,35 +29,52 @@ const hpColor = computed(() => {
   return 'from-red-600 to-red-400'
 })
 
-const rockEmoji = computed(() => {
+const rockState = computed(() => {
   const percent = hpPercent.value
-  if (percent > 75) return '🪨'
-  if (percent > 50) return '⛰️'
-  if (percent > 25) return '🏔️'
-  return '💥'
+  if (percent > 75) return { emoji: '🪨', scale: 'scale-100', label: 'Непокоренная' }
+  if (percent > 50) return { emoji: '⛰️', scale: 'scale-95', label: 'Треснула' }
+  if (percent > 25) return { emoji: '🏔️', scale: 'scale-90', label: 'Крошится' }
+  if (percent > 0) return { emoji: '💥', scale: 'scale-85', label: 'Почти всё!' }
+  return { emoji: '✨', scale: 'scale-75', label: 'Разрушена!' }
 })
 </script>
 
 <template>
-  <div class="text-center">
-    <div class="text-6xl mb-4 transition-all duration-300">
-      {{ rockEmoji }}
+  <div class="text-center" :class="{ 'animate-shake': isShaking }">
+    <div
+      class="text-7xl mb-2 transition-all duration-500"
+      :class="[rockState.scale, { 'animate-pulse': hpPercent <= 25 && hpPercent > 0 }]"
+    >
+      {{ rockState.emoji }}
     </div>
 
-    <h2 class="text-2xl font-bold text-white mb-2">{{ goalName }}</h2>
+    <p class="text-xs text-slate-500 uppercase tracking-wider mb-3">{{ rockState.label }}</p>
 
-    <div class="flex items-center justify-center gap-3 mb-3">
-      <span class="text-3xl font-bold text-amber-400">{{ currentHp }}</span>
-      <span class="text-slate-500">/</span>
-      <span class="text-xl text-slate-400">{{ maxHp }} HP</span>
+    <h2 class="text-2xl font-bold text-white mb-3">{{ goalName }}</h2>
+
+    <div class="flex items-center justify-center gap-2 mb-4">
+      <span
+        class="text-4xl font-bold transition-all duration-300"
+        :class="hpPercent > 25 ? 'text-amber-400' : 'text-red-400'"
+      >
+        {{ currentHp }}
+      </span>
+      <span class="text-slate-600">/</span>
+      <span class="text-lg text-slate-500">{{ maxHp }} HP</span>
     </div>
 
-    <div class="w-full max-w-xs mx-auto h-4 bg-slate-700 rounded-full overflow-hidden">
-      <div
-        class="h-full bg-gradient-to-r transition-all duration-500 ease-out"
-        :class="hpColor"
-        :style="{ width: `${hpPercent}%` }"
-      ></div>
+    <div class="relative w-full max-w-xs mx-auto">
+      <div class="h-5 bg-slate-700/50 rounded-full overflow-hidden backdrop-blur border border-slate-600">
+        <div
+          class="h-full bg-gradient-to-r transition-all duration-700 ease-out relative overflow-hidden"
+          :class="hpColor"
+          :style="{ width: `${hpPercent}%` }"
+        >
+          <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 animate-shimmer"></div>
+        </div>
+      </div>
+      <div class="absolute -top-1 -bottom-1 -left-1 -right-1 rounded-full pointer-events-none"
+           :class="{ 'animate-glow': isShaking }"></div>
     </div>
   </div>
 </template>
