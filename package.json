@@ -13,7 +13,8 @@
     "format:docs": "prettier --write docs/*.md README.md .agent/workflows/*.md",
     "lint": "eslint .",
     "lint:docs": "prettier --check docs/*.md README.md .agent/workflows/*.md",
-    "diff": "git add -N . && git diff"
+    "diff": "git add -N . && git diff",
+    "deploy": "vite build && gh-pages -d dist"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
@@ -26,6 +27,7 @@
     "@vue/eslint-config-prettier": "^10.2.0",
     "eslint": "^9.39.2",
     "eslint-plugin-vue": "^10.6.2",
+    "gh-pages": "^6.3.0",
     "globals": "^17.0.0",
     "prettier": "^3.7.4",
     "repomix": "^1.11.0",
