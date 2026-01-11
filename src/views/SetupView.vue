@@ -2,10 +2,12 @@
 import { ref, computed } from 'vue'
 import { useGameStore } from '../composables/useGameStore'
 
-const { createRock } = useGameStore()
+const { createRock, importData } = useGameStore()
 
 const goalInput = ref('')
 const daysInput = ref(30)
+const importError = ref('')
+const fileInput = ref(null)
 
 const calculatedHp = computed(() => daysInput.value * 5)
 
@@ -17,11 +19,44 @@ function handleSubmit() {
   if (!isFormValid.value) return
   createRock(goalInput.value.trim(), daysInput.value)
 }
+
+function handleImportClick() {
+  fileInput.value?.click()
+}
+
+async function handleFileChange(event) {
+  const file = event.target.files?.[0]
+  if (!file) return
+
+  const text = await file.text()
+  const success = importData(text)
+  if (!success) {
+    importError.value = 'Ошибка импорта. Проверьте файл.'
+  }
+  event.target.value = ''
+}
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center p-4">
+  <div class="min-h-screen flex items-center justify-center p-4 relative">
+    <button
+      @click="handleImportClick"
+      class="absolute top-4 right-4 w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:text-white transition-all"
+      title="Импорт данных"
+    >
+      📥
+    </button>
+    <input
+      ref="fileInput"
+      type="file"
+      accept=".json"
+      class="hidden"
+      @change="handleFileChange"
+    />
+
     <div class="w-full max-w-md">
+      <p v-if="importError" class="text-red-400 text-sm text-center mb-4">{{ importError }}</p>
+
       <div class="text-center mb-12">
         <div class="text-6xl mb-4">🪨</div>
         <h1 class="text-3xl font-bold text-white mb-2">
