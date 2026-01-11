@@ -14,6 +14,21 @@ const isEditing = ref(false)
 const editText = ref('')
 const inputRef = ref(null)
 
+let clickTimer = null
+
+function handleClick() {
+  if (clickTimer) {
+    clearTimeout(clickTimer)
+    clickTimer = null
+    startEdit()
+  } else {
+    clickTimer = setTimeout(() => {
+      clickTimer = null
+      emit('toggle', props.task.id)
+    }, 200)
+  }
+}
+
 function startEdit() {
   if (props.task.completed) return
   editText.value = props.task.text
@@ -62,8 +77,8 @@ function cancelEdit() {
       />
       <span
         v-else
-        @dblclick="startEdit"
-        class="block truncate cursor-pointer"
+        @click="handleClick"
+        class="block truncate cursor-pointer select-none"
         :class="task.completed ? 'line-through text-slate-500' : 'text-white'"
       >
         {{ task.text }}

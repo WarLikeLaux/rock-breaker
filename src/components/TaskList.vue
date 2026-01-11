@@ -1,16 +1,23 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import { useGameStore } from '../composables/useGameStore'
 import TaskItem from './TaskItem.vue'
 
 const { tasks, canAddTask, addTask, removeTask, updateTask, toggleTask } = useGameStore()
 
 const newTaskText = ref('')
+const taskInput = ref(null)
 
 function handleAddTask() {
   if (!newTaskText.value.trim()) return
   addTask(newTaskText.value)
   newTaskText.value = ''
+
+  nextTick(() => {
+    if (canAddTask.value) {
+      taskInput.value?.focus()
+    }
+  })
 }
 </script>
 
@@ -38,6 +45,7 @@ function handleAddTask() {
     <form @submit.prevent="handleAddTask" class="mt-4">
       <div class="flex gap-2">
         <input
+          ref="taskInput"
           v-model="newTaskText"
           :disabled="!canAddTask"
           type="text"
