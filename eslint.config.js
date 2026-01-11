@@ -3,6 +3,8 @@ import pluginVue from 'eslint-plugin-vue'
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 import globals from 'globals'
 
+import noComments from 'eslint-plugin-no-comments'
+
 export default [
   {
     name: 'app/files-to-lint',
@@ -19,6 +21,9 @@ export default [
   skipFormatting,
 
   {
+    plugins: {
+      'no-comments': noComments,
+    },
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -30,6 +35,7 @@ export default [
       'vue/multi-word-component-names': 'off',
       'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+      'no-comments/disallowComments': 'error',
     },
   },
 ]

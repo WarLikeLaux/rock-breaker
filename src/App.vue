@@ -8,7 +8,7 @@ const { isSetupComplete, isVictory } = useGameStore()
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+  <div class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 select-none">
     <SetupView v-if="!isSetupComplete" />
     <VictoryView v-else-if="isVictory" />
     <ArenaView v-else />

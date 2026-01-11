@@ -1,11 +1,17 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useGameStore } from '../composables/useGameStore'
+import { useSounds } from '../composables/useSounds'
 
-const { goalName, resetGame, restartRock } = useGameStore()
+const { goalName, durationDays, resetGame, restartRock } = useGameStore()
+const { playVictory } = useSounds()
 
 const newGoalName = ref(goalName.value)
-const newDays = ref(30)
+const newDays = ref(durationDays.value)
+
+onMounted(() => {
+  playVictory()
+})
 
 function handleNewRock() {
   resetGame()

@@ -19,6 +19,7 @@ const inputRef = ref(null)
 const isAnimating = ref(false)
 const showTypeMenu = ref(false)
 const menuRef = ref(null)
+const deleteConfirm = ref(false)
 
 let clickTimer = null
 
@@ -46,6 +47,17 @@ const borderClass = computed(() => {
 })
 
 const isEmptyJoker = computed(() => props.task.type === 'joker' && !props.task.text)
+
+function handleRemove() {
+  if (deleteConfirm.value) {
+    emit('remove', props.task.id)
+  } else {
+    deleteConfirm.value = true
+    setTimeout(() => {
+      deleteConfirm.value = false
+    }, 2000)
+  }
+}
 
 function handleClickOutside(e) {
   if (showTypeMenu.value && menuRef.value && !menuRef.value.contains(e.target)) {
@@ -92,7 +104,6 @@ function handleToggle() {
 }
 
 function startEdit() {
-  if (props.task.completed) return
   editText.value = props.task.text
   isEditing.value = true
   nextTick(() => inputRef.value?.focus())
@@ -131,7 +142,7 @@ function selectType(type) {
       class="group flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 min-h-[72px]"
       :class="[borderClass, { 'animate-complete': isAnimating }]"
     >
-      <div class="relative" ref="menuRef">
+      <div class="relative select-none" ref="menuRef">
         <button
           @click="handleTypeClick"
           class="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-base transition-all hover:scale-110 hover:bg-slate-700/50"
@@ -172,7 +183,7 @@ function selectType(type) {
       <button
         @click="handleToggle"
         :disabled="isEmptyJoker"
-        class="flex-shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all duration-300"
+        class="flex-shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all duration-300 select-none"
         :class="[
           task.completed
             ? 'bg-emerald-500 border-emerald-500 text-white scale-110'
@@ -198,7 +209,7 @@ function selectType(type) {
         <div v-else class="flex flex-col justify-center">
           <span
             @click="handleClick"
-            class="block truncate cursor-pointer select-none text-base transition-all duration-300"
+            class="block truncate cursor-pointer select-text text-base transition-all duration-300"
             :class="[
               task.completed ? 'line-through text-slate-500' : 'text-white hover:text-amber-300',
               { 'text-slate-500 italic': isEmptyJoker }
@@ -215,12 +226,24 @@ function selectType(type) {
         </div>
       </div>
 
-      <button
-        @click="emit('remove', task.id)"
-        class="flex-shrink-0 w-8 h-8 rounded-lg opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-all"
-      >
-        ✕
-      </button>
+      <div class="relative w-8 h-8 flex-shrink-0">
+        <Transition name="fade">
+          <button
+            v-if="deleteConfirm"
+            @click="handleRemove"
+            class="absolute inset-0 w-full h-full rounded-lg flex items-center justify-center bg-red-500 text-white hover:bg-red-600 scale-110 z-10 shadow-sm"
+          >
+            🗑️
+          </button>
+        </Transition>
+        <button
+          v-show="!deleteConfirm"
+          @click="handleRemove"
+          class="absolute inset-0 w-full h-full rounded-lg flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+        >
+          ✕
+        </button>
+      </div>
     </div>
 
     <template #popper>
