@@ -1,6 +1,8 @@
 import { ref, computed, watch } from 'vue'
 
 const STORAGE_KEY = 'rock-breaker-state'
+const SETTINGS_KEY = 'rock-breaker-settings'
+const SCHEMA_VERSION = 2
 
 const goalName = ref('')
 const durationDays = ref(0)
@@ -8,6 +10,7 @@ const tasks = ref([])
 const isSetupComplete = ref(false)
 const currentHp = ref(0)
 const lastActiveDate = ref('')
+const showTooltips = ref(JSON.parse(localStorage.getItem(SETTINGS_KEY))?.showTooltips ?? true)
 
 let taskIdCounter = 0
 
@@ -22,6 +25,7 @@ function getTodayDate() {
 
 function saveToStorage() {
 	const state = {
+		version: SCHEMA_VERSION,
 		goalName: goalName.value,
 		durationDays: durationDays.value,
 		tasks: tasks.value,
@@ -39,9 +43,19 @@ function loadFromStorage() {
 
 	try {
 		const state = JSON.parse(saved)
+
+		if (state.version !== SCHEMA_VERSION) {
+			localStorage.removeItem(STORAGE_KEY)
+			return false
+		}
+
 		goalName.value = state.goalName || ''
 		durationDays.value = state.durationDays || 0
-		tasks.value = state.tasks || []
+		tasks.value = (state.tasks || []).map((t) => ({
+			...t,
+			type: t.type || 'standard',
+			originalText: t.originalText || null,
+		}))
 		isSetupComplete.value = state.isSetupComplete || false
 		currentHp.value = state.currentHp || 0
 		lastActiveDate.value = state.lastActiveDate || ''
@@ -62,6 +76,14 @@ function loadFromStorage() {
 function startNewDay() {
 	tasks.value.forEach((task) => {
 		task.completed = false
+
+		if (task.type === 'joker') {
+			task.text = ''
+		} else if (task.type === 'substitute') {
+			task.text = task.originalText || ''
+			task.originalText = null
+			task.type = 'standard'
+		}
 	})
 	lastActiveDate.value = getTodayDate()
 	saveToStorage()
@@ -77,12 +99,14 @@ function createRock(name, days) {
 	isSetupComplete.value = true
 }
 
-function addTask(text) {
-	if (!canAddTask.value || !text.trim()) return
+function addTask(text, type = 'standard') {
+	if (!canAddTask.value) return
 	tasks.value.push({
 		id: ++taskIdCounter,
 		text: text.trim(),
 		completed: false,
+		type,
+		originalText: null,
 	})
 }
 
@@ -100,9 +124,33 @@ function updateTask(id, newText) {
 	}
 }
 
+function setTaskType(id, newType) {
+	const task = tasks.value.find((t) => t.id === id)
+	if (!task) return
+
+	if (newType === 'substitute' && task.type === 'standard') {
+		task.originalText = task.text
+	} else if (newType === 'standard' && task.type === 'substitute') {
+		task.originalText = null
+	}
+
+	task.type = newType
+}
+
+function substituteTask(id, tempText) {
+	const task = tasks.value.find((t) => t.id === id)
+	if (!task || task.type !== 'standard') return
+
+	task.originalText = task.text
+	task.text = tempText.trim()
+	task.type = 'substitute'
+}
+
 function toggleTask(id) {
 	const task = tasks.value.find((t) => t.id === id)
 	if (!task) return
+
+	if (task.type === 'joker' && !task.text) return
 
 	if (task.completed) {
 		task.completed = false
@@ -165,6 +213,7 @@ function exportData() {
 		currentHp: currentHp.value,
 		lastActiveDate: lastActiveDate.value,
 		taskIdCounter,
+		showTooltips: showTooltips.value,
 		exportedAt: new Date().toISOString(),
 	}
 	const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' })
@@ -181,10 +230,17 @@ function importData(jsonString) {
 		const state = JSON.parse(jsonString)
 		goalName.value = state.goalName || ''
 		durationDays.value = state.durationDays || 0
-		tasks.value = state.tasks || []
+		tasks.value = (state.tasks || []).map((t) => ({
+			...t,
+			type: t.type || 'standard',
+			originalText: t.originalText || null,
+		}))
 		currentHp.value = state.currentHp || 0
 		lastActiveDate.value = state.lastActiveDate || getTodayDate()
 		taskIdCounter = state.taskIdCounter || 0
+		if (state.showTooltips !== undefined) {
+			showTooltips.value = state.showTooltips
+		}
 		isSetupComplete.value = true
 		saveToStorage()
 		return true
@@ -203,6 +259,16 @@ watch(
 	{ deep: true }
 )
 
+watch(showTooltips, (val) => {
+	const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')
+	settings.showTooltips = val
+	localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
+})
+
+function toggleTooltips() {
+	showTooltips.value = !showTooltips.value
+}
+
 loadFromStorage()
 
 export function useGameStore() {
@@ -217,13 +283,17 @@ export function useGameStore() {
 		canAddTask,
 		isVictory,
 		lastActiveDate,
+		showTooltips,
 		createRock,
 		restartRock,
 		updateRock,
 		addTask,
 		removeTask,
 		updateTask,
+		setTaskType,
+		substituteTask,
 		toggleTask,
+		toggleTooltips,
 		hitRock,
 		resetGame,
 		startNewDay,

@@ -3,7 +3,7 @@ import { ref, nextTick } from 'vue'
 import { useGameStore } from '../composables/useGameStore'
 import TaskItem from './TaskItem.vue'
 
-const { tasks, canAddTask, addTask, removeTask, updateTask, toggleTask } = useGameStore()
+const { tasks, canAddTask, addTask, removeTask, updateTask, toggleTask, setTaskType } = useGameStore()
 
 const newTaskText = ref('')
 const taskInput = ref(null)
@@ -38,6 +38,7 @@ function handleAddTask() {
         @toggle="toggleTask"
         @update="updateTask"
         @remove="removeTask"
+        @setType="setTaskType"
       />
     </TransitionGroup>
 
