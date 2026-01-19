@@ -7,6 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
     "pack:docs": "repomix --include \"docs/**\" --output repomix-docs.xml",
     "pack:src": "repomix --include \"src/**\" --output repomix-src.xml",
     "pack:all": "repomix --output repomix-all.xml",
@@ -26,15 +29,26 @@
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@vitejs/plugin-vue": "^6.0.1",
+    "@vitest/browser": "^4.0.16",
+    "@vitest/coverage-v8": "4.0.16",
+    "@vitest/ui": "^4.0.16",
     "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/test-utils": "^2.4.6",
+    "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.39.2",
     "eslint-plugin-no-comments": "^1.1.10",
     "eslint-plugin-vue": "^10.6.2",
     "gh-pages": "^6.3.0",
     "globals": "^17.0.0",
+    "happy-dom": "^20.1.0",
     "prettier": "^3.7.4",
     "repomix": "^1.11.0",
-    "vite": "npm:rolldown-vite@7.2.5"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.52.0",
+    "vite": "npm:rolldown-vite@7.2.5",
+    "vitest": "^4.0.16",
+    "vue-eslint-parser": "^10.2.0",
+    "vue-tsc": "^3.2.2"
   },
   "overrides": {
     "vite": "npm:rolldown-vite@7.2.5"

@@ -1,24 +1,24 @@
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useGameStore } from '../composables/useGameStore'
-import { useSounds } from '../composables/useSounds'
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useGameStore } from '@/features/game/store';
+import { useSounds } from '@/shared/composables/useSounds';
 
-const { goalName, durationDays, resetGame, restartRock } = useGameStore()
-const { playVictory } = useSounds()
+const { goalName, durationDays, resetGame, restartRock } = useGameStore();
+const { playVictory } = useSounds();
 
-const newGoalName = ref(goalName.value)
-const newDays = ref(durationDays.value)
+const newGoalName = ref<string>(goalName.value);
+const newDays = ref<number>(durationDays.value);
 
 onMounted(() => {
-  playVictory()
-})
+  playVictory();
+});
 
-function handleNewRock() {
-  resetGame()
+function handleNewRock(): void {
+  resetGame();
 }
 
-function handleRestartRock() {
-  restartRock(newGoalName.value.trim() || goalName.value, newDays.value)
+function handleRestartRock(): void {
+  restartRock(newGoalName.value.trim() || goalName.value, newDays.value);
 }
 </script>
 
@@ -32,9 +32,7 @@ function handleRestartRock() {
         </div>
       </div>
 
-      <h1 class="text-4xl font-bold text-white mb-4 animate-fade-in">
-        Скала разрушена!
-      </h1>
+      <h1 class="text-4xl font-bold text-white mb-4 animate-fade-in">Скала разрушена!</h1>
 
       <p class="text-2xl text-amber-400 mb-3 font-semibold">{{ goalName }}</p>
 
@@ -42,7 +40,9 @@ function handleRestartRock() {
         Ты сделал это! Маленькие шаги привели к большой победе.
       </p>
 
-      <div class="bg-slate-800/50 rounded-2xl p-5 border border-slate-700 mb-6 text-left backdrop-blur">
+      <div
+        class="bg-slate-800/50 rounded-2xl p-5 border border-slate-700 mb-6 text-left backdrop-blur"
+      >
         <h3 class="text-sm font-medium text-slate-300 mb-4">Повторить с теми же задачами:</h3>
 
         <div class="space-y-4">

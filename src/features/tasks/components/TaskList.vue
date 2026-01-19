@@ -1,23 +1,24 @@
-<script setup>
-import { ref, nextTick } from 'vue'
-import { useGameStore } from '../composables/useGameStore'
-import TaskItem from './TaskItem.vue'
+<script setup lang="ts">
+import { ref, nextTick } from 'vue';
+import { useGameStore } from '@/features/game/store';
+import TaskItem from './TaskItem.vue';
 
-const { tasks, canAddTask, addTask, removeTask, updateTask, toggleTask, setTaskType } = useGameStore()
+const { tasks, canAddTask, addTask, removeTask, updateTask, toggleTask, setTaskType } =
+  useGameStore();
 
-const newTaskText = ref('')
-const taskInput = ref(null)
+const newTaskText = ref<string>('');
+const taskInput = ref<HTMLInputElement | null>(null);
 
-function handleAddTask() {
-  if (!newTaskText.value.trim()) return
-  addTask(newTaskText.value)
-  newTaskText.value = ''
+function handleAddTask(): void {
+  if (!newTaskText.value.trim()) return;
+  addTask(newTaskText.value);
+  newTaskText.value = '';
 
   nextTick(() => {
     if (canAddTask.value) {
-      taskInput.value?.focus()
+      taskInput.value?.focus();
     }
-  })
+  });
 }
 </script>
 
@@ -66,7 +67,7 @@ function handleAddTask() {
         </button>
       </div>
       <p v-if="!canAddTask" class="text-sm text-amber-500/80 mt-3 text-center">
-        Максимум 5 задач — фокус важнее количества
+        Максимум 5 задач - фокус важнее количества
       </p>
     </form>
   </div>

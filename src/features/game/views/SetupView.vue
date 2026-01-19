@@ -1,39 +1,40 @@
-<script setup>
-import { ref, computed } from 'vue'
-import { useGameStore } from '../composables/useGameStore'
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useGameStore } from '@/features/game/store';
 
-const { createRock, importData } = useGameStore()
+const { createRock, importData } = useGameStore();
 
-const goalInput = ref('')
-const daysInput = ref(30)
-const importError = ref('')
-const fileInput = ref(null)
+const goalInput = ref<string>('');
+const daysInput = ref<number>(30);
+const importError = ref<string>('');
+const fileInput = ref<HTMLInputElement | null>(null);
 
-const calculatedHp = computed(() => daysInput.value * 5)
+const calculatedHp = computed(() => daysInput.value * 5);
 
 const isFormValid = computed(() => {
-  return goalInput.value.trim().length > 0 && daysInput.value > 0
-})
+  return goalInput.value.trim().length > 0 && daysInput.value > 0;
+});
 
-function handleSubmit() {
-  if (!isFormValid.value) return
-  createRock(goalInput.value.trim(), daysInput.value)
+function handleSubmit(): void {
+  if (!isFormValid.value) return;
+  createRock(goalInput.value.trim(), daysInput.value);
 }
 
-function handleImportClick() {
-  fileInput.value?.click()
+function handleImportClick(): void {
+  fileInput.value?.click();
 }
 
-async function handleFileChange(event) {
-  const file = event.target.files?.[0]
-  if (!file) return
+async function handleFileChange(event: Event): Promise<void> {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (!file) return;
 
-  const text = await file.text()
-  const success = importData(text)
+  const text = await file.text();
+  const success = importData(text);
   if (!success) {
-    importError.value = 'Ошибка импорта. Проверьте файл.'
+    importError.value = 'Ошибка импорта. Проверьте файл.';
   }
-  event.target.value = ''
+  target.value = '';
 }
 </script>
 
@@ -46,32 +47,22 @@ async function handleFileChange(event) {
     >
       📥
     </button>
-    <input
-      ref="fileInput"
-      type="file"
-      accept=".json"
-      class="hidden"
-      @change="handleFileChange"
-    />
+    <input ref="fileInput" type="file" accept=".json" class="hidden" @change="handleFileChange" />
 
     <div class="w-full max-w-md">
-      <p v-if="importError" class="text-red-400 text-sm text-center mb-4 animate-pulse">{{ importError }}</p>
+      <p v-if="importError" class="text-red-400 text-sm text-center mb-4 animate-pulse">
+        {{ importError }}
+      </p>
 
       <div class="text-center mb-10">
         <div class="text-7xl mb-4 animate-float">🪨</div>
-        <h1 class="text-3xl font-bold text-white mb-3">
-          Какую скалу мы будем разбивать?
-        </h1>
-        <p class="text-slate-400 text-lg">
-          Превратим большую цель в ежедневные микро-победы
-        </p>
+        <h1 class="text-3xl font-bold text-white mb-3">Какую скалу мы будем разбивать?</h1>
+        <p class="text-slate-400 text-lg">Превратим большую цель в ежедневные микро-победы</p>
       </div>
 
       <form @submit.prevent="handleSubmit" class="space-y-5">
         <div>
-          <label for="goal" class="block text-sm font-medium text-slate-300 mb-2">
-            Моя цель
-          </label>
+          <label for="goal" class="block text-sm font-medium text-slate-300 mb-2"> Моя цель </label>
           <input
             id="goal"
             v-model="goalInput"
@@ -95,7 +86,9 @@ async function handleFileChange(event) {
           />
         </div>
 
-        <div class="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-2xl p-5 border border-amber-500/20">
+        <div
+          class="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-2xl p-5 border border-amber-500/20"
+        >
           <div class="flex justify-between items-center">
             <span class="text-slate-300">Здоровье скалы:</span>
             <span class="text-3xl font-bold text-amber-400">{{ calculatedHp }} HP</span>

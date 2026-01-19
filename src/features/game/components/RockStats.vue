@@ -1,0 +1,72 @@
+<script setup lang="ts">
+import { computed } from 'vue';
+
+interface Props {
+  goalName: string;
+  currentHp: number;
+  maxHp: number;
+  hpPercent: number;
+}
+
+const props = defineProps<Props>();
+
+const hpColor = computed(() => {
+  const percent = props.hpPercent;
+  if (percent > 75) return 'from-emerald-500 to-green-400';
+  if (percent > 50) return 'from-amber-500 to-yellow-400';
+  if (percent > 25) return 'from-orange-500 to-amber-400';
+  return 'from-red-600 to-red-400';
+});
+
+const rockState = computed(() => {
+  const percent = props.hpPercent;
+  if (percent > 75) return { emoji: '🪨', scale: 'scale-100', label: 'Непокоренная' };
+  if (percent > 50) return { emoji: '⛰️', scale: 'scale-95', label: 'Треснула' };
+  if (percent > 25) return { emoji: '🏔️', scale: 'scale-90', label: 'Крошится' };
+  if (percent > 0) return { emoji: '💥', scale: 'scale-85', label: 'Почти всё!' };
+  return { emoji: '✨', scale: 'scale-75', label: 'Разрушена!' };
+});
+
+const hpBarWidth = computed(() => `${props.hpPercent}%`);
+</script>
+
+<style scoped>
+.hp-bar {
+  width: var(--hp-width);
+}
+</style>
+
+<template>
+  <div class="text-center select-none">
+    <p class="text-xs text-slate-500 uppercase tracking-wider mb-3">{{ rockState.label }}</p>
+
+    <h2 class="text-2xl font-bold text-white mb-3">{{ goalName }}</h2>
+
+    <div class="flex items-center justify-center gap-2 mb-4">
+      <span
+        class="text-4xl font-bold transition-all duration-300"
+        :class="hpPercent > 25 ? 'text-amber-400' : 'text-red-400'"
+      >
+        {{ currentHp }}
+      </span>
+      <span class="text-slate-600">/</span>
+      <span class="text-lg text-slate-500">{{ maxHp }} HP</span>
+    </div>
+
+    <div class="relative w-full max-w-xs mx-auto">
+      <div
+        class="h-5 bg-slate-700/50 rounded-full overflow-hidden backdrop-blur border border-slate-600"
+      >
+        <div
+          class="hp-bar h-full bg-gradient-to-r transition-all duration-700 ease-out relative overflow-hidden"
+          :class="hpColor"
+          :style="{ '--hp-width': hpBarWidth }"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 animate-shimmer"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

@@ -1,10 +1,10 @@
-<script setup>
-import { useGameStore } from './composables/useGameStore'
-import SetupView from './views/SetupView.vue'
-import ArenaView from './views/ArenaView.vue'
-import VictoryView from './views/VictoryView.vue'
+<script setup lang="ts">
+import { useGameStore } from '@/features/game/store';
+import SetupView from '@/features/game/views/SetupView.vue';
+import ArenaView from '@/features/game/views/ArenaView.vue';
+import VictoryView from '@/features/game/views/VictoryView.vue';
 
-const { isSetupComplete, isVictory } = useGameStore()
+const { isSetupComplete, isVictory } = useGameStore();
 </script>
 
 <template>
