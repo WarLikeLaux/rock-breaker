@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+body {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
 @theme {
   --animate-shake: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
   --animate-bounce-slow: bounce 3s infinite;
