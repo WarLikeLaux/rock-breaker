@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { saveToStorage, loadFromStorage, importData, clearStorage } from '../storage';
-import type { Task } from '@/shared/types';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { saveToStorage, loadFromStorage, importData, clearStorage, exportData } from '../storage';
+import type { Task, Rock } from '@/shared/types';
 
 const mockLocalStorage = (() => {
   let store: Record<string, string> = {};
@@ -18,7 +18,21 @@ const mockLocalStorage = (() => {
   };
 })();
 
-Object.defineProperty(global, 'localStorage', { value: mockLocalStorage });
+Object.defineProperty(globalThis, 'localStorage', { value: mockLocalStorage });
+
+function createRock(overrides: Partial<Rock> = {}): Rock {
+  return {
+    id: 1,
+    goalName: 'Test Goal',
+    durationDays: 30,
+    tasks: [],
+    currentHp: 150,
+    lastActiveDate: '2024-01-01',
+    taskIdCounter: 0,
+    isMain: true,
+    ...overrides,
+  };
+}
 
 describe('storage.ts', () => {
   beforeEach(() => {
@@ -28,13 +42,10 @@ describe('storage.ts', () => {
   describe('saveToStorage', () => {
     it('должен сохранять состояние в localStorage', () => {
       const state = {
-        goalName: 'Test Goal',
-        durationDays: 30,
-        tasks: [] as Task[],
+        rocks: [createRock()],
+        activeRockId: 1,
         isSetupComplete: true,
-        currentHp: 150,
-        lastActiveDate: '2024-01-01',
-        taskIdCounter: 0,
+        rockIdCounter: 1,
       };
 
       saveToStorage(state);
@@ -43,33 +54,53 @@ describe('storage.ts', () => {
       expect(saved).toBeDefined();
 
       const parsed = JSON.parse(saved!);
-      expect(parsed.version).toBe(2);
-      expect(parsed.goalName).toBe('Test Goal');
-      expect(parsed.durationDays).toBe(30);
-      expect(parsed.currentHp).toBe(150);
+      expect(parsed.version).toBe(3);
+      expect(parsed.rocks).toHaveLength(1);
+      expect(parsed.rocks[0].goalName).toBe('Test Goal');
+      expect(parsed.activeRockId).toBe(1);
     });
   });
 
   describe('loadFromStorage', () => {
-    it('должен загружать состояние из localStorage', () => {
+    it('должен загружать состояние v3 из localStorage', () => {
       const state = {
-        version: 2,
-        goalName: 'Loaded Goal',
-        durationDays: 20,
-        tasks: [],
+        version: 3,
+        rocks: [createRock({ goalName: 'Loaded Goal', durationDays: 20, currentHp: 100 })],
+        activeRockId: 1,
         isSetupComplete: true,
-        currentHp: 100,
-        lastActiveDate: '2024-01-01',
-        taskIdCounter: 0,
+        rockIdCounter: 1,
       };
 
       localStorage.setItem('rock-breaker-state', JSON.stringify(state));
 
       const loaded = loadFromStorage();
       expect(loaded).toBeDefined();
-      expect(loaded?.goalName).toBe('Loaded Goal');
-      expect(loaded?.durationDays).toBe(20);
-      expect(loaded?.currentHp).toBe(100);
+      expect(loaded!.rocks[0]!.goalName).toBe('Loaded Goal');
+      expect(loaded!.rocks[0]!.durationDays).toBe(20);
+      expect(loaded!.rocks[0]!.currentHp).toBe(100);
+    });
+
+    it('должен мигрировать v2 в v3', () => {
+      const v2State = {
+        version: 2,
+        goalName: 'Old Goal',
+        durationDays: 20,
+        tasks: [{ id: 1, text: 'Task 1', completed: false, type: 'standard', originalText: null }],
+        isSetupComplete: true,
+        currentHp: 100,
+        lastActiveDate: '2024-01-01',
+        taskIdCounter: 1,
+      };
+
+      localStorage.setItem('rock-breaker-state', JSON.stringify(v2State));
+
+      const loaded = loadFromStorage();
+      expect(loaded).toBeDefined();
+      expect(loaded?.version).toBe(3);
+      expect(loaded?.rocks).toHaveLength(1);
+      expect(loaded!.rocks[0]!.goalName).toBe('Old Goal');
+      expect(loaded!.rocks[0]!.isMain).toBe(true);
+      expect(loaded!.rocks[0]!.tasks).toHaveLength(1);
     });
 
     it('должен возвращать null если нет сохраненного состояния', () => {
@@ -77,7 +108,7 @@ describe('storage.ts', () => {
       expect(loaded).toBeNull();
     });
 
-    it('должен удалять старую версию и возвращать null', () => {
+    it('должен удалять старую версию (v1) и возвращать null', () => {
       const oldState = {
         version: 1,
         goalName: 'Old',
@@ -93,39 +124,37 @@ describe('storage.ts', () => {
 
     it('должен нормализовать tasks (добавлять type и originalText)', () => {
       const state = {
-        version: 2,
-        goalName: 'Test',
-        durationDays: 30,
-        tasks: [{ id: 1, text: 'Task 1', completed: false }],
+        version: 3,
+        rocks: [
+          createRock({
+            tasks: [{ id: 1, text: 'Task 1', completed: false }] as Task[],
+          }),
+        ],
+        activeRockId: 1,
         isSetupComplete: true,
-        currentHp: 150,
-        lastActiveDate: '2024-01-01',
-        taskIdCounter: 1,
+        rockIdCounter: 1,
       };
 
       localStorage.setItem('rock-breaker-state', JSON.stringify(state));
 
       const loaded = loadFromStorage();
-      expect(loaded?.tasks[0]).toHaveProperty('type', 'standard');
-      expect(loaded?.tasks[0]).toHaveProperty('originalText', null);
+      expect(loaded!.rocks[0]!.tasks[0]).toHaveProperty('type', 'standard');
+      expect(loaded!.rocks[0]!.tasks[0]).toHaveProperty('originalText', null);
     });
   });
 
   describe('importData', () => {
-    it('должен импортировать валидные JSON данные', () => {
+    it('должен импортировать валидные JSON данные v3', () => {
       const data = JSON.stringify({
-        goalName: 'Imported',
-        durationDays: 25,
-        tasks: [],
-        currentHp: 125,
-        lastActiveDate: '2024-01-01',
-        taskIdCounter: 0,
+        rocks: [createRock({ goalName: 'Imported', durationDays: 25, currentHp: 125 })],
+        activeRockId: 1,
+        rockIdCounter: 1,
       });
 
       const result = importData(data);
       expect(result).toBeDefined();
-      expect(result?.goalName).toBe('Imported');
-      expect(result?.durationDays).toBe(25);
+      expect(result!.rocks[0]!.goalName).toBe('Imported');
+      expect(result!.rocks[0]!.durationDays).toBe(25);
     });
 
     it('должен возвращать null для невалидного JSON', () => {
@@ -133,14 +162,84 @@ describe('storage.ts', () => {
       expect(result).toBeNull();
     });
 
-    it('должен нормализовать tasks при импорте', () => {
+    it('должен возвращать null если нет массива rocks', () => {
       const data = JSON.stringify({
-        tasks: [{ id: 1, text: 'Test', completed: false }],
+        goalName: 'Test',
+        durationDays: 30,
       });
 
       const result = importData(data);
-      expect(result?.tasks?.[0]).toHaveProperty('type', 'standard');
-      expect(result?.tasks?.[0]).toHaveProperty('originalText', null);
+      expect(result).toBeNull();
+    });
+
+    it('должен нормализовать tasks при импорте', () => {
+      const data = JSON.stringify({
+        rocks: [
+          createRock({
+            tasks: [{ id: 1, text: 'Test', completed: false }] as Task[],
+          }),
+        ],
+        activeRockId: 1,
+        rockIdCounter: 1,
+      });
+
+      const result = importData(data);
+      expect(result!.rocks[0]!.tasks[0]).toHaveProperty('type', 'standard');
+      expect(result!.rocks[0]!.tasks[0]).toHaveProperty('originalText', null);
+    });
+
+    it('должен возвращать null если rocks пустой массив', () => {
+      const data = JSON.stringify({
+        rocks: [],
+        activeRockId: 1,
+        rockIdCounter: 1,
+      });
+
+      const result = importData(data);
+      expect(result).toBeNull();
+    });
+
+    it('должен выбирать валидный activeRockId и корректный rockIdCounter', () => {
+      const data = JSON.stringify({
+        rocks: [
+          createRock({ id: 5, goalName: 'A' }),
+          createRock({ id: 9, goalName: 'B', isMain: false }),
+        ],
+        activeRockId: 999,
+        rockIdCounter: 1,
+      });
+
+      const result = importData(data);
+      expect(result!.activeRockId).toBe(5);
+      expect(result!.rockIdCounter).toBe(9);
+    });
+  });
+
+  describe('exportData', () => {
+    it('должен создавать файл экспорта с корректным именем', () => {
+      const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
+      const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+      const click = vi.fn();
+      const anchor = { href: '', download: '', click } as unknown as HTMLAnchorElement;
+      const createElement = vi.spyOn(document, 'createElement').mockReturnValue(anchor);
+
+      exportData({
+        rocks: [createRock()],
+        activeRockId: 1,
+        isSetupComplete: true,
+        rockIdCounter: 1,
+        showTooltips: true,
+      });
+
+      expect(createObjectURL).toHaveBeenCalledOnce();
+      expect(click).toHaveBeenCalledOnce();
+      expect(revokeObjectURL).toHaveBeenCalledWith('blob:mock');
+      expect(createElement).toHaveBeenCalledWith('a');
+      expect(anchor.download.startsWith('rock-breaker-')).toBe(true);
+
+      createObjectURL.mockRestore();
+      revokeObjectURL.mockRestore();
+      createElement.mockRestore();
     });
   });
 

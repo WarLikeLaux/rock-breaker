@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ref } from 'vue';
+import { ref, type Ref } from 'vue';
 import type { Task } from '@/shared/types';
 import {
   addTask,
   removeTask,
   updateTask,
   setTaskType,
+  substituteTask,
   toggleTask,
   resetTasksForNewDay,
 } from '../taskOperations';
@@ -118,6 +119,16 @@ describe('taskOperations.ts', () => {
 
       expect(tasks.value[0]?.text).toBe('Текст');
     });
+
+    it('должен обновлять текст джокера даже если он пустой', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Джокер', completed: false, type: 'joker', originalText: null },
+      ]);
+
+      updateTask(tasks, 1, '   ');
+
+      expect(tasks.value[0]?.text).toBe('');
+    });
   });
 
   describe('setTaskType', () => {
@@ -172,6 +183,34 @@ describe('taskOperations.ts', () => {
       setTaskType(tasks, 999, 'joker');
 
       expect(tasks.value[0]?.type).toBe('standard');
+    });
+  });
+
+  describe('substituteTask', () => {
+    it('должен создавать подмену для standard задачи', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Обычная', completed: false, type: 'standard', originalText: null },
+      ]);
+
+      substituteTask(tasks, 1, 'Временная');
+
+      const task = tasks.value[0];
+      expect(task?.type).toBe('substitute');
+      expect(task?.text).toBe('Временная');
+      expect(task?.originalText).toBe('Обычная');
+    });
+
+    it('не должен изменять не standard задачу', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Джокер', completed: false, type: 'joker', originalText: null },
+      ]);
+
+      substituteTask(tasks, 1, 'Временная');
+
+      const task = tasks.value[0];
+      expect(task?.type).toBe('joker');
+      expect(task?.text).toBe('Джокер');
+      expect(task?.originalText).toBeNull();
     });
   });
 
@@ -231,10 +270,24 @@ describe('taskOperations.ts', () => {
       expect(onHit).not.toHaveBeenCalled();
       expect(onHeal).not.toHaveBeenCalled();
     });
+
+    it('не должен переключать джокера без текста', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: '', completed: false, type: 'joker', originalText: null },
+      ]);
+      const onHit = vi.fn();
+      const onHeal = vi.fn();
+
+      toggleTask(tasks, 1, onHit, onHeal);
+
+      expect(tasks.value[0]?.completed).toBe(false);
+      expect(onHit).not.toHaveBeenCalled();
+      expect(onHeal).not.toHaveBeenCalled();
+    });
   });
 
   describe('resetTasksForNewDay', () => {
-    let tasks: ReturnType<typeof ref<Task[]>>;
+    let tasks: Ref<Task[]>;
 
     beforeEach(() => {
       tasks = ref<Task[]>([

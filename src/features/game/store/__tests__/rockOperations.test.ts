@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ref, computed } from 'vue';
 import type { Task } from '@/shared/types';
-import { createRock, updateRock, hitRock, healRock, restartRock } from '../rockOperations';
+import { createRock, updateRock, hitRock, healRock, restartRock, resetGame } from '../rockOperations';
 
 describe('rockOperations.ts', () => {
   describe('createRock', () => {
@@ -237,6 +237,41 @@ describe('rockOperations.ts', () => {
 
       expect(lastActiveDate.value).not.toBe(oldDate);
       expect(lastActiveDate.value).toBe('2026-01-12');
+    });
+  });
+
+  describe('resetGame', () => {
+    it('должен сбрасывать все значения и вызывать очистку хранилища', () => {
+      const goalName = ref('Цель');
+      const durationDays = ref(10);
+      const currentHp = ref(50);
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Задача', completed: true, type: 'standard', originalText: null },
+      ]);
+      const taskIdCounter = { value: 3 };
+      const lastActiveDate = ref('2026-01-12');
+      const isSetupComplete = ref(true);
+      const clearStorage = vi.fn();
+
+      resetGame(
+        goalName,
+        durationDays,
+        currentHp,
+        tasks,
+        taskIdCounter,
+        lastActiveDate,
+        isSetupComplete,
+        clearStorage,
+      );
+
+      expect(goalName.value).toBe('');
+      expect(durationDays.value).toBe(0);
+      expect(currentHp.value).toBe(0);
+      expect(tasks.value).toEqual([]);
+      expect(taskIdCounter.value).toBe(0);
+      expect(lastActiveDate.value).toBe('');
+      expect(isSetupComplete.value).toBe(false);
+      expect(clearStorage).toHaveBeenCalledOnce();
     });
   });
 });
