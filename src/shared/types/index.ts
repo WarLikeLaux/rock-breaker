@@ -6,7 +6,18 @@ export interface Task {
   originalText: string | null;
 }
 
-export interface StoredState {
+export interface Rock {
+  id: number;
+  goalName: string;
+  durationDays: number;
+  tasks: Task[];
+  currentHp: number;
+  lastActiveDate: string;
+  taskIdCounter: number;
+  isMain: boolean;
+}
+
+export interface StoredStateV2 {
   version: number;
   goalName: string;
   durationDays: number;
@@ -15,6 +26,14 @@ export interface StoredState {
   currentHp: number;
   lastActiveDate: string;
   taskIdCounter: number;
+}
+
+export interface StoredState {
+  version: number;
+  rocks: Rock[];
+  activeRockId: number;
+  isSetupComplete: boolean;
+  rockIdCounter: number;
 }
 
 export interface Settings {
