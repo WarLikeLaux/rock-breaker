@@ -12,25 +12,35 @@ const {
   exportData,
   importData,
   updateRock,
+  mainRock,
+  switchRock,
   showTooltips,
   toggleTooltips,
+  sideRocks,
+  deleteRock,
+  promoteSideQuestToMain,
 } = useGameStore();
 const { soundEnabled, toggleSound } = useSounds();
 
 const emit = defineEmits<{
   close: [];
+  createSideQuest: [];
 }>();
 
 const showResetConfirm = ref<boolean>(false);
 const showEditGoal = ref<boolean>(false);
 const importError = ref<string>('');
 const fileInput = ref<HTMLInputElement | null>(null);
+const deleteConfirmId = ref<number | null>(null);
 
 const editGoalName = ref<string>(goalName.value);
 const editDays = ref<number>(durationDays.value);
 
 function handleNewDay(): void {
   startNewDay();
+  if (mainRock.value) {
+    switchRock(mainRock.value.id);
+  }
   emit('close');
 }
 
@@ -80,6 +90,29 @@ function saveGoalEdit(): void {
   showEditGoal.value = false;
   emit('close');
 }
+
+function handleDeleteSideQuest(id: number): void {
+  if (deleteConfirmId.value === id) {
+    deleteRock(id);
+    deleteConfirmId.value = null;
+  } else {
+    deleteConfirmId.value = id;
+    setTimeout(() => {
+      if (deleteConfirmId.value === id) {
+        deleteConfirmId.value = null;
+      }
+    }, 3000);
+  }
+}
+
+function handleCreateSideQuest(): void {
+  emit('createSideQuest');
+}
+
+function handlePromoteSideQuest(id: number): void {
+  promoteSideQuestToMain(id);
+  emit('close');
+}
 </script>
 
 <template>
@@ -99,7 +132,7 @@ function saveGoalEdit(): void {
         @click="toggleEditGoal"
         class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2"
       >
-        ✏️ Изменить цель
+        ✏️ Изменить активную цель
       </button>
 
       <div v-if="showEditGoal" class="bg-slate-700/50 rounded-xl p-4 space-y-3">
@@ -163,6 +196,63 @@ function saveGoalEdit(): void {
         :model-value="soundEnabled"
         @update:model-value="toggleSound"
       />
+
+      <hr class="border-slate-700" />
+
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="text-sm font-medium text-slate-300">Сайд-квесты</h4>
+          <button
+            @click="handleCreateSideQuest"
+            class="text-xs text-amber-400 hover:text-amber-300 transition-colors"
+          >
+            + Добавить
+          </button>
+        </div>
+
+        <div v-if="sideRocks.length === 0" class="text-sm text-slate-500 text-center py-2">
+          Нет сайд-квестов
+        </div>
+
+        <div v-else class="space-y-2">
+          <div
+            v-for="rock in sideRocks"
+            :key="rock.id"
+            class="flex items-center justify-between bg-slate-700/50 rounded-lg px-3 py-2"
+          >
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-white truncate">{{ rock.goalName }}</p>
+              <p class="text-xs text-slate-400">
+                {{ rock.currentHp }}/{{ rock.durationDays * 5 }} HP
+              </p>
+            </div>
+            <div class="flex items-center gap-2 ml-2">
+              <VTooltip placement="top" :delay="{ show: 600, hide: 0 }">
+                <button
+                  @click="handlePromoteSideQuest(rock.id)"
+                  class="px-2 py-1 rounded text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 hover:text-amber-300 transition-colors"
+                >
+                  ⭐
+                </button>
+                <template #popper>
+                  <div class="text-sm">Сделать основной целью</div>
+                </template>
+              </VTooltip>
+              <button
+                @click="handleDeleteSideQuest(rock.id)"
+                class="px-2 py-1 rounded text-xs transition-colors"
+                :class="
+                  deleteConfirmId === rock.id
+                    ? 'bg-red-600 text-white'
+                    : 'text-slate-400 hover:text-red-400'
+                "
+              >
+                {{ deleteConfirmId === rock.id ? 'Удалить?' : '🗑️' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <hr class="border-slate-700" />
 

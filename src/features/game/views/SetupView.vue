@@ -6,6 +6,7 @@ const { createRock, importData } = useGameStore();
 
 const goalInput = ref<string>('');
 const daysInput = ref<number>(30);
+const tasksInput = ref<string[]>(['']);
 const importError = ref<string>('');
 const fileInput = ref<HTMLInputElement | null>(null);
 
@@ -15,9 +16,22 @@ const isFormValid = computed(() => {
   return goalInput.value.trim().length > 0 && daysInput.value > 0;
 });
 
+function addTaskField(): void {
+  if (tasksInput.value.length < 5) {
+    tasksInput.value.push('');
+  }
+}
+
+function removeTaskField(index: number): void {
+  if (tasksInput.value.length > 1) {
+    tasksInput.value.splice(index, 1);
+  }
+}
+
 function handleSubmit(): void {
   if (!isFormValid.value) return;
-  createRock(goalInput.value.trim(), daysInput.value);
+  const tasks = tasksInput.value.filter((t) => t.trim()).map((t) => t.trim());
+  createRock(goalInput.value.trim(), daysInput.value, tasks.length > 0 ? tasks : undefined);
 }
 
 function handleImportClick(): void {
@@ -98,6 +112,56 @@ async function handleFileChange(event: Event): Promise<void> {
           </div>
           <p class="text-xs text-slate-500 mt-2">
             5 ударов в день × {{ daysInput }} дней = {{ calculatedHp }} ударов до победы
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="block text-sm font-medium text-slate-300">
+              Задачи (опционально)
+            </label>
+            <button
+              v-if="tasksInput.length < 5"
+              type="button"
+              @click="addTaskField"
+              class="text-xs text-amber-400 hover:text-amber-300 transition-colors"
+            >
+              + Добавить задачу
+            </button>
+          </div>
+          <div class="space-y-2">
+            <div
+              v-for="(_, index) in tasksInput"
+              :key="index"
+              class="flex gap-2 items-center"
+            >
+              <input
+                v-model="tasksInput[index]"
+                type="text"
+                :placeholder="`Задача ${index + 1}`"
+                class="flex-1 px-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+              />
+              <button
+                v-if="tasksInput.length > 1"
+                type="button"
+                @click="removeTaskField(index)"
+                class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-red-400 transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <p class="text-xs text-slate-500">
+            Можно добавить задачи сразу или позже. Максимум 5 задач.
           </p>
         </div>
 

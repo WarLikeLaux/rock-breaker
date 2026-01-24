@@ -3,7 +3,14 @@ import { ref, onMounted } from 'vue';
 import { useGameStore } from '@/features/game/store';
 import { useSounds } from '@/shared/composables/useSounds';
 
-const { goalName, durationDays, resetGame, restartRock } = useGameStore();
+const {
+  goalName,
+  durationDays,
+  resetGame,
+  restartRock,
+  sideRocks,
+  promoteSideQuestToMain,
+} = useGameStore();
 const { playVictory } = useSounds();
 
 const newGoalName = ref<string>(goalName.value);
@@ -19,6 +26,10 @@ function handleNewRock(): void {
 
 function handleRestartRock(): void {
   restartRock(newGoalName.value.trim() || goalName.value, newDays.value);
+}
+
+function handlePromoteSideQuest(sideQuestId: number): void {
+  promoteSideQuestToMain(sideQuestId);
 }
 </script>
 
@@ -39,6 +50,34 @@ function handleRestartRock(): void {
       <p class="text-slate-400 mb-10 text-lg">
         Ты сделал это! Маленькие шаги привели к большой победе.
       </p>
+
+      <div
+        v-if="sideRocks.length > 0"
+        class="bg-slate-800/50 rounded-2xl p-5 border border-slate-700 mb-6 text-left backdrop-blur"
+      >
+        <h3 class="text-sm font-medium text-slate-300 mb-4">Сделать сайд-квест основной целью:</h3>
+
+        <div class="space-y-2">
+          <div
+            v-for="sideQuest in sideRocks"
+            :key="sideQuest.id"
+            class="flex items-center justify-between p-3 bg-slate-700/50 rounded-xl border border-slate-600 hover:border-amber-500/50 transition-all"
+          >
+            <div class="flex-1">
+              <p class="text-white font-medium">{{ sideQuest.goalName }}</p>
+              <p class="text-xs text-slate-400 mt-1">
+                {{ sideQuest.currentHp }} / {{ sideQuest.durationDays * 5 }} HP
+              </p>
+            </div>
+            <button
+              @click="handlePromoteSideQuest(sideQuest.id)"
+              class="ml-3 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-semibold rounded-lg transition-all hover:scale-105 active:scale-95 text-sm"
+            >
+              Выбрать
+            </button>
+          </div>
+        </div>
+      </div>
 
       <div
         class="bg-slate-800/50 rounded-2xl p-5 border border-slate-700 mb-6 text-left backdrop-blur"
