@@ -39,7 +39,6 @@ function selectMain(): void {
 <template>
   <div class="lg:hidden">
     <button
-      v-if="sideRocks.length > 0"
       @click="isOpen = true"
       class="w-10 h-10 bg-slate-800/80 hover:bg-slate-700 backdrop-blur rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-slate-700 hover:border-slate-500"
       :class="canAccess ? 'text-amber-400' : 'text-slate-400'"

@@ -127,6 +127,9 @@ function startNewDay(): void {
     rock.tasks = tasksRef.value;
     rock.lastActiveDate = getTodayDate();
   });
+  if (mainRock.value) {
+    activeRockId.value = mainRock.value.id;
+  }
   saveState();
 }
 
