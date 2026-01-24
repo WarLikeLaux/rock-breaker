@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useGameStore } from '@/features/game/store';
 
 const { createRock, importData } = useGameStore();
@@ -7,10 +7,16 @@ const { createRock, importData } = useGameStore();
 const goalInput = ref<string>('');
 const daysInput = ref<number>(30);
 const tasksInput = ref<string[]>(['']);
+const endDateInput = ref<string>('');
 const importError = ref<string>('');
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const calculatedHp = computed(() => daysInput.value * 5);
+const minEndDate = computed(() => {
+  const today = new Date();
+  const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+  return formatDate(minDate);
+});
 
 const isFormValid = computed(() => {
   return goalInput.value.trim().length > 0 && daysInput.value > 0;
@@ -27,6 +33,37 @@ function removeTaskField(index: number): void {
     tasksInput.value.splice(index, 1);
   }
 }
+
+function formatDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function updateDaysFromDate(dateValue: string): void {
+  endDateInput.value = dateValue;
+  if (!dateValue) return;
+  const today = new Date();
+  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const [year, month, day] = dateValue.split('-').map((v) => Number(v));
+  const end = new Date(year, month - 1, day);
+  const diffDays = Math.ceil((end.getTime() - start.getTime()) / 86400000);
+  if (diffDays > 0) {
+    daysInput.value = diffDays;
+  }
+}
+
+watch(
+  daysInput,
+  (val) => {
+    if (!val || val <= 0) return;
+    const today = new Date();
+    const target = new Date(today.getFullYear(), today.getMonth(), today.getDate() + val);
+    endDateInput.value = formatDate(target);
+  },
+  { immediate: true },
+);
 
 function handleSubmit(): void {
   if (!isFormValid.value) return;
@@ -98,6 +135,26 @@ async function handleFileChange(event: Event): Promise<void> {
             max="365"
             class="w-full px-4 py-4 bg-slate-800/80 border border-slate-700 rounded-2xl text-white text-lg placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
           />
+          <p class="text-xs text-slate-500 mt-2">
+            Дата рассчитаетcя автоматически при выборе количества дней
+          </p>
+        </div>
+
+        <div>
+          <label for="end-date" class="block text-sm font-medium text-slate-300 mb-2">
+            Дата завершения
+          </label>
+          <input
+            id="end-date"
+            :value="endDateInput"
+            type="date"
+            :min="minEndDate"
+            @input="updateDaysFromDate(($event.target as HTMLInputElement).value)"
+            class="w-full px-4 py-4 bg-slate-800/80 border border-slate-700 rounded-2xl text-white text-lg placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+          />
+          <p class="text-xs text-slate-500 mt-2">
+            Количество дней рассчитается автоматически при выборе даты
+          </p>
         </div>
 
         <div
@@ -124,7 +181,7 @@ async function handleFileChange(event: Event): Promise<void> {
               v-if="tasksInput.length < 5"
               type="button"
               @click="addTaskField"
-              class="text-xs text-amber-400 hover:text-amber-300 transition-colors"
+              class="text-xs text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
             >
               + Добавить задачу
             </button>

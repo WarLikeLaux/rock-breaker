@@ -86,7 +86,7 @@ function handleDeleteSideQuest(): void {
     <div class="ambient-fog ambient-fog-right"></div>
 
     <div class="side-panel hidden lg:flex flex-1 flex-col gap-4 p-4 min-w-[200px] relative z-10">
-      <div class="flex items-center gap-2 mb-2">
+      <div class="flex items-center gap-2 mb-2 mt-[14px]">
         <div class="h-px flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent"></div>
         <p class="text-xs text-slate-500 uppercase tracking-widest font-medium">Сайд-квесты</p>
         <div class="h-px flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent"></div>
@@ -309,7 +309,7 @@ function handleDeleteSideQuest(): void {
     </div>
 
     <div class="side-panel hidden lg:flex flex-1 flex-col gap-4 p-4 min-w-[200px] relative z-10">
-      <div class="flex items-center gap-2 mb-2">
+      <div class="flex items-center gap-2 mb-2 mt-[14px]">
         <div class="h-px flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent"></div>
         <p class="text-xs text-slate-500 uppercase tracking-widest font-medium">Сайд-квесты</p>
         <div class="h-px flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent"></div>
