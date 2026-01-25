@@ -17,6 +17,8 @@ import {
   setTaskType as setTaskTypeOp,
   substituteTask as substituteTaskOp,
   toggleTask as toggleTaskOp,
+  setRequiredExecutions as setRequiredExecutionsOp,
+  decrementExecution as decrementExecutionOp,
   resetTasksForNewDay,
 } from './taskOperations';
 
@@ -44,12 +46,16 @@ export interface GameStore {
   createRock: (name: string, days: number, initialTasks?: string[]) => void;
   restartRock: (newName: string, newDays: number) => void;
   updateRock: (newName: string, newDays: number) => void;
-  addTask: (text: string, type?: Task['type']) => void;
+  addTask: (text: string, type?: Task['type'], requiredExecutions?: number) => void;
   removeTask: (id: number) => void;
   updateTask: (id: number, newText: string) => void;
   setTaskType: (id: number, newType: Task['type']) => void;
   substituteTask: (id: number, tempText: string) => void;
   toggleTask: (id: number) => void;
+  triggerVisualHit: (() => void) | undefined;
+  triggerVisualHeal: (() => void) | undefined;
+  setRequiredExecutions: (id: number, count: number) => void;
+  decrementExecution: (id: number) => void;
   toggleTooltips: () => void;
   hitRock: () => void;
   resetGame: () => void;
@@ -70,6 +76,8 @@ const isSetupComplete = ref<boolean>(false);
 const showTooltips = ref<boolean>(loadSettings().showTooltips ?? true);
 
 const rockIdCounter = { value: 0 };
+let visualHitCallback: (() => void) | undefined = undefined;
+let visualHealCallback: (() => void) | undefined = undefined;
 
 const activeRock = computed(() => rocks.value.find((r) => r.id === activeRockId.value));
 const mainRock = computed(() => rocks.value.find((r) => r.isMain));
@@ -186,6 +194,8 @@ function createRock(name: string, days: number, initialTasks: string[] = []): vo
       completed: false,
       type: 'standard' as const,
       originalText: null,
+      requiredExecutions: 1,
+      currentExecutions: 0,
     }));
 
   const newRock: Rock = {
@@ -213,6 +223,8 @@ function createSideQuest(name: string, days: number, initialTasks: string[] = []
       completed: false,
       type: 'standard' as const,
       originalText: null,
+      requiredExecutions: 1,
+      currentExecutions: 0,
     }));
 
   const newRock: Rock = {
@@ -283,6 +295,7 @@ function restartRock(newName: string, newDays: number): void {
   rock.currentHp = newDays * 5;
   rock.tasks.forEach((task) => {
     task.completed = false;
+    task.currentExecutions = 0;
   });
   rock.lastActiveDate = getTodayDate();
 }
@@ -362,9 +375,9 @@ export function useGameStore(): GameStore {
     createRock,
     restartRock,
     updateRock,
-    addTask: (text: string, type?: Task['type']) => {
+    addTask: (text: string, type?: Task['type'], requiredExecutions?: number) => {
       if (!activeRock.value) return;
-      addTaskOp(tasksRef, canAddTask as unknown as Ref<boolean>, taskIdCounterRef, text, type);
+      addTaskOp(tasksRef, canAddTask as unknown as Ref<boolean>, taskIdCounterRef, text, type, requiredExecutions);
     },
     removeTask: (id: number) => {
       if (!activeRock.value) return;
@@ -384,7 +397,27 @@ export function useGameStore(): GameStore {
     },
     toggleTask: (id: number) => {
       if (!activeRock.value) return;
-      toggleTaskOp(tasksRef, id, hitRock, healRock);
+      toggleTaskOp(tasksRef, id, hitRock, healRock, visualHitCallback);
+    },
+    get triggerVisualHit() {
+      return visualHitCallback;
+    },
+    set triggerVisualHit(callback: (() => void) | undefined) {
+      visualHitCallback = callback;
+    },
+    setRequiredExecutions: (id: number, count: number) => {
+      if (!activeRock.value) return;
+      setRequiredExecutionsOp(tasksRef, id, count);
+    },
+    decrementExecution: (id: number) => {
+      if (!activeRock.value) return;
+      decrementExecutionOp(tasksRef, id, healRock, visualHealCallback);
+    },
+    get triggerVisualHeal() {
+      return visualHealCallback;
+    },
+    set triggerVisualHeal(callback: (() => void) | undefined) {
+      visualHealCallback = callback;
     },
     toggleTooltips: () => {
       showTooltips.value = !showTooltips.value;

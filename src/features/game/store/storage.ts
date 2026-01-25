@@ -1,17 +1,19 @@
-import type { StoredState, StoredStateV2, Rock, Task, Settings } from '@/shared/types';
+import type { StoredState, StoredStateV2, StoredStateV3, Rock, Task, Settings } from '@/shared/types';
 import { getTodayDate } from '@/shared/utils/date';
 
 const STORAGE_KEY = 'rock-breaker-state';
 const SETTINGS_KEY = 'rock-breaker-settings';
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 
-function migrateFromV2ToV3(oldState: StoredStateV2): StoredState {
-  const mainRock: Rock = {
+function migrateFromV2ToV3(oldState: StoredStateV2): StoredStateV3 {
+  const mainRock = {
     id: 1,
     goalName: oldState.goalName || '',
     durationDays: oldState.durationDays || 0,
-    tasks: (oldState.tasks || []).map((t: Task) => ({
-      ...t,
+    tasks: (oldState.tasks || []).map((t) => ({
+      id: t.id,
+      text: t.text,
+      completed: t.completed,
       type: t.type || 'standard',
       originalText: t.originalText || null,
     })),
@@ -22,11 +24,30 @@ function migrateFromV2ToV3(oldState: StoredStateV2): StoredState {
   };
 
   return {
-    version: SCHEMA_VERSION,
+    version: 3,
     rocks: [mainRock],
     activeRockId: 1,
     isSetupComplete: oldState.isSetupComplete || false,
     rockIdCounter: 1,
+  };
+}
+
+function migrateFromV3ToV4(oldState: StoredStateV3): StoredState {
+  return {
+    version: SCHEMA_VERSION,
+    rocks: oldState.rocks.map((rock) => ({
+      ...rock,
+      tasks: rock.tasks.map((task) => ({
+        ...task,
+        type: task.type || 'standard',
+        originalText: task.originalText || null,
+        requiredExecutions: 1,
+        currentExecutions: task.completed ? 1 : 0,
+      })),
+    })),
+    activeRockId: oldState.activeRockId,
+    isSetupComplete: oldState.isSetupComplete,
+    rockIdCounter: oldState.rockIdCounter,
   };
 }
 
@@ -43,10 +64,17 @@ export function loadFromStorage(): StoredState | null {
   if (!saved) return null;
 
   try {
-    const state = JSON.parse(saved) as StoredState | StoredStateV2;
+    const state = JSON.parse(saved) as StoredState | StoredStateV2 | StoredStateV3;
 
     if (state.version === 2) {
-      const migrated = migrateFromV2ToV3(state as StoredStateV2);
+      const v3State = migrateFromV2ToV3(state as StoredStateV2);
+      const migrated = migrateFromV3ToV4(v3State);
+      saveToStorage(migrated);
+      return migrated;
+    }
+
+    if (state.version === 3) {
+      const migrated = migrateFromV3ToV4(state as StoredStateV3);
       saveToStorage(migrated);
       return migrated;
     }
@@ -56,15 +84,17 @@ export function loadFromStorage(): StoredState | null {
       return null;
     }
 
-    const v3State = state as StoredState;
+    const v4State = state as StoredState;
     return {
-      ...v3State,
-      rocks: v3State.rocks.map((rock: Rock) => ({
+      ...v4State,
+      rocks: v4State.rocks.map((rock: Rock) => ({
         ...rock,
         tasks: (rock.tasks || []).map((t: Task) => ({
           ...t,
           type: t.type || 'standard',
           originalText: t.originalText || null,
+          requiredExecutions: t.requiredExecutions ?? 1,
+          currentExecutions: t.currentExecutions ?? (t.completed ? 1 : 0),
         })),
       })),
     };
@@ -120,6 +150,8 @@ export function importData(jsonString: string): ImportResult | null {
         ...t,
         type: t.type || 'standard',
         originalText: t.originalText || null,
+        requiredExecutions: t.requiredExecutions ?? 1,
+        currentExecutions: t.currentExecutions ?? (t.completed ? 1 : 0),
       })),
     }));
 

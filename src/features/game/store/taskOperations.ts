@@ -1,3 +1,4 @@
+import { MAX_DAILY_EXECUTIONS, MIN_DAILY_EXECUTIONS } from '@/shared/constants/tasks';
 import type { Task } from '@/shared/types';
 import type { Ref } from 'vue';
 
@@ -7,14 +8,20 @@ export function addTask(
   taskIdCounter: { value: number },
   text: string,
   type: Task['type'] = 'standard',
+  requiredExecutions: number = MIN_DAILY_EXECUTIONS,
 ): void {
   if (!canAddTask.value || !text.trim()) return;
+  const executions = type === 'joker'
+    ? MIN_DAILY_EXECUTIONS
+    : Math.min(MAX_DAILY_EXECUTIONS, Math.max(MIN_DAILY_EXECUTIONS, requiredExecutions));
   tasks.value.push({
     id: ++taskIdCounter.value,
     text: text.trim(),
     completed: false,
     type,
     originalText: null,
+    requiredExecutions: executions,
+    currentExecutions: 0,
   });
 }
 
@@ -48,6 +55,13 @@ export function setTaskType(tasks: Ref<Task[]>, id: number, newType: Task['type'
   }
 
   task.type = newType;
+
+  if (newType === 'joker') {
+    task.requiredExecutions = MIN_DAILY_EXECUTIONS;
+    task.currentExecutions = 0;
+    task.completed = false;
+    task.originalText = null;
+  }
 }
 
 export function substituteTask(tasks: Ref<Task[]>, id: number, tempText: string): void {
@@ -64,6 +78,7 @@ export function toggleTask(
   id: number,
   onHit: () => void,
   onHeal: () => void,
+  onVisualHit?: () => void,
 ): void {
   const task = tasks.value.find((t) => t.id === id);
   if (!task) return;
@@ -71,17 +86,64 @@ export function toggleTask(
   if (task.type === 'joker' && !task.text) return;
 
   if (task.completed) {
-    task.completed = false;
-    if (task.type !== 'joker') onHeal();
+    if (task.currentExecutions > 0) {
+      const wasCompleted = task.completed;
+      task.currentExecutions--;
+      task.completed = task.currentExecutions >= task.requiredExecutions;
+      if (task.type !== 'joker' && wasCompleted && !task.completed) onHeal();
+    }
   } else {
-    task.completed = true;
-    if (task.type !== 'joker') onHit();
+    task.currentExecutions++;
+    const nowCompleted = task.currentExecutions >= task.requiredExecutions;
+    task.completed = nowCompleted;
+    if (task.type !== 'joker') {
+      if (nowCompleted) {
+        onHit();
+      } else if (onVisualHit && task.requiredExecutions > 1) {
+        onVisualHit();
+      }
+    }
+  }
+}
+
+export function setRequiredExecutions(tasks: Ref<Task[]>, id: number, count: number): void {
+  const task = tasks.value.find((t) => t.id === id);
+  if (!task || task.type === 'joker') return;
+
+  task.requiredExecutions = Math.min(MAX_DAILY_EXECUTIONS, Math.max(MIN_DAILY_EXECUTIONS, count));
+  if (task.currentExecutions > task.requiredExecutions) {
+    task.currentExecutions = task.requiredExecutions;
+  }
+  task.completed = task.currentExecutions >= task.requiredExecutions;
+}
+
+export function decrementExecution(
+  tasks: Ref<Task[]>,
+  id: number,
+  onHeal: () => void,
+  onVisualHeal?: () => void,
+): void {
+  const task = tasks.value.find((t) => t.id === id);
+  if (!task || task.currentExecutions <= 0) return;
+
+  const wasCompleted = task.completed;
+  const wasPartiallyCompleted = task.currentExecutions > 0 && !task.completed;
+  task.currentExecutions--;
+  task.completed = task.currentExecutions >= task.requiredExecutions;
+
+  if (task.type !== 'joker') {
+    if (wasCompleted && !task.completed) {
+      onHeal();
+    } else if (wasPartiallyCompleted && task.currentExecutions === 0 && onVisualHeal) {
+      onVisualHeal();
+    }
   }
 }
 
 export function resetTasksForNewDay(tasks: Ref<Task[]>): void {
   tasks.value = tasks.value.filter((task) => {
     task.completed = false;
+    task.currentExecutions = 0;
 
     if (task.type === 'joker') {
       return false;
