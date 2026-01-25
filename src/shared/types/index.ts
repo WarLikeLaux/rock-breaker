@@ -4,6 +4,16 @@ export interface Task {
   completed: boolean;
   type: 'standard' | 'joker' | 'substitute';
   originalText: string | null;
+  requiredExecutions: number;
+  currentExecutions: number;
+}
+
+export interface TaskV3 {
+  id: number;
+  text: string;
+  completed: boolean;
+  type: 'standard' | 'joker' | 'substitute';
+  originalText: string | null;
 }
 
 export interface Rock {
@@ -26,6 +36,25 @@ export interface StoredStateV2 {
   currentHp: number;
   lastActiveDate: string;
   taskIdCounter: number;
+}
+
+export interface RockV3 {
+  id: number;
+  goalName: string;
+  durationDays: number;
+  tasks: TaskV3[];
+  currentHp: number;
+  lastActiveDate: string;
+  taskIdCounter: number;
+  isMain: boolean;
+}
+
+export interface StoredStateV3 {
+  version: number;
+  rocks: RockV3[];
+  activeRockId: number;
+  isSetupComplete: boolean;
+  rockIdCounter: number;
 }
 
 export interface StoredState {
