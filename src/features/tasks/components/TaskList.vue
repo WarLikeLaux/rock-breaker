@@ -16,6 +16,7 @@ const {
   setRequiredExecutions,
   decrementExecution,
   skipCurrentFocusTask,
+  toggleFocusMode,
 } = useGameStore();
 
 const newTaskText = ref<string>('');
@@ -37,17 +38,19 @@ function handleAddTask(): void {
 <template>
   <div class="space-y-4">
     <div class="flex items-center justify-between">
-      <h3 class="text-lg font-bold text-white">
+      <h3 class="text-lg font-bold text-white whitespace-nowrap">
         Орудия
       </h3>
-      <div v-if="!focusModeEnabled" class="text-slate-500 font-normal text-sm ml-2">{{ tasks.length }}/5</div>
-      <div v-else class="text-amber-500 font-normal text-sm ml-2 flex items-center gap-2">
-        <button v-if="tasks.filter(t => !t.completed).length > 1" @click="skipCurrentFocusTask"
-          class="px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs text-white transition-colors font-bold">
-          🎲 ДРУГУЮ
-        </button>
-        <span class="font-bold">ФОКУС-РЕЖИМ</span>
-      </div>
+
+      <button @click="toggleFocusMode"
+        class="flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all duration-300 border"
+        :class="focusModeEnabled
+          ? 'bg-amber-500/10 border-amber-500/50 text-amber-500 hover:bg-amber-500/20'
+          : 'bg-slate-800/50 border-slate-700 text-slate-500 hover:border-slate-600 hover:text-slate-400'">
+        <span class="w-1.5 h-1.5 rounded-full"
+          :class="focusModeEnabled ? 'bg-amber-500 animate-pulse' : 'bg-slate-600'"></span>
+        Фокус-режим: {{ focusModeEnabled ? 'ВКЛ' : 'ВЫКЛ' }}
+      </button>
     </div>
 
     <TransitionGroup name="list" tag="div" class="space-y-3">
@@ -56,8 +59,19 @@ function handleAddTask(): void {
         @decrementExecution="decrementExecution" />
     </TransitionGroup>
 
-    <div v-if="focusModeEnabled && tasks.length > 0" class="text-center text-sm text-slate-400">
-      Выполнено: {{tasks.filter(t => t.completed).length}} / {{ tasks.length }}
+    <div v-if="focusModeEnabled && tasks.length > 0" class="flex flex-col items-center gap-4 mt-4">
+      <div class="flex items-center gap-4 w-full">
+        <div class="h-px flex-1 bg-gradient-to-r from-transparent to-slate-800"></div>
+        <div class="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-500">
+          Выполнено: {{tasks.filter(t => t.completed).length}} из {{ tasks.length }}
+        </div>
+        <div class="h-px flex-1 bg-gradient-to-l from-transparent to-slate-800"></div>
+      </div>
+
+      <button v-if="tasks.filter(t => !t.completed).length > 1" @click="skipCurrentFocusTask"
+        class="px-5 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-[10px] transition-all font-black uppercase tracking-wider border border-slate-700 hover:border-slate-500 shadow-lg active:scale-95">
+        🎲 Другую задачу
+      </button>
     </div>
 
     <div v-if="tasks.length === 0" class="text-center py-12">
@@ -65,18 +79,22 @@ function handleAddTask(): void {
       <p class="text-slate-400">Добавь задачи для удара по скале</p>
     </div>
 
-    <form @submit.prevent="handleAddTask" class="mt-6">
-      <div class="flex gap-3">
+    <form v-if="!focusModeEnabled || tasks.length === 0" @submit.prevent="handleAddTask" class="mt-6">
+      <div class="mb-4 text-center">
+        <p :class="canAddTask ? 'text-amber-500/90' : 'text-slate-500'"
+          class="text-sm uppercase tracking-[0.2em] font-bold">
+          {{ canAddTask ? 'Максимум 5 задач — фокус важнее количества' : 'Лимит орудий достигнут' }}
+        </p>
+      </div>
+
+      <div class="flex gap-0 group/input">
         <input ref="taskInput" v-model="newTaskText" :disabled="!canAddTask" type="text" placeholder="Новая задача..."
-          class="flex-1 px-4 py-4 bg-slate-800/80 border border-slate-700 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-all text-base" />
+          class="flex-1 px-5 py-4 bg-slate-800/40 border-2 border-r-0 border-slate-700/80 rounded-l-2xl text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-base font-medium group-hover/input:border-slate-600/80 group-focus-within/input:bg-slate-800/60" />
         <button type="submit" :disabled="!canAddTask || !newTaskText.trim()"
-          class="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:from-slate-600 disabled:to-slate-700 disabled:cursor-not-allowed text-white text-2xl font-bold rounded-2xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center">
+          class="w-16 h-auto bg-gradient-to-br from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:from-slate-700 disabled:to-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-3xl font-bold rounded-r-2xl transition-all active:scale-95 flex items-center justify-center border-2 border-transparent border-l-0">
           +
         </button>
       </div>
-      <p v-if="!canAddTask" class="text-sm text-amber-500/80 mt-3 text-center">
-        Максимум 5 задач - фокус важнее количества
-      </p>
     </form>
   </div>
 </template>

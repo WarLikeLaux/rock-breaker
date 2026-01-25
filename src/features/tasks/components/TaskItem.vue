@@ -8,7 +8,7 @@ import TaskTextField from './TaskTextField.vue';
 import TaskDeleteButton from './TaskDeleteButton.vue';
 import TaskTooltip from './TaskTooltip.vue';
 
-const { showTooltips } = useGameStore();
+const { showTooltips, focusModeEnabled } = useGameStore();
 
 interface Props {
   task: Task;
@@ -97,57 +97,31 @@ function handleUpdate(id: number, text: string): void {
 </script>
 
 <template>
-  <VTooltip
-    placement="top"
-    :delay="{ show: 600, hide: 0 }"
-    :disabled="!showTooltips || isEditing || showTypeMenu"
-  >
-    <div
-      class="group flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 min-h-[72px]"
-      :class="[borderClass, { 'animate-complete': isAnimating }]"
-    >
+  <VTooltip placement="top" :delay="{ show: 600, hide: 0 }" :disabled="!showTooltips || isEditing || showTypeMenu">
+    <div class="group flex items-center gap-3 p-4 rounded-[1.25rem] border transition-all duration-300 min-h-[72px]"
+      :class="[
+        borderClass,
+        { 'animate-complete': isAnimating },
+        focusModeEnabled ? 'shadow-[0_0_25px_rgba(0,0,0,0.15)] bg-slate-800/90 border-amber-500/40' : 'bg-slate-800/50'
+      ]">
       <div class="relative select-none">
-        <button
-          @click="handleTypeClick"
-          class="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-base transition-all hover:scale-110 hover:bg-slate-700/50"
-        >
+        <button @click="handleTypeClick"
+          class="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-base transition-all hover:scale-110 hover:bg-slate-700/50">
           {{ typeIcon }}
         </button>
 
-        <TaskTypeMenu
-          :task="task"
-          :show="showTypeMenu"
-          @select="selectType"
-          @setExecutions="selectExecutions"
-          @close="showTypeMenu = false"
-        />
+        <TaskTypeMenu :task="task" :show="showTypeMenu" @select="selectType" @setExecutions="selectExecutions"
+          @close="showTypeMenu = false" />
       </div>
 
-      <TaskProgressControls
-        :task="task"
-        @toggle="handleToggle"
-      />
+      <TaskProgressControls :task="task" @toggle="handleToggle" />
 
-      <TaskTextField
-        :task="task"
-        v-model:editing="isEditing"
-        @toggle="handleToggle"
-        @update="handleUpdate"
-      />
+      <TaskTextField :task="task" v-model:editing="isEditing" @toggle="handleToggle" @update="handleUpdate" />
 
-      <button
-        v-if="canDecrement"
-        @click="handleDecrement"
-        class="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center border border-amber-500/60 bg-slate-900/40 text-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.25)] hover:text-amber-200 hover:bg-slate-900/70 transition-all cursor-pointer"
-      >
-        <svg
-          class="w-3.5 h-3.5"
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-        >
+      <button v-if="canDecrement" @click="handleDecrement"
+        class="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center border border-amber-500/60 bg-slate-900/40 text-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.25)] hover:text-amber-200 hover:bg-slate-900/70 transition-all cursor-pointer">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round">
           <path d="M4 8h8" />
         </svg>
       </button>
