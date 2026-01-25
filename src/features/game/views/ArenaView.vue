@@ -118,7 +118,7 @@ function handleDeleteSideQuest(): void {
         <SideQuestCard v-for="rock in leftSideRocks" :key="rock.id" :rock="rock" :is-locked="!canAccessSideQuests"
           :is-active="activeRockId === rock.id" @select="handleSwitchRock" />
         <button @click="showCreateModal = true"
-          class="add-quest-btn rounded-2xl border-2 border-dashed border-slate-700/50 hover:border-amber-500/50 text-slate-600 hover:text-amber-500 transition-all duration-300 text-3xl hover:scale-105 active:scale-95 hover:bg-slate-800/30 flex items-center justify-center">
+          class="add-quest-btn rounded-2xl border-2 border-dashed border-slate-700/60 hover:border-amber-500/50 text-slate-600/70 hover:text-amber-500 transition-all duration-300 text-3xl active:scale-95 hover:bg-slate-800/30 flex items-center justify-center">
           +
         </button>
       </div>
@@ -260,7 +260,7 @@ function handleDeleteSideQuest(): void {
         <SideQuestCard v-for="rock in rightSideRocks" :key="rock.id" :rock="rock" :is-locked="!canAccessSideQuests"
           :is-active="activeRockId === rock.id" @select="handleSwitchRock" />
         <button @click="showCreateModal = true"
-          class="add-quest-btn rounded-2xl border-2 border-dashed border-slate-700/50 hover:border-amber-500/50 text-slate-600 hover:text-amber-500 transition-all duration-300 text-3xl hover:scale-105 active:scale-95 hover:bg-slate-800/30 flex items-center justify-center">
+          class="add-quest-btn rounded-2xl border-2 border-dashed border-slate-700/60 hover:border-amber-500/50 text-slate-600/70 hover:text-amber-500 transition-all duration-300 text-3xl active:scale-95 hover:bg-slate-800/30 flex items-center justify-center">
           +
         </button>
       </div>

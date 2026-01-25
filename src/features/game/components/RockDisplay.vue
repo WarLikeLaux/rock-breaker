@@ -126,10 +126,41 @@ function handleRockClick(): void {
 </script>
 
 <template>
-  <div class="text-center select-none" :class="{ 'animate-shake': isShaking }">
+  <div class="text-center select-none relative" :class="{ 'animate-shake': isShaking }">
+    <div class="absolute -inset-8 rounded-full bg-amber-500/15 blur-2xl animate-pulse-slow -z-10"></div>
+    <div class="absolute -inset-12 rounded-full bg-amber-600/10 blur-3xl animate-pulse-slower -z-10"></div>
+
     <RockEmoji ref="rockEmojiRef" :rock-emoji="rockState.emoji" :rock-scale="rockState.scale" :hp-percent="hpPercent"
       :is-wobbling="isWobbling" :is-healing="isHealing" @click="handleRockClick" />
 
     <RockStats :goal-name="goalName" :current-hp="currentHp" :max-hp="maxHp" :hp-percent="hpPercent" />
   </div>
 </template>
+
+<style scoped>
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulse-slower {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+.animate-pulse-slower {
+  animation: pulse-slower 4s ease-in-out infinite;
+}
+</style>

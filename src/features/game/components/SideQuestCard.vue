@@ -29,10 +29,19 @@ const rockEmoji = computed(() => {
 
 const hpColor = computed(() => {
   const percent = hpPercent.value;
-  if (percent > 75) return 'from-emerald-500 to-green-400';
-  if (percent > 50) return 'from-amber-500 to-yellow-400';
-  if (percent > 25) return 'from-orange-500 to-amber-400';
-  return 'from-red-600 to-red-400';
+  const isActive = props.isActive && !props.isLocked;
+
+  if (isActive) {
+    if (percent > 75) return 'from-emerald-500 to-green-400';
+    if (percent > 50) return 'from-amber-500 to-yellow-400';
+    if (percent > 25) return 'from-orange-500 to-amber-400';
+    return 'from-red-600 to-red-400';
+  } else {
+    if (percent > 75) return 'from-emerald-700 to-emerald-600';
+    if (percent > 50) return 'from-amber-700 to-amber-600';
+    if (percent > 25) return 'from-orange-700 to-orange-600';
+    return 'from-red-800 to-red-700';
+  }
 });
 
 const hpBarWidth = computed(() => `${hpPercent.value}%`);
@@ -48,8 +57,9 @@ function handleClick(): void {
   <div class="side-quest-card relative rounded-2xl border p-4 transition-all duration-500" :class="[
     isLocked
       ? 'bg-slate-900/50 border-slate-800 cursor-not-allowed'
-      : 'bg-slate-800/90 border-slate-600 hover:border-amber-500/70 cursor-pointer',
-    isActive && !isLocked ? 'ring-2 ring-amber-500 border-amber-500' : '',
+      : isActive
+        ? 'bg-slate-800/90 border-slate-600 hover:border-amber-500/70 cursor-pointer ring-2 ring-amber-500 border-amber-500'
+        : 'bg-slate-800/60 border-slate-700/50 hover:border-amber-500/70 cursor-pointer opacity-70',
   ]" @click="handleClick">
     <div v-if="isLocked" class="fog-overlay absolute inset-0 rounded-2xl overflow-hidden z-10 pointer-events-none">
       <div class="fog-layer fog-1"></div>
@@ -79,7 +89,11 @@ function handleClick(): void {
         </div>
 
         <div class="w-full relative">
-          <div class="h-2.5 bg-slate-700/60 rounded-full overflow-hidden border border-slate-600/50">
+          <div class="rounded-full overflow-hidden border transition-all duration-300" :class="[
+            isActive && !isLocked
+              ? 'h-2.5 bg-slate-700/60 border-slate-600/50'
+              : 'h-2 bg-slate-800/40 border-slate-700/30',
+          ]">
             <div class="h-full bg-gradient-to-r transition-all duration-500 relative overflow-hidden" :class="hpColor"
               :style="{ width: hpBarWidth }">
               <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 animate-shimmer"></div>
@@ -93,7 +107,9 @@ function handleClick(): void {
       </div>
     </div>
 
-    <div v-if="!isLocked && isActive" class="absolute -inset-1 rounded-2xl bg-amber-500/20 blur-xl -z-10 animate-glow">
+    <div v-if="!isLocked && isActive" class="absolute -inset-1 rounded-2xl bg-amber-500/30 blur-xl -z-10 animate-glow">
+    </div>
+    <div v-if="!isLocked && isActive" class="absolute -inset-3 rounded-2xl bg-amber-500/15 blur-2xl -z-10 animate-glow-slow">
     </div>
   </div>
 </template>
@@ -161,7 +177,23 @@ function handleClick(): void {
   }
 }
 
+@keyframes glow-slow {
+
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
 .animate-glow {
   animation: glow 2s ease-in-out infinite;
+}
+
+.animate-glow-slow {
+  animation: glow-slow 3s ease-in-out infinite;
 }
 </style>

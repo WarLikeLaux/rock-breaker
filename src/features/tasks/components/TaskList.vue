@@ -24,7 +24,8 @@ const taskInput = ref<HTMLInputElement | null>(null);
 
 const placeholderText = computed(() => {
   const remaining = 5 - tasks.value.length;
-  return `Добавить задачу (осталось ${remaining} слот${remaining === 1 ? '' : 'ов'})`;
+  const slotForm = remaining === 1 ? 'слот' : remaining <= 4 ? 'слота' : 'слотов';
+  return `Добавить задачу (осталось ${remaining} ${slotForm})`;
 });
 
 function handleAddTask(): void {
