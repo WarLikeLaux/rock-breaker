@@ -5,13 +5,13 @@ import { useSounds } from '@/shared/composables/useSounds';
 import RockEmoji from './RockEmoji.vue';
 import RockStats from './RockStats.vue';
 
-const { goalName, currentHp, maxHp, hpPercent, isVictory } = useGameStore();
+const { goalName, currentHp, maxHp, hpPercent, isVictory, activeRock } = useGameStore();
 const { playRockTap, playHit, playHeal, playVictory, playClick } = useSounds();
 
 const isShaking = ref<boolean>(false);
 const isHealing = ref<boolean>(false);
 const isWobbling = ref<boolean>(false);
-const prevHp = ref<number>(currentHp.value);
+const lastRock = ref(activeRock.value);
 const rockEmojiRef = ref<InstanceType<typeof RockEmoji> | null>(null);
 
 const lastPhrases: Record<'motivational' | 'funny' | 'sad', string> = {
@@ -52,17 +52,20 @@ const rockState = computed(() => {
   return { emoji: '✨', scale: 'scale-75', label: 'Разрушена!' };
 });
 
-watch(currentHp, (newVal, oldVal) => {
-  if (oldVal - newVal === 1) {
-    triggerShake();
-    playHit();
-    showPhraseWithText(getRandomPhrase(motivationalPhrases, 'motivational'));
-  } else if (newVal - oldVal === 1) {
-    triggerHeal();
-    playHeal();
-    showPhraseWithText(getRandomPhrase(sadPhrases, 'sad'));
+watch(currentHp, (newHp, oldHp) => {
+  if (activeRock.value && lastRock.value && activeRock.value === lastRock.value) {
+    const diff = (oldHp as number) - (newHp as number);
+    if (diff === 1) {
+      triggerShake();
+      playHit();
+      showPhraseWithText(getRandomPhrase(motivationalPhrases, 'motivational'));
+    } else if (diff === -1) {
+      triggerHeal();
+      playHeal();
+      showPhraseWithText(getRandomPhrase(sadPhrases, 'sad'));
+    }
   }
-  prevHp.value = newVal;
+  lastRock.value = activeRock.value;
 });
 
 watch(isVictory, (val) => {
@@ -124,21 +127,9 @@ function handleRockClick(): void {
 
 <template>
   <div class="text-center select-none" :class="{ 'animate-shake': isShaking }">
-    <RockEmoji
-      ref="rockEmojiRef"
-      :rock-emoji="rockState.emoji"
-      :rock-scale="rockState.scale"
-      :hp-percent="hpPercent"
-      :is-wobbling="isWobbling"
-      :is-healing="isHealing"
-      @click="handleRockClick"
-    />
+    <RockEmoji ref="rockEmojiRef" :rock-emoji="rockState.emoji" :rock-scale="rockState.scale" :hp-percent="hpPercent"
+      :is-wobbling="isWobbling" :is-healing="isHealing" @click="handleRockClick" />
 
-    <RockStats
-      :goal-name="goalName"
-      :current-hp="currentHp"
-      :max-hp="maxHp"
-      :hp-percent="hpPercent"
-    />
+    <RockStats :goal-name="goalName" :current-hp="currentHp" :max-hp="maxHp" :hp-percent="hpPercent" />
   </div>
 </template>
