@@ -21,6 +21,7 @@ function migrateFromV2ToV3(oldState: StoredStateV2): StoredStateV3 {
     lastActiveDate: oldState.lastActiveDate || '',
     taskIdCounter: oldState.taskIdCounter || 0,
     isMain: true,
+    createdAt: oldState.lastActiveDate || getTodayDate(),
   };
 
   return {
@@ -37,6 +38,7 @@ function migrateFromV3ToV4(oldState: StoredStateV3): StoredState {
     version: SCHEMA_VERSION,
     rocks: oldState.rocks.map((rock) => ({
       ...rock,
+      createdAt: rock.lastActiveDate || getTodayDate(),
       tasks: rock.tasks.map((task) => ({
         ...task,
         type: task.type || 'standard',
@@ -89,6 +91,7 @@ export function loadFromStorage(): StoredState | null {
       ...v4State,
       rocks: v4State.rocks.map((rock: Rock) => ({
         ...rock,
+        createdAt: rock.createdAt || rock.lastActiveDate || getTodayDate(),
         tasks: (rock.tasks || []).map((t: Task) => ({
           ...t,
           type: t.type || 'standard',
@@ -150,6 +153,7 @@ export function importData(jsonString: string): ImportResult | null {
 
     const normalizedRocks = state.rocks.map((rock: Rock) => ({
       ...rock,
+      createdAt: rock.createdAt || rock.lastActiveDate || getTodayDate(),
       tasks: (rock.tasks || []).map((t: Task) => ({
         ...t,
         type: t.type || 'standard',

@@ -271,6 +271,7 @@ function createRock(name: string, days: number, initialTasks: string[] = []): vo
     lastActiveDate: getTodayDate(),
     taskIdCounter: tasks.length,
     isMain: true,
+    createdAt: getTodayDate(),
   };
   rocks.value = [newRock];
   activeRockId.value = newRock.id;
@@ -300,6 +301,7 @@ function createSideQuest(name: string, days: number, initialTasks: string[] = []
     lastActiveDate: getTodayDate(),
     taskIdCounter: tasks.length,
     isMain: false,
+    createdAt: getTodayDate(),
   };
   rocks.value.push(newRock);
 }

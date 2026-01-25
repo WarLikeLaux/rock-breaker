@@ -25,6 +25,7 @@ export interface Rock {
   lastActiveDate: string;
   taskIdCounter: number;
   isMain: boolean;
+  createdAt: string;
 }
 
 export interface StoredStateV2 {
@@ -47,6 +48,7 @@ export interface RockV3 {
   lastActiveDate: string;
   taskIdCounter: number;
   isMain: boolean;
+  createdAt: string;
 }
 
 export interface StoredStateV3 {
