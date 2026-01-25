@@ -6,7 +6,7 @@ import RockEmoji from './RockEmoji.vue';
 import RockStats from './RockStats.vue';
 
 const { goalName, currentHp, maxHp, hpPercent, isVictory } = useGameStore();
-const { playRockTap, playHit, playHeal, playVictory } = useSounds();
+const { playRockTap, playHit, playHeal, playVictory, playClick } = useSounds();
 
 const isShaking = ref<boolean>(false);
 const isHealing = ref<boolean>(false);
@@ -77,6 +77,20 @@ function triggerShake(): void {
     isShaking.value = false;
   }, 300);
 }
+
+function triggerVisualHit(): void {
+  if (isShaking.value) return;
+  triggerShake();
+  playClick();
+}
+
+function triggerVisualHeal(): void {
+  if (isHealing.value) return;
+  triggerHeal();
+  playClick();
+}
+
+defineExpose({ triggerVisualHit, triggerVisualHeal });
 
 function triggerHeal(): void {
   isHealing.value = true;

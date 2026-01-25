@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onBeforeUnmount } from 'vue';
 import { useGameStore } from '@/features/game/store';
 import RockDisplay from '@/features/game/components/RockDisplay.vue';
 import TaskList from '@/features/tasks/components/TaskList.vue';
@@ -8,6 +8,7 @@ import SideQuestCard from '@/features/game/components/SideQuestCard.vue';
 import SideQuestMenu from '@/features/game/components/SideQuestMenu.vue';
 import CreateSideQuestModal from '@/features/game/components/CreateSideQuestModal.vue';
 
+const gameStore = useGameStore();
 const {
   sideRocks,
   activeRockId,
@@ -18,10 +19,27 @@ const {
   createSideQuest,
   promoteSideQuestToMain,
   deleteRock,
-} = useGameStore();
+} = gameStore;
 
 const showSettings = ref<boolean>(false);
 const showCreateModal = ref<boolean>(false);
+const rockDisplayRef = ref<InstanceType<typeof RockDisplay> | null>(null);
+
+function triggerVisualHit(): void {
+  rockDisplayRef.value?.triggerVisualHit();
+}
+
+function triggerVisualHeal(): void {
+  rockDisplayRef.value?.triggerVisualHeal();
+}
+
+gameStore.triggerVisualHit = triggerVisualHit;
+gameStore.triggerVisualHeal = triggerVisualHeal;
+
+onBeforeUnmount(() => {
+  gameStore.triggerVisualHit = undefined;
+  gameStore.triggerVisualHeal = undefined;
+});
 
 const isViewingSideQuest = computed(() => {
   return activeRock.value && !activeRock.value.isMain;
@@ -301,7 +319,7 @@ function handleDeleteSideQuest(): void {
       </div>
 
       <div class="pt-20 pb-8 px-6">
-        <RockDisplay />
+        <RockDisplay ref="rockDisplayRef" />
       </div>
 
       <div class="flex-1 px-6 pb-8">
