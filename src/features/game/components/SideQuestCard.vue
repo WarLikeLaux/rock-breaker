@@ -45,20 +45,13 @@ function handleClick(): void {
 </script>
 
 <template>
-  <div
-    class="side-quest-card relative rounded-2xl border p-4 transition-all duration-500"
-    :class="[
-      isLocked
-        ? 'bg-slate-900/50 border-slate-800 cursor-not-allowed'
-        : 'bg-slate-800/90 border-slate-600 hover:border-amber-500/70 cursor-pointer',
-      isActive && !isLocked ? 'ring-2 ring-amber-500 border-amber-500' : '',
-    ]"
-    @click="handleClick"
-  >
-    <div
-      v-if="isLocked"
-      class="fog-overlay absolute inset-0 rounded-2xl overflow-hidden z-10 pointer-events-none"
-    >
+  <div class="side-quest-card relative rounded-2xl border p-4 transition-all duration-500" :class="[
+    isLocked
+      ? 'bg-slate-900/50 border-slate-800 cursor-not-allowed'
+      : 'bg-slate-800/90 border-slate-600 hover:border-amber-500/70 cursor-pointer',
+    isActive && !isLocked ? 'ring-2 ring-amber-500 border-amber-500' : '',
+  ]" @click="handleClick">
+    <div v-if="isLocked" class="fog-overlay absolute inset-0 rounded-2xl overflow-hidden z-10 pointer-events-none">
       <div class="fog-layer fog-1"></div>
       <div class="fog-layer fog-2"></div>
       <div class="absolute inset-0 flex items-center justify-center">
@@ -68,17 +61,14 @@ function handleClick(): void {
 
     <div :class="isLocked ? 'blur-[3px] grayscale opacity-40' : ''">
       <div class="flex flex-col items-center">
-        <div
-          class="text-4xl mb-2 transition-transform duration-300"
-          :class="[
-            hpPercent <= 25 && hpPercent > 0 ? 'animate-pulse' : '',
-            !isLocked ? 'hover:scale-110' : '',
-          ]"
-        >
+        <div class="text-4xl mb-2 transition-transform duration-300" :class="[
+          hpPercent <= 25 && hpPercent > 0 ? 'animate-pulse' : '',
+          !isLocked ? 'hover:scale-110' : '',
+        ]">
           {{ rockEmoji }}
         </div>
 
-        <p class="text-sm text-white font-medium truncate w-full text-center mb-2">
+        <p class="text-sm text-white font-medium line-clamp-2 break-words w-full text-center mb-2">
           {{ rock.goalName }}
         </p>
 
@@ -90,14 +80,9 @@ function handleClick(): void {
 
         <div class="w-full relative">
           <div class="h-2.5 bg-slate-700/60 rounded-full overflow-hidden border border-slate-600/50">
-            <div
-              class="h-full bg-gradient-to-r transition-all duration-500 relative overflow-hidden"
-              :class="hpColor"
-              :style="{ width: hpBarWidth }"
-            >
-              <div
-                class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 animate-shimmer"
-              ></div>
+            <div class="h-full bg-gradient-to-r transition-all duration-500 relative overflow-hidden" :class="hpColor"
+              :style="{ width: hpBarWidth }">
+              <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 animate-shimmer"></div>
             </div>
           </div>
         </div>
@@ -108,10 +93,8 @@ function handleClick(): void {
       </div>
     </div>
 
-    <div
-      v-if="!isLocked && isActive"
-      class="absolute -inset-1 rounded-2xl bg-amber-500/20 blur-xl -z-10 animate-glow"
-    ></div>
+    <div v-if="!isLocked && isActive" class="absolute -inset-1 rounded-2xl bg-amber-500/20 blur-xl -z-10 animate-glow">
+    </div>
   </div>
 </template>
 
@@ -121,12 +104,10 @@ function handleClick(): void {
 }
 
 .fog-overlay {
-  background: linear-gradient(
-    135deg,
-    rgba(51, 65, 85, 0.9) 0%,
-    rgba(30, 41, 59, 0.7) 50%,
-    rgba(51, 65, 85, 0.9) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(51, 65, 85, 0.9) 0%,
+      rgba(30, 41, 59, 0.7) 50%,
+      rgba(51, 65, 85, 0.9) 100%);
 }
 
 .fog-layer {
@@ -145,18 +126,39 @@ function handleClick(): void {
 }
 
 @keyframes fogDrift1 {
-  0%, 100% { transform: translate(-10%, -10%) scale(1.2); }
-  50% { transform: translate(10%, 10%) scale(1); }
+
+  0%,
+  100% {
+    transform: translate(-10%, -10%) scale(1.2);
+  }
+
+  50% {
+    transform: translate(10%, 10%) scale(1);
+  }
 }
 
 @keyframes fogDrift2 {
-  0%, 100% { transform: translate(15%, -5%) scale(1); }
-  50% { transform: translate(-15%, 5%) scale(1.3); }
+
+  0%,
+  100% {
+    transform: translate(15%, -5%) scale(1);
+  }
+
+  50% {
+    transform: translate(-15%, 5%) scale(1.3);
+  }
 }
 
 @keyframes glow {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.8; }
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
 }
 
 .animate-glow {
