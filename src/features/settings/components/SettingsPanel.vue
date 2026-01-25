@@ -22,6 +22,8 @@ const {
   promoteSideQuestToMain,
   hardModeEnabled,
   toggleHardMode,
+  focusModeEnabled,
+  toggleFocusMode,
 } = useGameStore();
 const { soundEnabled, toggleSound } = useSounds();
 
@@ -203,6 +205,14 @@ async function handleLoadPreset(preset: PresetMeta): Promise<void> {
         </template>
       </VTooltip>
 
+      <VTooltip placement="top" :delay="{ show: 600, hide: 0 }">
+        <SettingsToggle label="Фокус-режим" icon="🎯" :model-value="focusModeEnabled"
+          @update:model-value="toggleFocusMode" />
+        <template #popper>
+          <div class="text-sm">Показывает только одну задачу за раз</div>
+        </template>
+      </VTooltip>
+
       <hr class="border-slate-700" />
 
       <div class="space-y-3">
@@ -261,8 +271,8 @@ async function handleLoadPreset(preset: PresetMeta): Promise<void> {
             </div>
             <button @click="handleLoadPreset(preset)" :disabled="presetLoading"
               class="px-3 py-1 rounded text-xs transition-colors ml-2" :class="presetConfirmId === preset.id
-                  ? 'bg-red-600 text-white'
-                  : 'bg-slate-600 hover:bg-slate-500 text-white'
+                ? 'bg-red-600 text-white'
+                : 'bg-slate-600 hover:bg-slate-500 text-white'
                 ">
               {{ presetConfirmId === preset.id ? '⚠️ Перезаписать?' : 'Загрузить' }}
             </button>
