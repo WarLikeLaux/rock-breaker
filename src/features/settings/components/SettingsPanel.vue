@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import SettingsToggle from '@/shared/components/SettingsToggle.vue';
 import { useGameStore } from '@/features/game/store';
 import { useSounds } from '@/shared/composables/useSounds';
+import { fetchPresets, loadPreset, type PresetMeta } from '../services/presets';
 
 const {
   goalName,
@@ -19,6 +20,8 @@ const {
   sideRocks,
   deleteRock,
   promoteSideQuestToMain,
+  hardModeEnabled,
+  toggleHardMode,
 } = useGameStore();
 const { soundEnabled, toggleSound } = useSounds();
 
@@ -35,6 +38,14 @@ const deleteConfirmId = ref<number | null>(null);
 
 const editGoalName = ref<string>(goalName.value);
 const editDays = ref<number>(durationDays.value);
+
+const presets = ref<PresetMeta[]>([]);
+const presetConfirmId = ref<string | null>(null);
+const presetLoading = ref<boolean>(false);
+
+onMounted(async () => {
+  presets.value = await fetchPresets();
+});
 
 function handleNewDay(): void {
   startNewDay();
@@ -113,99 +124,91 @@ function handlePromoteSideQuest(id: number): void {
   promoteSideQuestToMain(id);
   emit('close');
 }
+
+async function handleLoadPreset(preset: PresetMeta): Promise<void> {
+  if (presetConfirmId.value !== preset.id) {
+    presetConfirmId.value = preset.id;
+    setTimeout(() => {
+      if (presetConfirmId.value === preset.id) {
+        presetConfirmId.value = null;
+      }
+    }, 3000);
+    return;
+  }
+
+  presetLoading.value = true;
+  const jsonString = await loadPreset(preset.file);
+  presetLoading.value = false;
+
+  if (jsonString && importData(jsonString)) {
+    presetConfirmId.value = null;
+    emit('close');
+  }
+}
 </script>
 
 <template>
-  <div
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center sm:items-center"
-    @click.self="emit('close')"
-  >
-    <div
-      class="w-full max-w-sm bg-slate-800 rounded-t-2xl sm:rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
-    >
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center sm:items-center"
+    @click.self="emit('close')">
+    <div class="w-full max-w-sm bg-slate-800 rounded-t-2xl sm:rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-bold text-white">Настройки</h3>
         <button @click="emit('close')" class="text-slate-400 hover:text-white text-2xl">×</button>
       </div>
 
-      <button
-        @click="toggleEditGoal"
-        class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2"
-      >
+      <button @click="toggleEditGoal"
+        class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
         ✏️ Изменить активную цель
       </button>
 
       <div v-if="showEditGoal" class="bg-slate-700/50 rounded-xl p-4 space-y-3">
-        <input
-          v-model="editGoalName"
-          type="text"
-          placeholder="Название цели"
-          class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
-        />
+        <input v-model="editGoalName" type="text" placeholder="Название цели"
+          class="w-full px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm" />
         <div class="flex items-center gap-3">
-          <input
-            v-model.number="editDays"
-            type="number"
-            min="1"
-            max="365"
-            class="w-24 px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
-          />
+          <input v-model.number="editDays" type="number" min="1" max="365"
+            class="w-24 px-3 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm" />
           <span class="text-slate-400 text-sm flex-1">дней (удары сохранятся)</span>
         </div>
-        <button
-          @click="saveGoalEdit"
-          class="w-full py-2 bg-amber-500 hover:bg-amber-400 text-white font-medium rounded-lg transition-all text-sm"
-        >
+        <button @click="saveGoalEdit"
+          class="w-full py-2 bg-amber-500 hover:bg-amber-400 text-white font-medium rounded-lg transition-all text-sm">
           Сохранить
         </button>
       </div>
 
-      <button
-        @click="handleNewDay"
-        class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2"
-      >
+      <button @click="handleNewDay"
+        class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
         🌅 Новый день
       </button>
 
-      <button
-        @click="handleExport"
-        class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2"
-      >
+      <button @click="handleExport"
+        class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
         📤 Экспорт
       </button>
 
-      <button
-        @click="handleImportClick"
-        class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2"
-      >
+      <button @click="handleImportClick"
+        class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
         📥 Импорт
       </button>
       <input ref="fileInput" type="file" accept=".json" class="hidden" @change="handleFileChange" />
       <p v-if="importError" class="text-red-400 text-sm text-center">{{ importError }}</p>
 
-      <SettingsToggle
-        label="Подсказки"
-        icon="💡"
-        :model-value="showTooltips"
-        @update:model-value="toggleTooltips"
-      />
+      <SettingsToggle label="Подсказки" icon="💡" :model-value="showTooltips" @update:model-value="toggleTooltips" />
 
-      <SettingsToggle
-        label="Звуки"
-        icon="🔊"
-        :model-value="soundEnabled"
-        @update:model-value="toggleSound"
-      />
+      <SettingsToggle label="Звуки" icon="🔊" :model-value="soundEnabled" @update:model-value="toggleSound" />
+
+      <VTooltip placement="top" :delay="{ show: 600, hide: 0 }">
+        <SettingsToggle label="Хардмод" icon="🔥" :model-value="hardModeEnabled" @update:model-value="toggleHardMode" />
+        <template #popper>
+          <div class="text-sm">Блокирует сайд-квесты до победы дня</div>
+        </template>
+      </VTooltip>
 
       <hr class="border-slate-700" />
 
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <h4 class="text-sm font-medium text-slate-300">Сайд-квесты</h4>
-          <button
-            @click="handleCreateSideQuest"
-            class="text-xs text-amber-400 hover:text-amber-300 transition-colors"
-          >
+          <button @click="handleCreateSideQuest" class="text-xs text-amber-400 hover:text-amber-300 transition-colors">
             + Добавить
           </button>
         </div>
@@ -215,11 +218,8 @@ function handlePromoteSideQuest(id: number): void {
         </div>
 
         <div v-else class="space-y-2">
-          <div
-            v-for="rock in sideRocks"
-            :key="rock.id"
-            class="flex items-center justify-between bg-slate-700/50 rounded-lg px-3 py-2"
-          >
+          <div v-for="rock in sideRocks" :key="rock.id"
+            class="flex items-center justify-between bg-slate-700/50 rounded-lg px-3 py-2">
             <div class="flex-1 min-w-0">
               <p class="text-sm text-white truncate">{{ rock.goalName }}</p>
               <p class="text-xs text-slate-400">
@@ -228,25 +228,19 @@ function handlePromoteSideQuest(id: number): void {
             </div>
             <div class="flex items-center gap-2 ml-2">
               <VTooltip placement="top" :delay="{ show: 600, hide: 0 }">
-                <button
-                  @click="handlePromoteSideQuest(rock.id)"
-                  class="px-2 py-1 rounded text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 hover:text-amber-300 transition-colors"
-                >
+                <button @click="handlePromoteSideQuest(rock.id)"
+                  class="px-2 py-1 rounded text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 hover:text-amber-300 transition-colors">
                   ⭐
                 </button>
                 <template #popper>
                   <div class="text-sm">Сделать основной целью</div>
                 </template>
               </VTooltip>
-              <button
-                @click="handleDeleteSideQuest(rock.id)"
-                class="px-2 py-1 rounded text-xs transition-colors"
-                :class="
-                  deleteConfirmId === rock.id
-                    ? 'bg-red-600 text-white'
-                    : 'text-slate-400 hover:text-red-400'
-                "
-              >
+              <button @click="handleDeleteSideQuest(rock.id)" class="px-2 py-1 rounded text-xs transition-colors"
+                :class="deleteConfirmId === rock.id
+                  ? 'bg-red-600 text-white'
+                  : 'text-slate-400 hover:text-red-400'
+                  ">
                 {{ deleteConfirmId === rock.id ? 'Удалить?' : '🗑️' }}
               </button>
             </div>
@@ -256,15 +250,33 @@ function handlePromoteSideQuest(id: number): void {
 
       <hr class="border-slate-700" />
 
-      <button
-        @click="handleReset"
-        class="w-full py-3 rounded-xl transition-all flex items-center justify-center gap-2"
-        :class="
-          showResetConfirm
-            ? 'bg-red-600 hover:bg-red-500 text-white'
-            : 'bg-slate-700 hover:bg-slate-600 text-white'
-        "
-      >
+      <div v-if="presets.length > 0" class="space-y-3">
+        <h4 class="text-sm font-medium text-slate-300">📦 Пресеты</h4>
+        <div class="space-y-2">
+          <div v-for="preset in presets" :key="preset.id"
+            class="flex items-center justify-between bg-slate-700/50 rounded-lg px-3 py-2">
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-white truncate">{{ preset.name }}</p>
+              <p class="text-xs text-slate-400">{{ preset.description }}</p>
+            </div>
+            <button @click="handleLoadPreset(preset)" :disabled="presetLoading"
+              class="px-3 py-1 rounded text-xs transition-colors ml-2" :class="presetConfirmId === preset.id
+                  ? 'bg-red-600 text-white'
+                  : 'bg-slate-600 hover:bg-slate-500 text-white'
+                ">
+              {{ presetConfirmId === preset.id ? '⚠️ Перезаписать?' : 'Загрузить' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <hr class="border-slate-700" />
+
+      <button @click="handleReset" class="w-full py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+        :class="showResetConfirm
+          ? 'bg-red-600 hover:bg-red-500 text-white'
+          : 'bg-slate-700 hover:bg-slate-600 text-white'
+          ">
         {{ showResetConfirm ? '⚠️ Точно сбросить?' : '🗑️ Сброс' }}
       </button>
     </div>
