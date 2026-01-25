@@ -287,4 +287,55 @@ describe('useGameStore integration tests', () => {
       expect(store.tasks.value[1]?.completed).toBe(false);
     });
   });
+
+  describe('Сценарий: Хардмод и доступ к сайд-квестам', () => {
+    it('canAccessSideQuests должен быть true когда хардмод выключен', () => {
+      const store = useGameStore();
+
+      store.createRock('Главная цель', 30);
+      store.hardModeEnabled.value = false;
+
+      expect(store.canAccessSideQuests.value).toBe(true);
+    });
+
+    it('canAccessSideQuests должен быть false когда хардмод включен и день не выигран', () => {
+      const store = useGameStore();
+
+      store.createRock('Главная цель', 30);
+      store.addTask('Задача 1');
+      store.hardModeEnabled.value = true;
+
+      expect(store.isDayWon.value).toBe(false);
+      expect(store.canAccessSideQuests.value).toBe(false);
+    });
+
+    it('canAccessSideQuests должен быть true когда хардмод включен и день выигран', () => {
+      const store = useGameStore();
+
+      store.createRock('Главная цель', 30);
+      for (let i = 0; i < 5; i++) {
+        store.addTask(`Задача ${i + 1}`);
+      }
+      store.hardModeEnabled.value = true;
+
+      store.tasks.value.forEach((task) => store.toggleTask(task.id));
+
+      expect(store.isDayWon.value).toBe(true);
+      expect(store.canAccessSideQuests.value).toBe(true);
+    });
+
+    it('toggleHardMode должен переключать режим', () => {
+      const store = useGameStore();
+
+      store.createRock('Главная цель', 30);
+      store.hardModeEnabled.value = false;
+      expect(store.hardModeEnabled.value).toBe(false);
+
+      store.toggleHardMode();
+      expect(store.hardModeEnabled.value).toBe(true);
+
+      store.toggleHardMode();
+      expect(store.hardModeEnabled.value).toBe(false);
+    });
+  });
 });
