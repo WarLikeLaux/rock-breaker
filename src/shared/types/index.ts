@@ -68,4 +68,5 @@ export interface StoredState {
 export interface Settings {
   showTooltips?: boolean;
   soundEnabled?: boolean;
+  hardModeEnabled?: boolean;
 }

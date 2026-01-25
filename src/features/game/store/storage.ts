@@ -109,6 +109,7 @@ interface ExportData {
   isSetupComplete: boolean;
   rockIdCounter: number;
   showTooltips: boolean;
+  hardModeEnabled: boolean;
 }
 
 export function exportData(data: ExportData): void {
@@ -130,6 +131,7 @@ interface ImportResult {
   activeRockId: number;
   rockIdCounter: number;
   showTooltips?: boolean;
+  hardModeEnabled?: boolean;
 }
 
 export function importData(jsonString: string): ImportResult | null {
@@ -169,6 +171,7 @@ export function importData(jsonString: string): ImportResult | null {
         ? state.rockIdCounter
         : maxRockId,
       showTooltips: state.showTooltips,
+      hardModeEnabled: state.hardModeEnabled,
     };
   } catch {
     return null;

@@ -42,6 +42,7 @@ export interface GameStore {
   sideRocks: ComputedRef<Rock[]>;
   isDayWon: ComputedRef<boolean>;
   canAccessSideQuests: ComputedRef<boolean>;
+  hardModeEnabled: Ref<boolean>;
 
   createRock: (name: string, days: number, initialTasks?: string[]) => void;
   restartRock: (newName: string, newDays: number) => void;
@@ -57,6 +58,7 @@ export interface GameStore {
   setRequiredExecutions: (id: number, count: number) => void;
   decrementExecution: (id: number) => void;
   toggleTooltips: () => void;
+  toggleHardMode: () => void;
   hitRock: () => void;
   resetGame: () => void;
   startNewDay: () => void;
@@ -73,7 +75,9 @@ export interface GameStore {
 const rocks = ref<Rock[]>([]);
 const activeRockId = ref<number>(0);
 const isSetupComplete = ref<boolean>(false);
-const showTooltips = ref<boolean>(loadSettings().showTooltips ?? true);
+const initialSettings = loadSettings();
+const showTooltips = ref<boolean>(initialSettings.showTooltips ?? true);
+const hardModeEnabled = ref<boolean>(initialSettings.hardModeEnabled ?? false);
 
 const rockIdCounter = { value: 0 };
 let visualHitCallback: (() => void) | undefined = undefined;
@@ -103,7 +107,10 @@ const isDayWon = computed(() => {
   return mainTasks.length === 5 && mainTasks.every((t) => t.completed);
 });
 
-const canAccessSideQuests = computed(() => isDayWon.value);
+const canAccessSideQuests = computed(() => {
+  if (!hardModeEnabled.value) return true;
+  return isDayWon.value;
+});
 
 function getActiveRockRef<K extends keyof Rock>(key: K): { value: Rock[K] } {
   return {
@@ -179,6 +186,12 @@ watch(
 watch(showTooltips, (val) => {
   const settings = loadSettings();
   settings.showTooltips = val;
+  saveSettings(settings);
+});
+
+watch(hardModeEnabled, (val) => {
+  const settings = loadSettings();
+  settings.hardModeEnabled = val;
   saveSettings(settings);
 });
 
@@ -371,6 +384,7 @@ export function useGameStore(): GameStore {
     sideRocks,
     isDayWon,
     canAccessSideQuests,
+    hardModeEnabled,
 
     createRock,
     restartRock,
@@ -422,6 +436,9 @@ export function useGameStore(): GameStore {
     toggleTooltips: () => {
       showTooltips.value = !showTooltips.value;
     },
+    toggleHardMode: () => {
+      hardModeEnabled.value = !hardModeEnabled.value;
+    },
     hitRock,
     resetGame,
     startNewDay,
@@ -432,6 +449,7 @@ export function useGameStore(): GameStore {
         isSetupComplete: isSetupComplete.value,
         rockIdCounter: rockIdCounter.value,
         showTooltips: showTooltips.value,
+        hardModeEnabled: hardModeEnabled.value,
       }),
     importData: (jsonString: string) => {
       const state = importFromFile(jsonString);
@@ -442,6 +460,9 @@ export function useGameStore(): GameStore {
       rockIdCounter.value = state.rockIdCounter;
       if (state.showTooltips !== undefined) {
         showTooltips.value = state.showTooltips;
+      }
+      if (state.hardModeEnabled !== undefined) {
+        hardModeEnabled.value = state.hardModeEnabled;
       }
       isSetupComplete.value = true;
       saveState();
