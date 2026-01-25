@@ -54,7 +54,7 @@ describe('storage.ts', () => {
       expect(saved).toBeDefined();
 
       const parsed = JSON.parse(saved!);
-      expect(parsed.version).toBe(3);
+      expect(parsed.version).toBe(4);
       expect(parsed.rocks).toHaveLength(1);
       expect(parsed.rocks[0].goalName).toBe('Test Goal');
       expect(parsed.activeRockId).toBe(1);
@@ -62,9 +62,9 @@ describe('storage.ts', () => {
   });
 
   describe('loadFromStorage', () => {
-    it('должен загружать состояние v3 из localStorage', () => {
+    it('должен загружать состояние v4 из localStorage', () => {
       const state = {
-        version: 3,
+        version: 4,
         rocks: [createRock({ goalName: 'Loaded Goal', durationDays: 20, currentHp: 100 })],
         activeRockId: 1,
         isSetupComplete: true,
@@ -80,7 +80,42 @@ describe('storage.ts', () => {
       expect(loaded!.rocks[0]!.currentHp).toBe(100);
     });
 
-    it('должен мигрировать v2 в v3', () => {
+    it('должен мигрировать v3 в v4 добавляя поля выполнений', () => {
+      const v3State = {
+        version: 3,
+        rocks: [{
+          id: 1,
+          goalName: 'Test',
+          durationDays: 30,
+          tasks: [
+            { id: 1, text: 'Completed', completed: true, type: 'standard', originalText: null },
+            { id: 2, text: 'Not completed', completed: false, type: 'standard', originalText: null },
+          ],
+          currentHp: 150,
+          lastActiveDate: '2024-01-01',
+          taskIdCounter: 2,
+          isMain: true,
+        }],
+        activeRockId: 1,
+        isSetupComplete: true,
+        rockIdCounter: 1,
+      };
+
+      localStorage.setItem('rock-breaker-state', JSON.stringify(v3State));
+
+      const loaded = loadFromStorage();
+      expect(loaded?.version).toBe(4);
+
+      const task1 = loaded!.rocks[0]!.tasks[0];
+      expect(task1?.requiredExecutions).toBe(1);
+      expect(task1?.currentExecutions).toBe(1);
+
+      const task2 = loaded!.rocks[0]!.tasks[1];
+      expect(task2?.requiredExecutions).toBe(1);
+      expect(task2?.currentExecutions).toBe(0);
+    });
+
+    it('должен мигрировать v2 в v4', () => {
       const v2State = {
         version: 2,
         goalName: 'Old Goal',
@@ -96,11 +131,12 @@ describe('storage.ts', () => {
 
       const loaded = loadFromStorage();
       expect(loaded).toBeDefined();
-      expect(loaded?.version).toBe(3);
+      expect(loaded?.version).toBe(4);
       expect(loaded?.rocks).toHaveLength(1);
       expect(loaded!.rocks[0]!.goalName).toBe('Old Goal');
       expect(loaded!.rocks[0]!.isMain).toBe(true);
       expect(loaded!.rocks[0]!.tasks).toHaveLength(1);
+      expect(loaded!.rocks[0]!.tasks[0]?.requiredExecutions).toBe(1);
     });
 
     it('должен возвращать null если нет сохраненного состояния', () => {
@@ -122,9 +158,9 @@ describe('storage.ts', () => {
       expect(localStorage.getItem('rock-breaker-state')).toBeNull();
     });
 
-    it('должен нормализовать tasks (добавлять type и originalText)', () => {
+    it('должен нормализовать tasks (добавлять type, originalText и поля выполнений)', () => {
       const state = {
-        version: 3,
+        version: 4,
         rocks: [
           createRock({
             tasks: [{ id: 1, text: 'Task 1', completed: false }] as Task[],
@@ -140,11 +176,13 @@ describe('storage.ts', () => {
       const loaded = loadFromStorage();
       expect(loaded!.rocks[0]!.tasks[0]).toHaveProperty('type', 'standard');
       expect(loaded!.rocks[0]!.tasks[0]).toHaveProperty('originalText', null);
+      expect(loaded!.rocks[0]!.tasks[0]).toHaveProperty('requiredExecutions', 1);
+      expect(loaded!.rocks[0]!.tasks[0]).toHaveProperty('currentExecutions', 0);
     });
   });
 
   describe('importData', () => {
-    it('должен импортировать валидные JSON данные v3', () => {
+    it('должен импортировать валидные JSON данные', () => {
       const data = JSON.stringify({
         rocks: [createRock({ goalName: 'Imported', durationDays: 25, currentHp: 125 })],
         activeRockId: 1,
@@ -172,11 +210,11 @@ describe('storage.ts', () => {
       expect(result).toBeNull();
     });
 
-    it('должен нормализовать tasks при импорте', () => {
+    it('должен нормализовать tasks при импорте (добавлять все поля)', () => {
       const data = JSON.stringify({
         rocks: [
           createRock({
-            tasks: [{ id: 1, text: 'Test', completed: false }] as Task[],
+            tasks: [{ id: 1, text: 'Test', completed: true }] as Task[],
           }),
         ],
         activeRockId: 1,
@@ -186,6 +224,8 @@ describe('storage.ts', () => {
       const result = importData(data);
       expect(result!.rocks[0]!.tasks[0]).toHaveProperty('type', 'standard');
       expect(result!.rocks[0]!.tasks[0]).toHaveProperty('originalText', null);
+      expect(result!.rocks[0]!.tasks[0]).toHaveProperty('requiredExecutions', 1);
+      expect(result!.rocks[0]!.tasks[0]).toHaveProperty('currentExecutions', 1);
     });
 
     it('должен возвращать null если rocks пустой массив', () => {

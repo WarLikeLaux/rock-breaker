@@ -8,6 +8,8 @@ import {
   setTaskType,
   substituteTask,
   toggleTask,
+  setRequiredExecutions,
+  decrementExecution,
   resetTasksForNewDay,
 } from '../taskOperations';
 
@@ -27,8 +29,40 @@ describe('taskOperations.ts', () => {
         completed: false,
         type: 'standard',
         originalText: null,
+        requiredExecutions: 1,
+        currentExecutions: 0,
       });
       expect(counter.value).toBe(1);
+    });
+
+    it('должен добавлять задачу с указанным количеством выполнений', () => {
+      const tasks = ref<Task[]>([]);
+      const canAddTask = ref(true);
+      const counter = { value: 0 };
+
+      addTask(tasks, canAddTask, counter, 'Задача 3x', 'standard', 3);
+
+      expect(tasks.value[0]?.requiredExecutions).toBe(3);
+      expect(tasks.value[0]?.currentExecutions).toBe(0);
+    });
+
+    it('должен ограничивать requiredExecutions диапазоном 1-3', () => {
+      const tasks = ref<Task[]>([]);
+      const canAddTask = ref(true);
+
+      addTask(tasks, canAddTask, { value: 0 }, 'Задача 5x', 'standard', 5);
+      expect(tasks.value[0]?.requiredExecutions).toBe(3);
+
+      addTask(tasks, canAddTask, { value: 1 }, 'Задача 0x', 'standard', 0);
+      expect(tasks.value[1]?.requiredExecutions).toBe(1);
+    });
+
+    it('joker должен всегда иметь requiredExecutions = 1', () => {
+      const tasks = ref<Task[]>([]);
+      const canAddTask = ref(true);
+
+      addTask(tasks, canAddTask, { value: 0 }, 'Джокер', 'joker', 3);
+      expect(tasks.value[0]?.requiredExecutions).toBe(1);
     });
 
     it('должен добавлять задачу с указанным типом', () => {
@@ -67,9 +101,9 @@ describe('taskOperations.ts', () => {
   describe('removeTask', () => {
     it('должен удалять задачу по id', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Задача 1', completed: false, type: 'standard', originalText: null },
-        { id: 2, text: 'Задача 2', completed: false, type: 'standard', originalText: null },
-        { id: 3, text: 'Задача 3', completed: false, type: 'standard', originalText: null },
+        { id: 1, text: 'Задача 1', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
+        { id: 2, text: 'Задача 2', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
+        { id: 3, text: 'Задача 3', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
 
       removeTask(tasks, 2);
@@ -80,7 +114,7 @@ describe('taskOperations.ts', () => {
 
     it('не должен изменять массив если id не найден', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Задача 1', completed: false, type: 'standard', originalText: null },
+        { id: 1, text: 'Задача 1', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
 
       removeTask(tasks, 999);
@@ -92,7 +126,7 @@ describe('taskOperations.ts', () => {
   describe('updateTask', () => {
     it('должен обновлять текст задачи', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Старый текст', completed: false, type: 'standard', originalText: null },
+        { id: 1, text: 'Старый текст', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
 
       updateTask(tasks, 1, 'Новый текст');
@@ -102,7 +136,7 @@ describe('taskOperations.ts', () => {
 
     it('не должен обновлять если текст пустой', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Старый текст', completed: false, type: 'standard', originalText: null },
+        { id: 1, text: 'Старый текст', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
 
       updateTask(tasks, 1, '');
@@ -112,7 +146,7 @@ describe('taskOperations.ts', () => {
 
     it('не должен обновлять если задача не найдена', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Текст', completed: false, type: 'standard', originalText: null },
+        { id: 1, text: 'Текст', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
 
       updateTask(tasks, 999, 'Новый текст');
@@ -122,7 +156,7 @@ describe('taskOperations.ts', () => {
 
     it('должен обновлять текст джокера даже если он пустой', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Джокер', completed: false, type: 'joker', originalText: null },
+        { id: 1, text: 'Джокер', completed: false, type: 'joker', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
 
       updateTask(tasks, 1, '   ');
@@ -134,19 +168,19 @@ describe('taskOperations.ts', () => {
   describe('setTaskType', () => {
     it('должен изменять тип с standard на joker', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null },
+        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
 
       setTaskType(tasks, 1, 'joker');
 
       const task = tasks.value[0];
       expect(task?.type).toBe('joker');
-      expect(task?.originalText).toBe('Задача');
+      expect(task?.originalText).toBeNull();
     });
 
     it('должен изменять тип с standard на substitute', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null },
+        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
 
       setTaskType(tasks, 1, 'substitute');
@@ -164,6 +198,8 @@ describe('taskOperations.ts', () => {
           completed: false,
           type: 'joker',
           originalText: 'Оригинальный текст',
+          requiredExecutions: 1,
+          currentExecutions: 0,
         },
       ]);
 
@@ -177,19 +213,32 @@ describe('taskOperations.ts', () => {
 
     it('не должен изменять тип если задача не найдена', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null },
+        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
 
       setTaskType(tasks, 999, 'joker');
 
       expect(tasks.value[0]?.type).toBe('standard');
     });
+
+    it('должен полностью сбрасывать прогресс при смене на joker', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Задача', completed: true, type: 'standard', originalText: 'Оригинал', requiredExecutions: 3, currentExecutions: 2 },
+      ]);
+
+      setTaskType(tasks, 1, 'joker');
+
+      expect(tasks.value[0]?.requiredExecutions).toBe(1);
+      expect(tasks.value[0]?.currentExecutions).toBe(0);
+      expect(tasks.value[0]?.completed).toBe(false);
+      expect(tasks.value[0]?.originalText).toBeNull();
+    });
   });
 
   describe('substituteTask', () => {
     it('должен создавать подмену для standard задачи', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Обычная', completed: false, type: 'standard', originalText: null },
+        { id: 1, text: 'Обычная', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
 
       substituteTask(tasks, 1, 'Временная');
@@ -202,7 +251,7 @@ describe('taskOperations.ts', () => {
 
     it('не должен изменять не standard задачу', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Джокер', completed: false, type: 'joker', originalText: null },
+        { id: 1, text: 'Джокер', completed: false, type: 'joker', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
 
       substituteTask(tasks, 1, 'Временная');
@@ -215,9 +264,9 @@ describe('taskOperations.ts', () => {
   });
 
   describe('toggleTask', () => {
-    it('должен выполнять задачу и вызывать onHit при unchecking', () => {
+    it('должен выполнять задачу и вызывать onHit', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null },
+        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
       const onHit = vi.fn();
       const onHeal = vi.fn();
@@ -225,13 +274,14 @@ describe('taskOperations.ts', () => {
       toggleTask(tasks, 1, onHit, onHeal);
 
       expect(tasks.value[0]?.completed).toBe(true);
+      expect(tasks.value[0]?.currentExecutions).toBe(1);
       expect(onHit).toHaveBeenCalledOnce();
       expect(onHeal).not.toHaveBeenCalled();
     });
 
-    it('должен снимать выполнение и вызывать onHeal при checking', () => {
+    it('должен снимать выполнение и вызывать onHeal', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Задача', completed: true, type: 'standard', originalText: null },
+        { id: 1, text: 'Задача', completed: true, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 1 },
       ]);
       const onHit = vi.fn();
       const onHeal = vi.fn();
@@ -239,13 +289,14 @@ describe('taskOperations.ts', () => {
       toggleTask(tasks, 1, onHit, onHeal);
 
       expect(tasks.value[0]?.completed).toBe(false);
+      expect(tasks.value[0]?.currentExecutions).toBe(0);
       expect(onHeal).toHaveBeenCalledOnce();
       expect(onHit).not.toHaveBeenCalled();
     });
 
     it('не должен вызывать колбэки для джокера', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Джокер', completed: false, type: 'joker', originalText: 'Оригинал' },
+        { id: 1, text: 'Джокер', completed: false, type: 'joker', originalText: 'Оригинал', requiredExecutions: 1, currentExecutions: 0 },
       ]);
       const onHit = vi.fn();
       const onHeal = vi.fn();
@@ -259,7 +310,7 @@ describe('taskOperations.ts', () => {
 
     it('не должен изменять состояние если задача не найдена', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null },
+        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
       const onHit = vi.fn();
       const onHeal = vi.fn();
@@ -273,7 +324,7 @@ describe('taskOperations.ts', () => {
 
     it('не должен переключать джокера без текста', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: '', completed: false, type: 'joker', originalText: null },
+        { id: 1, text: '', completed: false, type: 'joker', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
       const onHit = vi.fn();
       const onHeal = vi.fn();
@@ -283,6 +334,137 @@ describe('taskOperations.ts', () => {
       expect(tasks.value[0]?.completed).toBe(false);
       expect(onHit).not.toHaveBeenCalled();
       expect(onHeal).not.toHaveBeenCalled();
+    });
+
+    it('должен увеличивать currentExecutions при каждом клике и вызывать onHit только при полном выполнении', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null, requiredExecutions: 3, currentExecutions: 0 },
+      ]);
+      const onHit = vi.fn();
+      const onHeal = vi.fn();
+
+      toggleTask(tasks, 1, onHit, onHeal);
+      expect(tasks.value[0]?.currentExecutions).toBe(1);
+      expect(tasks.value[0]?.completed).toBe(false);
+      expect(onHit).not.toHaveBeenCalled();
+
+      toggleTask(tasks, 1, onHit, onHeal);
+      expect(tasks.value[0]?.currentExecutions).toBe(2);
+      expect(tasks.value[0]?.completed).toBe(false);
+      expect(onHit).not.toHaveBeenCalled();
+
+      toggleTask(tasks, 1, onHit, onHeal);
+      expect(tasks.value[0]?.currentExecutions).toBe(3);
+      expect(tasks.value[0]?.completed).toBe(true);
+      expect(onHit).toHaveBeenCalledOnce();
+    });
+
+    it('должен уменьшать currentExecutions при отмене и вызывать onHeal при переходе из выполненной', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Задача', completed: true, type: 'standard', originalText: null, requiredExecutions: 2, currentExecutions: 2 },
+      ]);
+      const onHit = vi.fn();
+      const onHeal = vi.fn();
+
+      toggleTask(tasks, 1, onHit, onHeal);
+      expect(tasks.value[0]?.currentExecutions).toBe(1);
+      expect(tasks.value[0]?.completed).toBe(false);
+      expect(onHeal).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe('setRequiredExecutions', () => {
+    it('должен изменять количество требуемых выполнений', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
+      ]);
+
+      setRequiredExecutions(tasks, 1, 3);
+
+      expect(tasks.value[0]?.requiredExecutions).toBe(3);
+    });
+
+    it('должен ограничивать значение диапазоном 1-3', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
+      ]);
+
+      setRequiredExecutions(tasks, 1, 5);
+      expect(tasks.value[0]?.requiredExecutions).toBe(3);
+
+      setRequiredExecutions(tasks, 1, 0);
+      expect(tasks.value[0]?.requiredExecutions).toBe(1);
+    });
+
+    it('не должен изменять joker задачи', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Джокер', completed: false, type: 'joker', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
+      ]);
+
+      setRequiredExecutions(tasks, 1, 3);
+
+      expect(tasks.value[0]?.requiredExecutions).toBe(1);
+    });
+
+    it('должен корректировать currentExecutions если превышает новое значение', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Задача', completed: true, type: 'standard', originalText: null, requiredExecutions: 3, currentExecutions: 3 },
+      ]);
+
+      setRequiredExecutions(tasks, 1, 2);
+
+      expect(tasks.value[0]?.currentExecutions).toBe(2);
+      expect(tasks.value[0]?.completed).toBe(true);
+    });
+  });
+
+  describe('decrementExecution', () => {
+    it('должен уменьшать currentExecutions без вызова onHeal если задача не была выполнена', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null, requiredExecutions: 3, currentExecutions: 2 },
+      ]);
+      const onHeal = vi.fn();
+
+      decrementExecution(tasks, 1, onHeal);
+
+      expect(tasks.value[0]?.currentExecutions).toBe(1);
+      expect(onHeal).not.toHaveBeenCalled();
+    });
+
+    it('должен вызывать onHeal только когда задача переходит из выполненной в невыполненную', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Задача', completed: true, type: 'standard', originalText: null, requiredExecutions: 3, currentExecutions: 3 },
+      ]);
+      const onHeal = vi.fn();
+
+      decrementExecution(tasks, 1, onHeal);
+
+      expect(tasks.value[0]?.currentExecutions).toBe(2);
+      expect(tasks.value[0]?.completed).toBe(false);
+      expect(onHeal).toHaveBeenCalledOnce();
+    });
+
+    it('не должен уменьшать ниже 0', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Задача', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
+      ]);
+      const onHeal = vi.fn();
+
+      decrementExecution(tasks, 1, onHeal);
+
+      expect(tasks.value[0]?.currentExecutions).toBe(0);
+      expect(onHeal).not.toHaveBeenCalled();
+    });
+
+    it('должен обновлять completed статус', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Задача', completed: true, type: 'standard', originalText: null, requiredExecutions: 2, currentExecutions: 2 },
+      ]);
+      const onHeal = vi.fn();
+
+      decrementExecution(tasks, 1, onHeal);
+
+      expect(tasks.value[0]?.completed).toBe(false);
     });
   });
 
@@ -297,6 +479,8 @@ describe('taskOperations.ts', () => {
           completed: true,
           type: 'standard',
           originalText: null,
+          requiredExecutions: 1,
+          currentExecutions: 1,
         },
         {
           id: 2,
@@ -304,6 +488,8 @@ describe('taskOperations.ts', () => {
           completed: false,
           type: 'standard',
           originalText: null,
+          requiredExecutions: 1,
+          currentExecutions: 0,
         },
         {
           id: 3,
@@ -311,6 +497,8 @@ describe('taskOperations.ts', () => {
           completed: true,
           type: 'joker',
           originalText: 'Джокер оригинал',
+          requiredExecutions: 1,
+          currentExecutions: 1,
         },
         {
           id: 4,
@@ -318,6 +506,8 @@ describe('taskOperations.ts', () => {
           completed: false,
           type: 'substitute',
           originalText: 'Замена оригинал',
+          requiredExecutions: 1,
+          currentExecutions: 0,
         },
       ]);
     });
@@ -328,6 +518,17 @@ describe('taskOperations.ts', () => {
       tasks.value.forEach((task) => {
         expect(task.completed).toBe(false);
       });
+    });
+
+    it('должен сбрасывать currentExecutions при новом дне', () => {
+      tasks = ref<Task[]>([
+        { id: 1, text: 'Задача', completed: true, type: 'standard', originalText: null, requiredExecutions: 3, currentExecutions: 3 },
+      ]);
+
+      resetTasksForNewDay(tasks);
+
+      expect(tasks.value[0]?.currentExecutions).toBe(0);
+      expect(tasks.value[0]?.completed).toBe(false);
     });
 
     it('должен удалять джокеры', () => {

@@ -125,7 +125,7 @@ describe('useGameStore integration tests', () => {
       store.setTaskType(store.tasks.value[0]!.id, 'joker');
 
       expect(store.tasks.value[0]?.type).toBe('joker');
-      expect(store.tasks.value[0]?.originalText).toBe('Обычная задача');
+      expect(store.tasks.value[0]?.originalText).toBeNull();
     });
   });
 
