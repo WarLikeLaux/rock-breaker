@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, computed } from 'vue';
 import { useGameStore } from '@/features/game/store';
 import TaskItem from './TaskItem.vue';
 
@@ -22,6 +22,11 @@ const {
 const newTaskText = ref<string>('');
 const taskInput = ref<HTMLInputElement | null>(null);
 
+const placeholderText = computed(() => {
+  const remaining = 5 - tasks.value.length;
+  return `Добавить задачу (осталось ${remaining} слот${remaining === 1 ? '' : 'ов'})`;
+});
+
 function handleAddTask(): void {
   if (!newTaskText.value.trim()) return;
   addTask(newTaskText.value);
@@ -39,7 +44,7 @@ function handleAddTask(): void {
   <div class="space-y-4">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-bold text-white whitespace-nowrap">
-        Орудия
+        Экипировка ({{ tasks.length }}/5)
       </h3>
 
       <button @click="toggleFocusMode"
@@ -79,19 +84,19 @@ function handleAddTask(): void {
       <p class="text-slate-400">Добавь задачи для удара по скале</p>
     </div>
 
-    <form v-if="!focusModeEnabled || tasks.length === 0" @submit.prevent="handleAddTask" class="mt-6">
-      <div class="mb-4 text-center">
-        <p :class="canAddTask ? 'text-amber-500/90' : 'text-slate-500'"
-          class="text-sm uppercase tracking-[0.2em] font-bold">
-          {{ canAddTask ? 'Максимум 5 задач — фокус важнее количества' : 'Лимит орудий достигнут' }}
-        </p>
-      </div>
+    <div v-if="!canAddTask" class="mt-6 text-center">
+      <p class="text-sm sm:text-base uppercase tracking-[0.2em] font-bold text-amber-500/90">
+        ⚔️ Экипировка собрана. В бой!
+      </p>
+    </div>
 
+    <form v-if="!focusModeEnabled || tasks.length === 0" v-show="canAddTask" @submit.prevent="handleAddTask"
+      class="mt-6">
       <div class="flex gap-0 group/input">
-        <input ref="taskInput" v-model="newTaskText" :disabled="!canAddTask" type="text" placeholder="Новая задача..."
+        <input ref="taskInput" v-model="newTaskText" :disabled="!canAddTask" type="text" :placeholder="placeholderText"
           class="flex-1 px-5 py-4 bg-slate-800/40 border-2 border-r-0 border-slate-700/80 rounded-l-2xl text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-base font-medium group-hover/input:border-slate-600/80 group-focus-within/input:bg-slate-800/60" />
         <button type="submit" :disabled="!canAddTask || !newTaskText.trim()"
-          class="w-16 h-auto bg-gradient-to-br from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:from-slate-700 disabled:to-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-3xl font-bold rounded-r-2xl transition-all active:scale-95 flex items-center justify-center border-2 border-transparent border-l-0">
+          class="w-16 h-auto bg-gradient-to-br from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:from-slate-700 disabled:to-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-3xl font-bold rounded-r-2xl transition-all active:scale-95 flex items-center justify-center border-2 border-transparent border-l-0 group-focus-within/input:from-amber-400 group-focus-within/input:to-orange-400 group-focus-within/input:border-amber-500/50">
           +
         </button>
       </div>
