@@ -78,7 +78,7 @@ function handleClick(): void {
           {{ rockEmoji }}
         </div>
 
-        <p class="text-sm text-white font-medium line-clamp-2 break-words w-full text-center mb-2">
+        <p class="text-sm text-white font-medium line-clamp-2 break-words w-full text-center mb-2 min-h-10 flex items-center justify-center">
           {{ rock.goalName }}
         </p>
 

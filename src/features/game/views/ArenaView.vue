@@ -124,7 +124,7 @@ function handleDeleteSideQuest(): void {
       </div>
     </div>
 
-    <div class="flex-shrink-0 w-full max-w-full sm:max-w-md flex flex-col relative z-20 mx-auto lg:mx-0">
+    <div class="flex-shrink-0 w-full max-w-full sm:max-w-xl flex flex-col relative z-20 mx-auto lg:mx-0">
       <div class="absolute top-4 right-4 z-30 flex flex-col items-end gap-2 sm:gap-3"
         :class="{ 'hidden sm:flex': isViewingSideQuest }">
         <div class="flex gap-2 sm:gap-3">
