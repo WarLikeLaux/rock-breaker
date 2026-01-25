@@ -1,0 +1,58 @@
+{
+	"rocks": [
+		{
+			"id": 1,
+			"goalName": "Похудение и Здоровье",
+			"durationDays": 60,
+			"tasks": [
+				{ "id": 1, "text": "Пройти 10 000 шагов", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 2, "text": "Никакого сладкого и сахара", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 3, "text": "Выпить 2 литра воды", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 4, "text": "Тренировка (минимум 20 мин)", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 5, "text": "Съесть 3 порции овощей", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
+			],
+			"currentHp": 300,
+			"lastActiveDate": "2026-01-25",
+			"taskIdCounter": 6,
+			"isMain": true
+		},
+		{
+			"id": 2,
+			"goalName": "Гибкость и Восстановление",
+			"durationDays": 60,
+			"tasks": [
+				{ "id": 1, "text": "Утренняя зарядка 10 мин", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 2, "text": "Растяжка перед сном", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 3, "text": "МФР или самомассаж", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 4, "text": "Контрастный душ", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 5, "text": "Медитация на расслабление", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
+			],
+			"currentHp": 300,
+			"lastActiveDate": "2026-01-25",
+			"taskIdCounter": 6,
+			"isMain": false
+		},
+		{
+			"id": 3,
+			"goalName": "Здоровый Шеф",
+			"durationDays": 60,
+			"tasks": [
+				{ "id": 1, "text": "Приготовить новое ПП блюдо", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 2, "text": "Сфотографировать еду для контроля", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 3, "text": "Взвесить порцию еды", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 4, "text": "Планирование рациона на завтра", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 5, "text": "Прием витаминов или Омега-3", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
+			],
+			"currentHp": 300,
+			"lastActiveDate": "2026-01-25",
+			"taskIdCounter": 6,
+			"isMain": false
+		}
+	],
+	"activeRockId": 1,
+	"isSetupComplete": true,
+	"rockIdCounter": 4,
+	"showTooltips": true,
+	"hardModeEnabled": false,
+	"exportedAt": "2026-01-25T12:00:00.000Z"
+}

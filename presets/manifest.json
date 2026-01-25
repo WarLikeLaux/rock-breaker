@@ -1,0 +1,28 @@
+{
+	"presets": [
+		{
+			"id": "english-basic",
+			"name": "Английский: Базовый",
+			"description": "30 дней регулярного изучения основ языка",
+			"file": "english-basic.json"
+		},
+		{
+			"id": "weight-loss",
+			"name": "Похудение и Здоровье",
+			"description": "60 дней формирования здоровых привычек и активности",
+			"file": "weight-loss.json"
+		},
+		{
+			"id": "coding-habit",
+			"name": "Путь Программиста",
+			"description": "90 дней ежедневной практики кодинга и саморазвития",
+			"file": "coding-habit.json"
+		},
+		{
+			"id": "mindfulness",
+			"name": "Осознанность",
+			"description": "30 дней заботы о ментальном здоровье и покое",
+			"file": "mindfulness.json"
+		}
+	]
+}
