@@ -63,31 +63,18 @@ function cancelEdit(): void {
 
 <template>
   <div class="flex-1 min-w-0">
-    <input
-      v-if="isEditing"
-      ref="inputRef"
-      v-model="editText"
-      @blur="saveEdit"
-      @keyup.enter="saveEdit"
-      @keyup.escape="cancelEdit"
-      :placeholder="task.type === 'joker' ? 'Что сделать сегодня?' : ''"
-      class="w-full bg-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:ring-2 focus:ring-amber-500 transition-all"
-    />
+    <input v-if="isEditing" ref="inputRef" v-model="editText" @blur="saveEdit" @keyup.enter="saveEdit"
+      @keyup.escape="cancelEdit" :placeholder="task.type === 'joker' ? 'Что сделать сегодня?' : ''"
+      class="w-full bg-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:ring-2 focus:ring-amber-500 transition-all" />
     <div v-else class="flex flex-col justify-center">
-      <span
-        @click="task.completed ? void 0 : handleClick()"
-        class="block truncate select-text text-base transition-all duration-300"
-        :class="[
+      <span @click="task.completed ? void 0 : handleClick()"
+        class="block line-clamp-3 break-words select-text text-base transition-all duration-300" :class="[
           task.completed ? 'line-through text-slate-500 cursor-default' : 'text-white hover:text-amber-300 cursor-pointer',
           { 'text-slate-500 cursor-pointer': isEmptyJoker },
-        ]"
-      >
+        ]">
         {{ task.text || 'Нажми чтобы добавить...' }}
       </span>
-      <span
-        v-if="task.type === 'substitute' && task.originalText"
-        class="text-xs text-amber-500/70 truncate block"
-      >
+      <span v-if="task.type === 'substitute' && task.originalText" class="text-xs text-amber-500/70 truncate block">
         Завтра: {{ task.originalText }}
       </span>
     </div>
