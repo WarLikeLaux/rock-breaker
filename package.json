@@ -24,6 +24,7 @@
     "pack:all": "repomix --output repomix-all.xml",
     "format:docs": "prettier --write --no-ignore docs/*.md README.md .agent/workflows/*.md",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "lint:docs": "prettier --check --no-ignore docs/*.md README.md .agent/workflows/*.md",
     "diff": "git add -N . && git diff",
     "deploy": "vite build && gh-pages -d dist"
