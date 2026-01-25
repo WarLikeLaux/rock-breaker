@@ -3,8 +3,17 @@ import { ref, nextTick } from 'vue';
 import { useGameStore } from '@/features/game/store';
 import TaskItem from './TaskItem.vue';
 
-const { tasks, canAddTask, addTask, removeTask, updateTask, toggleTask, setTaskType } =
-  useGameStore();
+const {
+  tasks,
+  canAddTask,
+  addTask,
+  removeTask,
+  updateTask,
+  toggleTask,
+  setTaskType,
+  setRequiredExecutions,
+  decrementExecution,
+} = useGameStore();
 
 const newTaskText = ref<string>('');
 const taskInput = ref<HTMLInputElement | null>(null);
@@ -40,6 +49,8 @@ function handleAddTask(): void {
         @update="updateTask"
         @remove="removeTask"
         @setType="setTaskType"
+        @setRequiredExecutions="setRequiredExecutions"
+        @decrementExecution="decrementExecution"
       />
     </TransitionGroup>
 

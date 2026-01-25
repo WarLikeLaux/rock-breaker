@@ -20,12 +20,12 @@ function handleClick(): void {
 </script>
 
 <template>
-  <div class="relative w-8 h-8 flex-shrink-0">
+  <div class="relative w-6 h-6 flex-shrink-0">
     <Transition name="fade">
       <button
         v-if="deleteConfirm"
         @click="handleClick"
-        class="absolute inset-0 w-full h-full rounded-lg flex items-center justify-center bg-red-500 text-white hover:bg-red-600 scale-110 z-10 shadow-sm"
+        class="absolute inset-0 w-full h-full rounded-md flex items-center justify-center bg-red-500 text-white hover:bg-red-600 scale-110 z-10 shadow-sm"
       >
         🗑️
       </button>
@@ -33,9 +33,18 @@ function handleClick(): void {
     <button
       v-show="!deleteConfirm"
       @click="handleClick"
-      class="absolute inset-0 w-full h-full rounded-lg flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+      class="absolute inset-0 w-full h-full rounded-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 border border-rose-500/50 bg-slate-900/30 text-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.25)] hover:text-rose-300 hover:bg-slate-900/60 cursor-pointer"
     >
-      ✕
+      <svg
+        class="w-3.5 h-3.5"
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      >
+        <path d="M5 5l6 6M11 5l-6 6" />
+      </svg>
     </button>
   </div>
 </template>

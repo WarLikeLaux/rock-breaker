@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref, nextTick, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useGameStore } from '@/features/game/store';
 import type { Task } from '@/shared/types';
 import TaskTypeMenu from './TaskTypeMenu.vue';
+import TaskProgressControls from './TaskProgressControls.vue';
+import TaskTextField from './TaskTextField.vue';
 import TaskDeleteButton from './TaskDeleteButton.vue';
+import TaskTooltip from './TaskTooltip.vue';
 
 const { showTooltips } = useGameStore();
 
@@ -19,15 +22,13 @@ const emit = defineEmits<{
   remove: [id: number];
   setType: [id: number, type: Task['type']];
   substitute: [id: number, text: string];
+  setRequiredExecutions: [id: number, count: number];
+  decrementExecution: [id: number];
 }>();
 
 const isEditing = ref<boolean>(false);
-const editText = ref<string>('');
-const inputRef = ref<HTMLInputElement | null>(null);
 const isAnimating = ref<boolean>(false);
 const showTypeMenu = ref<boolean>(false);
-
-let clickTimer: ReturnType<typeof setTimeout> | null = null;
 
 const typeIcon = computed(() => {
   switch (props.task.type) {
@@ -42,6 +43,7 @@ const typeIcon = computed(() => {
 
 const borderClass = computed(() => {
   if (props.task.completed) return 'bg-emerald-900/20 border-emerald-800/50';
+  if (isPartiallyCompleted.value) return 'bg-amber-900/10 border-amber-700/30';
   switch (props.task.type) {
     case 'joker':
       return 'bg-purple-900/20 border-purple-700/50 hover:border-purple-500';
@@ -52,54 +54,22 @@ const borderClass = computed(() => {
   }
 });
 
-const isEmptyJoker = computed(() => props.task.type === 'joker' && !props.task.text);
+const isPartiallyCompleted = computed(
+  () => props.task.currentExecutions > 0 && !props.task.completed,
+);
 
-function handleClick(): void {
-  if (isEmptyJoker.value) {
-    startEdit();
-    return;
-  }
-
-  if (clickTimer) {
-    clearTimeout(clickTimer);
-    clickTimer = null;
-    startEdit();
-  } else {
-    clickTimer = setTimeout(() => {
-      clickTimer = null;
-      handleToggle();
-    }, 300);
-  }
-}
+const canDecrement = computed(
+  () => props.task.currentExecutions > 0,
+);
 
 function handleToggle(): void {
-  if (isEmptyJoker.value) return;
+  if (props.task.completed) return;
 
-  if (!props.task.completed) {
-    isAnimating.value = true;
-    setTimeout(() => {
-      isAnimating.value = false;
-    }, 400);
-  }
+  isAnimating.value = true;
+  setTimeout(() => {
+    isAnimating.value = false;
+  }, 400);
   emit('toggle', props.task.id);
-}
-
-function startEdit(): void {
-  editText.value = props.task.text;
-  isEditing.value = true;
-  nextTick(() => inputRef.value?.focus());
-}
-
-function saveEdit(): void {
-  const trimmed = editText.value.trim();
-  if (props.task.type === 'joker' || trimmed) {
-    emit('update', props.task.id, trimmed);
-  }
-  isEditing.value = false;
-}
-
-function cancelEdit(): void {
-  isEditing.value = false;
 }
 
 function handleTypeClick(e: MouseEvent): void {
@@ -110,6 +80,19 @@ function handleTypeClick(e: MouseEvent): void {
 function selectType(type: Task['type']): void {
   emit('setType', props.task.id, type);
   showTypeMenu.value = false;
+}
+
+function selectExecutions(count: number): void {
+  emit('setRequiredExecutions', props.task.id, count);
+  showTypeMenu.value = false;
+}
+
+function handleDecrement(): void {
+  emit('decrementExecution', props.task.id);
+}
+
+function handleUpdate(id: number, text: string): void {
+  emit('update', id, text);
 }
 </script>
 
@@ -135,65 +118,45 @@ function selectType(type: Task['type']): void {
           :task="task"
           :show="showTypeMenu"
           @select="selectType"
+          @setExecutions="selectExecutions"
           @close="showTypeMenu = false"
         />
       </div>
 
-      <button
-        @click="handleToggle"
-        :disabled="isEmptyJoker"
-        class="flex-shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all duration-300 select-none"
-        :class="[
-          task.completed
-            ? 'bg-emerald-500 border-emerald-500 text-white scale-110'
-            : isEmptyJoker
-              ? 'border-slate-600 opacity-50 cursor-not-allowed'
-              : 'border-slate-500 hover:border-amber-400 hover:scale-110',
-        ]"
-      >
-        <span v-if="task.completed" class="text-sm font-bold">✓</span>
-      </button>
+      <TaskProgressControls
+        :task="task"
+        @toggle="handleToggle"
+      />
 
-      <div class="flex-1 min-w-0">
-        <input
-          v-if="isEditing"
-          ref="inputRef"
-          v-model="editText"
-          @blur="saveEdit"
-          @keyup.enter="saveEdit"
-          @keyup.escape="cancelEdit"
-          :placeholder="task.type === 'joker' ? 'Что сделать сегодня?' : ''"
-          class="w-full bg-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:ring-2 focus:ring-amber-500 transition-all"
-        />
-        <div v-else class="flex flex-col justify-center">
-          <span
-            @click="handleClick"
-            class="block truncate cursor-pointer select-text text-base transition-all duration-300"
-            :class="[
-              task.completed ? 'line-through text-slate-500' : 'text-white hover:text-amber-300',
-              { 'text-slate-500': isEmptyJoker },
-            ]"
-          >
-            {{ task.text || 'Нажми чтобы добавить...' }}
-          </span>
-          <span
-            v-if="task.type === 'substitute' && task.originalText"
-            class="text-xs text-amber-500/70 truncate block"
-          >
-            Завтра: {{ task.originalText }}
-          </span>
-        </div>
-      </div>
+      <TaskTextField
+        :task="task"
+        v-model:editing="isEditing"
+        @toggle="handleToggle"
+        @update="handleUpdate"
+      />
+
+      <button
+        v-if="canDecrement"
+        @click="handleDecrement"
+        class="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center border border-amber-500/60 bg-slate-900/40 text-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.25)] hover:text-amber-200 hover:bg-slate-900/70 transition-all cursor-pointer"
+      >
+        <svg
+          class="w-3.5 h-3.5"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <path d="M4 8h8" />
+        </svg>
+      </button>
 
       <TaskDeleteButton @remove="emit('remove', task.id)" />
     </div>
 
     <template #popper>
-      <div class="text-sm">
-        <div>Двойной клик на текст: редактировать</div>
-        <div>Клик на иконку: сменить тип</div>
-        <div class="text-slate-400 text-xs mt-1">Подсказки можно отключить в настройках</div>
-      </div>
+      <TaskTooltip :task="task" />
     </template>
   </VTooltip>
 </template>
