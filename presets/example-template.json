@@ -1,0 +1,97 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$comment": "Шаблон экспорта Rock Breaker для генерации через AI",
+	"rocks": [
+		{
+			"id": 1,
+			"goalName": "Выучить английский до B2",
+			"durationDays": 90,
+			"tasks": [
+				{
+					"id": 1,
+					"text": "30 минут Duolingo",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 2,
+					"text": "Посмотреть серию на английском",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 3,
+					"text": "10 новых слов в Anki",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 4,
+					"text": "Прочитать 5 страниц книги",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 5,
+					"text": "Wild card - любая активность",
+					"completed": false,
+					"type": "joker",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				}
+			],
+			"currentHp": 450,
+			"lastActiveDate": "2026-01-25",
+			"taskIdCounter": 5,
+			"isMain": true
+		},
+		{
+			"id": 2,
+			"goalName": "Фитнес",
+			"durationDays": 30,
+			"tasks": [
+				{
+					"id": 1,
+					"text": "Отжимания 3x20",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 3,
+					"currentExecutions": 0
+				},
+				{
+					"id": 2,
+					"text": "Планка 2 минуты",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				}
+			],
+			"currentHp": 150,
+			"lastActiveDate": "2026-01-25",
+			"taskIdCounter": 2,
+			"isMain": false
+		}
+	],
+	"activeRockId": 1,
+	"isSetupComplete": true,
+	"rockIdCounter": 2,
+	"showTooltips": true,
+	"hardModeEnabled": false,
+	"exportedAt": "2026-01-25T12:00:00.000Z"
+}
