@@ -110,6 +110,7 @@ interface ExportData {
   rockIdCounter: number;
   showTooltips: boolean;
   hardModeEnabled: boolean;
+  focusModeEnabled: boolean;
 }
 
 export function exportData(data: ExportData): void {
@@ -132,6 +133,7 @@ interface ImportResult {
   rockIdCounter: number;
   showTooltips?: boolean;
   hardModeEnabled?: boolean;
+  focusModeEnabled?: boolean;
 }
 
 export function importData(jsonString: string): ImportResult | null {
@@ -158,7 +160,7 @@ export function importData(jsonString: string): ImportResult | null {
     }));
 
     const rockIds = normalizedRocks.map((rock) => rock.id);
-    const fallbackActiveRockId = normalizedRocks[0].id;
+    const fallbackActiveRockId = normalizedRocks[0]?.id ?? 0;
     const activeRockId = rockIds.includes(state.activeRockId ?? -1)
       ? (state.activeRockId as number)
       : fallbackActiveRockId;
@@ -172,6 +174,7 @@ export function importData(jsonString: string): ImportResult | null {
         : maxRockId,
       showTooltips: state.showTooltips,
       hardModeEnabled: state.hardModeEnabled,
+      focusModeEnabled: state.focusModeEnabled,
     };
   } catch {
     return null;

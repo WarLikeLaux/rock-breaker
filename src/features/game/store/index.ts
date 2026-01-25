@@ -41,8 +41,11 @@ export interface GameStore {
   mainRock: ComputedRef<Rock | undefined>;
   sideRocks: ComputedRef<Rock[]>;
   isDayWon: ComputedRef<boolean>;
+
   canAccessSideQuests: ComputedRef<boolean>;
   hardModeEnabled: Ref<boolean>;
+  focusModeEnabled: Ref<boolean>;
+  visibleTasks: ComputedRef<Task[]>;
 
   createRock: (name: string, days: number, initialTasks?: string[]) => void;
   restartRock: (newName: string, newDays: number) => void;
@@ -58,7 +61,10 @@ export interface GameStore {
   setRequiredExecutions: (id: number, count: number) => void;
   decrementExecution: (id: number) => void;
   toggleTooltips: () => void;
+
   toggleHardMode: () => void;
+  toggleFocusMode: () => void;
+  skipCurrentFocusTask: () => void;
   hitRock: () => void;
   resetGame: () => void;
   startNewDay: () => void;
@@ -77,7 +83,11 @@ const activeRockId = ref<number>(0);
 const isSetupComplete = ref<boolean>(false);
 const initialSettings = loadSettings();
 const showTooltips = ref<boolean>(initialSettings.showTooltips ?? true);
+
 const hardModeEnabled = ref<boolean>(initialSettings.hardModeEnabled ?? false);
+const focusModeEnabled = ref<boolean>(initialSettings.focusModeEnabled ?? false);
+const focusSkipOffset = ref<number>(0);
+const shuffledIndices = ref<number[]>([]);
 
 const rockIdCounter = { value: 0 };
 let visualHitCallback: (() => void) | undefined = undefined;
@@ -90,6 +100,40 @@ const sideRocks = computed(() => rocks.value.filter((r) => !r.isMain));
 const goalName = computed(() => activeRock.value?.goalName ?? '');
 const durationDays = computed(() => activeRock.value?.durationDays ?? 0);
 const tasks = computed(() => activeRock.value?.tasks ?? []);
+const incompleteTaskCount = computed(() => tasks.value.filter((t) => !t.completed).length);
+
+function generateShuffledIndices(count: number): number[] {
+  const indices = Array.from({ length: count }, (_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j]!, indices[i]!];
+  }
+  return indices;
+}
+
+watch(
+  incompleteTaskCount,
+  (newCount) => {
+    shuffledIndices.value = generateShuffledIndices(newCount);
+    focusSkipOffset.value = 0;
+  },
+  { immediate: true },
+);
+
+const visibleTasks = computed(() => {
+  const allTasks = tasks.value;
+  if (!focusModeEnabled.value) return allTasks;
+
+  const incompleteTasks = allTasks.filter((t) => !t.completed);
+  if (incompleteTasks.length === 0) return allTasks;
+
+  if (shuffledIndices.value.length !== incompleteTasks.length) {
+    return [incompleteTasks[0] as Task];
+  }
+
+  const index = shuffledIndices.value[focusSkipOffset.value] ?? 0;
+  return [incompleteTasks[index] as Task];
+});
 const currentHp = computed(() => activeRock.value?.currentHp ?? 0);
 const lastActiveDate = computed(() => activeRock.value?.lastActiveDate ?? '');
 
@@ -142,6 +186,7 @@ function startNewDay(): void {
     rock.tasks = tasksRef.value;
     rock.lastActiveDate = getTodayDate();
   });
+  focusSkipOffset.value = 0;
   if (mainRock.value) {
     activeRockId.value = mainRock.value.id;
   }
@@ -192,6 +237,12 @@ watch(showTooltips, (val) => {
 watch(hardModeEnabled, (val) => {
   const settings = loadSettings();
   settings.hardModeEnabled = val;
+  saveSettings(settings);
+});
+
+watch(focusModeEnabled, (val) => {
+  const settings = loadSettings();
+  settings.focusModeEnabled = val;
   saveSettings(settings);
 });
 
@@ -383,8 +434,11 @@ export function useGameStore(): GameStore {
     mainRock,
     sideRocks,
     isDayWon,
+
     canAccessSideQuests,
     hardModeEnabled,
+    focusModeEnabled,
+    visibleTasks,
 
     createRock,
     restartRock,
@@ -439,6 +493,28 @@ export function useGameStore(): GameStore {
     toggleHardMode: () => {
       hardModeEnabled.value = !hardModeEnabled.value;
     },
+    toggleFocusMode: () => {
+      focusModeEnabled.value = !focusModeEnabled.value;
+      focusSkipOffset.value = 0;
+    },
+    skipCurrentFocusTask: () => {
+      const count = incompleteTaskCount.value;
+      if (count <= 1) return;
+
+      focusSkipOffset.value++;
+      if (focusSkipOffset.value >= count) {
+        
+        const lastIndex = shuffledIndices.value[shuffledIndices.value.length - 1];
+        const newIndices = generateShuffledIndices(count);
+
+        if (newIndices[0] === lastIndex && count > 1) {
+          const swapIdx = 1 + Math.floor(Math.random() * (count - 1));
+          [newIndices[0], newIndices[swapIdx]] = [newIndices[swapIdx]!, newIndices[0]!];
+        }
+        shuffledIndices.value = newIndices;
+        focusSkipOffset.value = 0;
+      }
+    },
     hitRock,
     resetGame,
     startNewDay,
@@ -449,7 +525,9 @@ export function useGameStore(): GameStore {
         isSetupComplete: isSetupComplete.value,
         rockIdCounter: rockIdCounter.value,
         showTooltips: showTooltips.value,
+
         hardModeEnabled: hardModeEnabled.value,
+        focusModeEnabled: focusModeEnabled.value,
       }),
     importData: (jsonString: string) => {
       const state = importFromFile(jsonString);
@@ -463,6 +541,9 @@ export function useGameStore(): GameStore {
       }
       if (state.hardModeEnabled !== undefined) {
         hardModeEnabled.value = state.hardModeEnabled;
+      }
+      if (state.focusModeEnabled !== undefined) {
+        focusModeEnabled.value = state.focusModeEnabled;
       }
       isSetupComplete.value = true;
       saveState();

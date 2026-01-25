@@ -69,4 +69,5 @@ export interface Settings {
   showTooltips?: boolean;
   soundEnabled?: boolean;
   hardModeEnabled?: boolean;
+  focusModeEnabled?: boolean;
 }
