@@ -68,7 +68,7 @@ describe('rockOperations.ts', () => {
       const durationDays = ref(0);
       const currentHp = ref(0);
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Старая задача', completed: false, type: 'standard', originalText: null },
+        { id: 1, text: 'Старая задача', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
       const taskIdCounter = { value: 5 };
       const lastActiveDate = ref('');
@@ -189,8 +189,8 @@ describe('rockOperations.ts', () => {
       const durationDays = ref(20);
       const currentHp = ref(50);
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Задача 1', completed: true, type: 'standard', originalText: null },
-        { id: 2, text: 'Задача 2', completed: false, type: 'standard', originalText: null },
+        { id: 1, text: 'Задача 1', completed: true, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 1 },
+        { id: 2, text: 'Задача 2', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
       const lastActiveDate = ref('2025-01-01');
       const getTodayDate = () => '2026-01-12';
@@ -246,7 +246,7 @@ describe('rockOperations.ts', () => {
       const durationDays = ref(10);
       const currentHp = ref(50);
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Задача', completed: true, type: 'standard', originalText: null },
+        { id: 1, text: 'Задача', completed: true, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 1 },
       ]);
       const taskIdCounter = { value: 3 };
       const lastActiveDate = ref('2026-01-12');

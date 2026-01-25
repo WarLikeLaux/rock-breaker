@@ -269,6 +269,8 @@ describe('storage.ts', () => {
         isSetupComplete: true,
         rockIdCounter: 1,
         showTooltips: true,
+        hardModeEnabled: false,
+        focusModeEnabled: false,
       });
 
       expect(createObjectURL).toHaveBeenCalledOnce();
