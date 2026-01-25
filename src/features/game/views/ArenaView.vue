@@ -111,9 +111,10 @@ function handleDeleteSideQuest(): void {
     </div>
 
     <div class="flex-shrink-0 w-full max-w-full sm:max-w-md flex flex-col relative z-20 mx-auto lg:mx-0">
-      <div class="absolute top-4 right-4 z-30 flex flex-col items-end gap-2 sm:gap-3">
-        <div class="hidden sm:flex gap-2 sm:gap-3">
+      <div class="absolute top-4 right-4 z-30 flex flex-col items-end gap-2 sm:gap-3" :class="{ 'hidden sm:flex': isViewingSideQuest }">
+        <div class="flex gap-2 sm:gap-3">
           <SideQuestMenu
+            v-if="!isViewingSideQuest"
             :side-rocks="sideRocks"
             :active-rock-id="activeRockId"
             :can-access="canAccessSideQuests"
@@ -125,7 +126,7 @@ function handleDeleteSideQuest(): void {
         <a
           href="https://github.com/WarLikeLaux/rock-breaker"
           target="_blank"
-          class="hidden sm:flex w-11 h-11 bg-slate-800/80 hover:bg-slate-700 backdrop-blur rounded-xl items-center justify-center text-slate-400 hover:text-white transition-all hover:scale-110 active:scale-95 border border-slate-700 hover:border-slate-500"
+          class="flex w-10 h-10 sm:w-11 sm:h-11 bg-slate-800/80 hover:bg-slate-700 backdrop-blur rounded-xl items-center justify-center text-slate-400 hover:text-white transition-all hover:scale-110 active:scale-95 border border-slate-700 hover:border-slate-500"
           title="GitHub Repository"
         >
           <svg
@@ -171,7 +172,7 @@ function handleDeleteSideQuest(): void {
           <VTooltip placement="bottom" :delay="{ show: 600, hide: 0 }">
             <button
               @click="handlePromoteSideQuest"
-              class="w-11 h-11 flex items-center justify-center bg-amber-500/20 hover:bg-amber-500/30 backdrop-blur rounded-xl text-amber-400 hover:text-amber-300 transition-all border border-amber-500/30 hover:border-amber-500/50 text-sm uppercase"
+              class="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-amber-500/20 hover:bg-amber-500/30 backdrop-blur rounded-xl text-amber-400 hover:text-amber-300 transition-all border border-amber-500/30 hover:border-amber-500/50 text-sm uppercase"
             >
               ⭐
             </button>
@@ -183,7 +184,7 @@ function handleDeleteSideQuest(): void {
           <VTooltip placement="bottom" :delay="{ show: 600, hide: 0 }">
             <button
               @click="handleDeleteSideQuest"
-              class="w-11 h-11 flex items-center justify-center bg-red-500/20 hover:bg-red-500/30 backdrop-blur rounded-xl text-red-400 hover:text-red-300 transition-all border border-red-500/30 hover:border-red-500/50 text-sm uppercase"
+              class="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-red-500/20 hover:bg-red-500/30 backdrop-blur rounded-xl text-red-400 hover:text-red-300 transition-all border border-red-500/30 hover:border-red-500/50 text-sm uppercase"
               :class="{ 'bg-red-600/50 border-red-500': deleteConfirmId === activeRock?.id }"
             >
               {{ deleteConfirmId === activeRock?.id ? 'Удалить?' : '🗑️' }}
@@ -230,7 +231,7 @@ function handleDeleteSideQuest(): void {
         <div class="hidden sm:block w-[140px]"></div>
       </div>
 
-      <div v-if="isViewingSideQuest" class="sm:hidden absolute top-4 left-4 right-4 z-20 space-y-2">
+      <div v-if="isViewingSideQuest" class="sm:hidden absolute top-4 left-4 right-4 z-30 space-y-2">
         <div class="flex items-center justify-between">
           <button
             @click="backToMain"

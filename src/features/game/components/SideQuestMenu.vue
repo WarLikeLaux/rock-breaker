@@ -40,7 +40,7 @@ function selectMain(): void {
   <div class="lg:hidden">
     <button
       @click="isOpen = true"
-      class="w-10 h-10 bg-slate-800/80 hover:bg-slate-700 backdrop-blur rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-slate-700 hover:border-slate-500"
+      class="w-10 h-10 sm:w-11 sm:h-11 bg-slate-800/80 hover:bg-slate-700 backdrop-blur rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-slate-700 hover:border-slate-500"
       :class="canAccess ? 'text-amber-400' : 'text-slate-400'"
     >
       <span class="text-base leading-none">{{ canAccess ? '🔓' : '🔒' }}</span>
