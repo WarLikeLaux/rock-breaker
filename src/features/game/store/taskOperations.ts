@@ -90,17 +90,19 @@ export function toggleTask(
       const wasCompleted = task.completed;
       task.currentExecutions--;
       task.completed = task.currentExecutions >= task.requiredExecutions;
-      if (wasCompleted && !task.completed) onHeal();
+      if (task.type !== 'joker' && wasCompleted && !task.completed) onHeal();
     }
   } else {
     task.currentExecutions++;
     const nowCompleted = task.currentExecutions >= task.requiredExecutions;
     task.completed = nowCompleted;
 
-    if (nowCompleted) {
-      onHit();
-    } else if (onVisualHit && task.requiredExecutions > 1) {
-      onVisualHit();
+    if (task.type !== 'joker') {
+      if (nowCompleted) {
+        onHit();
+      } else if (onVisualHit && task.requiredExecutions > 1) {
+        onVisualHit();
+      }
     }
   }
 }
@@ -130,10 +132,12 @@ export function decrementExecution(
   task.currentExecutions--;
   task.completed = task.currentExecutions >= task.requiredExecutions;
 
-  if (wasCompleted && !task.completed) {
-    onHeal();
-  } else if (wasPartiallyCompleted && task.currentExecutions === 0 && onVisualHeal) {
-    onVisualHeal();
+  if (task.type !== 'joker') {
+    if (wasCompleted && !task.completed) {
+      onHeal();
+    } else if (wasPartiallyCompleted && task.currentExecutions === 0 && onVisualHeal) {
+      onVisualHeal();
+    }
   }
 }
 
