@@ -5,7 +5,7 @@ import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
-  base: '/rock-breaker/',
+  base: '/strike-v/',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
