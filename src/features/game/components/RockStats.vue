@@ -6,9 +6,27 @@ interface Props {
   currentHp: number;
   maxHp: number;
   hpPercent: number;
+  createdAt: string;
 }
 
 const props = defineProps<Props>();
+
+const daysWorkedOn = computed(() => {
+  const today = new Date();
+  const created = new Date(props.createdAt);
+  const diffTime = today.getTime() - created.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  return Math.max(1, diffDays);
+});
+
+const dayForm = computed(() => {
+  const n = daysWorkedOn.value;
+  const remainder = n % 10;
+  const remainder100 = n % 100;
+
+  if (remainder === 1 && remainder100 !== 11) return 'дня';
+  return 'дней';
+});
 
 const hpColor = computed(() => {
   const percent = props.hpPercent;
@@ -68,5 +86,9 @@ const hpBarWidth = computed(() => `${props.hpPercent}%`);
         </div>
       </div>
     </div>
+
+    <p class="text-xs text-slate-500 mt-4">
+      Результат {{ daysWorkedOn }} {{ dayForm }} работы
+    </p>
   </div>
 </template>

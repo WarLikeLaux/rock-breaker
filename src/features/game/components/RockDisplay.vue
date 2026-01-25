@@ -6,6 +6,7 @@ import RockEmoji from './RockEmoji.vue';
 import RockStats from './RockStats.vue';
 
 const { goalName, currentHp, maxHp, hpPercent, isVictory, activeRock } = useGameStore();
+const createdAt = computed(() => activeRock.value?.createdAt ?? new Date().toISOString().split('T')[0]!);
 const { playRockTap, playHit, playHeal, playVictory, playClick } = useSounds();
 
 const isShaking = ref<boolean>(false);
@@ -133,24 +134,31 @@ function handleRockClick(): void {
     <RockEmoji ref="rockEmojiRef" :rock-emoji="rockState.emoji" :rock-scale="rockState.scale" :hp-percent="hpPercent"
       :is-wobbling="isWobbling" :is-healing="isHealing" @click="handleRockClick" />
 
-    <RockStats :goal-name="goalName" :current-hp="currentHp" :max-hp="maxHp" :hp-percent="hpPercent" />
+    <RockStats :goal-name="goalName" :current-hp="currentHp" :max-hp="maxHp" :hp-percent="hpPercent"
+      :created-at="createdAt" />
   </div>
 </template>
 
 <style scoped>
 @keyframes pulse-slow {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.4;
   }
+
   50% {
     opacity: 0.8;
   }
 }
 
 @keyframes pulse-slower {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.2;
   }
+
   50% {
     opacity: 0.5;
   }
