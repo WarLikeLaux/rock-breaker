@@ -449,7 +449,7 @@ export function useGameStore(): GameStore {
     },
     removeTask: (id: number) => {
       if (!activeRock.value) return;
-      removeTaskOp(tasksRef, id);
+      removeTaskOp(tasksRef, id, healRock);
     },
     updateTask: (id: number, newText: string) => {
       if (!activeRock.value) return;

@@ -25,10 +25,19 @@ export function addTask(
   });
 }
 
-export function removeTask(tasks: Ref<Task[]>, id: number): void {
+export function removeTask(tasks: Ref<Task[]>, id: number, onHeal?: () => void): void {
+  const task = tasks.value.find((t) => t.id === id);
+  if (!task) return;
+
+  const wasCompleted = task.completed && task.type !== 'joker';
+
   const index = tasks.value.findIndex((t) => t.id === id);
   if (index !== -1) {
     tasks.value.splice(index, 1);
+  }
+
+  if (wasCompleted && onHeal) {
+    onHeal();
   }
 }
 

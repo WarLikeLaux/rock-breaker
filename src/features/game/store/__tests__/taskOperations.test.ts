@@ -121,6 +121,42 @@ describe('taskOperations.ts', () => {
 
       expect(tasks.value).toHaveLength(1);
     });
+
+    it('должен вызвать onHeal когда удаляется выполненная стандартная задача', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Задача 1', completed: true, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 1 },
+      ]);
+      const onHeal = vi.fn();
+
+      removeTask(tasks, 1, onHeal);
+
+      expect(onHeal).toHaveBeenCalled();
+      expect(tasks.value).toHaveLength(0);
+    });
+
+    it('не должен вызвать onHeal когда удаляется незавершённая задача', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Задача 1', completed: false, type: 'standard', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
+      ]);
+      const onHeal = vi.fn();
+
+      removeTask(tasks, 1, onHeal);
+
+      expect(onHeal).not.toHaveBeenCalled();
+      expect(tasks.value).toHaveLength(0);
+    });
+
+    it('не должен вызвать onHeal когда удаляется joker задача', () => {
+      const tasks = ref<Task[]>([
+        { id: 1, text: 'Joker', completed: true, type: 'joker', originalText: null, requiredExecutions: 1, currentExecutions: 1 },
+      ]);
+      const onHeal = vi.fn();
+
+      removeTask(tasks, 1, onHeal);
+
+      expect(onHeal).not.toHaveBeenCalled();
+      expect(tasks.value).toHaveLength(0);
+    });
   });
 
   describe('updateTask', () => {
