@@ -30,6 +30,7 @@ function createRock(overrides: Partial<Rock> = {}): Rock {
     lastActiveDate: '2024-01-01',
     taskIdCounter: 0,
     isMain: true,
+    createdAt: '2024-01-01T00:00:00.000Z',
     ...overrides,
   };
 }

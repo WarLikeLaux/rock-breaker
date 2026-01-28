@@ -38,11 +38,11 @@
 
 ## 5. Vue 3: критичные правила
 
-- **`defineProps` и `defineEmits` - макросы компилятора.** Они работают ТОЛЬКО на верхнем уровне `<script setup>`. Вызов внутри функций приводит к runtime error.
+- **`defineProps` и `defineEmits` - макросы компилятора.** Они работают ТОЛЬКО на верхнем уровне `<script setup>`. Вызов внутри функций приводит к ошибке компиляции SFC.
   - ❌ Неправильно:
     ```ts
     function toggle() {
-      emit('update', !defineProps<Props>().value); // ReferenceError!
+      emit('update', !defineProps<Props>().value); // Ошибка компиляции!
     }
     ```
   - ✅ Правильно:

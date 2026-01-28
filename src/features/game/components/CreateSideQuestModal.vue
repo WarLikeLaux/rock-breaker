@@ -45,10 +45,10 @@ function updateDaysFromDate(dateValue: string): void {
   endDateInput.value = dateValue;
   if (!dateValue) return;
   const today = new Date();
-  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const startUtc = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
   const [year, month, day] = dateValue.split('-').map((v) => Number(v));
-  const end = new Date(year, month - 1, day);
-  const diffDays = Math.ceil((end.getTime() - start.getTime()) / 86400000);
+  const endUtc = Date.UTC(year, month - 1, day);
+  const diffDays = Math.round((endUtc - startUtc) / 86400000);
   if (diffDays > 0) {
     daysInput.value = diffDays;
   }
@@ -88,9 +88,16 @@ function handleClose(): void {
   <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="handleClose"></div>
 
-    <div class="relative w-full max-w-md bg-slate-900 rounded-2xl border border-slate-700 p-6">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      aria-describedby="modal-desc"
+      class="relative w-full max-w-md bg-slate-900 rounded-2xl border border-slate-700 p-6"
+    >
       <button
         @click="handleClose"
+        aria-label="Закрыть диалог"
         class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
       >
         <svg
@@ -107,8 +114,8 @@ function handleClose(): void {
 
       <div class="text-center mb-6">
         <div class="text-4xl mb-2">🗻</div>
-        <h2 class="text-xl font-bold text-white">Новый сайд-квест</h2>
-        <p class="text-slate-400 text-sm mt-1">Побочная цель для баланса</p>
+        <h2 id="modal-title" class="text-xl font-bold text-white">Новый сайд-квест</h2>
+        <p id="modal-desc" class="text-slate-400 text-sm mt-1">Побочная цель для баланса</p>
       </div>
 
       <form @submit.prevent="handleSubmit" class="space-y-4">
@@ -138,7 +145,7 @@ function handleClose(): void {
             class="w-full px-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
           />
           <p class="text-xs text-slate-500 mt-2">
-            Дата рассчитаетcя автоматически при выборе количества дней
+            Дата рассчитается автоматически при выборе количества дней
           </p>
         </div>
 

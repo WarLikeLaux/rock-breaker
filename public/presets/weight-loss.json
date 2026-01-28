@@ -12,7 +12,7 @@
 				{ "id": 5, "text": "Съесть 3 порции овощей", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
 			],
 			"currentHp": 300,
-			"lastActiveDate": "2026-01-25",
+			"lastActiveDate": null,
 			"taskIdCounter": 6,
 			"isMain": true
 		},
@@ -28,7 +28,7 @@
 				{ "id": 5, "text": "Медитация на расслабление", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
 			],
 			"currentHp": 300,
-			"lastActiveDate": "2026-01-25",
+			"lastActiveDate": null,
 			"taskIdCounter": 6,
 			"isMain": false
 		},
@@ -44,7 +44,7 @@
 				{ "id": 5, "text": "Прием витаминов или Омега-3", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
 			],
 			"currentHp": 300,
-			"lastActiveDate": "2026-01-25",
+			"lastActiveDate": null,
 			"taskIdCounter": 6,
 			"isMain": false
 		}
@@ -54,5 +54,5 @@
 	"rockIdCounter": 4,
 	"showTooltips": true,
 	"hardModeEnabled": false,
-	"exportedAt": "2026-01-25T12:00:00.000Z"
+	"exportedAt": null
 }

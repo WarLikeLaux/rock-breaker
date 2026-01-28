@@ -7,7 +7,7 @@
     "h": "node scripts/help.js",
     "help": "node scripts/help.js",
     "dev": "vite",
-    "dev:bg": "vite &",
+    "dev:bg": "node -e \"require('child_process').spawn('npx',['vite'],{detached:true,stdio:'ignore'}).unref()\"",
     "dev:pm2": "pnpm exec pm2 start ecosystem.config.cjs",
     "dev:pm2:stop": "pnpm exec pm2 stop vite-dev",
     "dev:pm2:restart": "pnpm exec pm2 restart vite-dev",

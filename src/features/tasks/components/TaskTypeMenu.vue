@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import { MAX_DAILY_EXECUTIONS } from '@/shared/constants/tasks';
 import type { Task } from '@/shared/types';
 
@@ -39,8 +39,12 @@ function handleClickOutside(e: MouseEvent): void {
   }
 }
 
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside);
+watch(() => props.show, (isShowing) => {
+  if (isShowing) {
+    document.addEventListener('click', handleClickOutside);
+  } else {
+    document.removeEventListener('click', handleClickOutside);
+  }
 });
 
 onUnmounted(() => {
@@ -108,3 +112,16 @@ function selectExecutions(count: number): void {
     </Transition>
   </div>
 </template>
+
+<style scoped>
+.menu-enter-active,
+.menu-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.menu-enter-from,
+.menu-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+</style>

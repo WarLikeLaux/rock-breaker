@@ -1,22 +1,38 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onBeforeUnmount } from 'vue';
 
 const emit = defineEmits<{
   remove: [];
 }>();
 
 const deleteConfirm = ref<boolean>(false);
+let confirmTimeout: ReturnType<typeof setTimeout> | null = null;
 
 function handleClick(): void {
   if (deleteConfirm.value) {
+    if (confirmTimeout) {
+      clearTimeout(confirmTimeout);
+      confirmTimeout = null;
+    }
     emit('remove');
   } else {
+    if (confirmTimeout) {
+      clearTimeout(confirmTimeout);
+    }
     deleteConfirm.value = true;
-    setTimeout(() => {
+    confirmTimeout = setTimeout(() => {
       deleteConfirm.value = false;
+      confirmTimeout = null;
     }, 2000);
   }
 }
+
+onBeforeUnmount(() => {
+  if (confirmTimeout) {
+    clearTimeout(confirmTimeout);
+    confirmTimeout = null;
+  }
+});
 </script>
 
 <template>

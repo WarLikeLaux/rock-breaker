@@ -26,13 +26,12 @@ const commandDescriptions = {
   'deploy': 'деплой на gh-pages',
 };
 
-const availableCommands = Object.keys(commandDescriptions).filter(
-  (cmd) => packageJson.scripts[cmd]
-);
+const scripts = packageJson.scripts || {};
+const availableCommands = Object.keys(scripts);
 
 console.log('\n📦 Доступные команды:\n');
 availableCommands.forEach((cmd) => {
-  const description = commandDescriptions[cmd];
+  const description = commandDescriptions[cmd] || 'Нет описания';
   const paddedCommand = cmd.padEnd(20);
   console.log(`  pnpm ${paddedCommand} - ${description}`);
 });

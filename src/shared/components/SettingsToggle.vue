@@ -5,14 +5,15 @@ interface Props {
   modelValue: boolean;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean];
 }>();
 
-function toggle(): void {
-  emit('update:modelValue', !props.modelValue);
+function toggle(event: Event): void {
+  const target = event.target as HTMLInputElement;
+  emit('update:modelValue', target.checked);
 }
 </script>
 

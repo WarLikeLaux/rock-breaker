@@ -46,7 +46,11 @@ const presetConfirmId = ref<string | null>(null);
 const presetLoading = ref<boolean>(false);
 
 onMounted(async () => {
-  presets.value = await fetchPresets();
+  try {
+    presets.value = await fetchPresets();
+  } catch {
+    presets.value = [];
+  }
 });
 
 function handleNewDay(): void {
@@ -127,6 +131,8 @@ function handlePromoteSideQuest(id: number): void {
   emit('close');
 }
 
+const presetError = ref<string>('');
+
 async function handleLoadPreset(preset: PresetMeta): Promise<void> {
   if (presetConfirmId.value !== preset.id) {
     presetConfirmId.value = preset.id;
@@ -139,13 +145,24 @@ async function handleLoadPreset(preset: PresetMeta): Promise<void> {
   }
 
   presetLoading.value = true;
+  presetError.value = '';
   const jsonString = await loadPreset(preset.file);
   presetLoading.value = false;
 
-  if (jsonString && importData(jsonString)) {
+  if (!jsonString) {
     presetConfirmId.value = null;
-    emit('close');
+    presetError.value = 'Не удалось загрузить пресет';
+    return;
   }
+
+  if (!importData(jsonString)) {
+    presetConfirmId.value = null;
+    presetError.value = 'Ошибка импорта пресета';
+    return;
+  }
+
+  presetConfirmId.value = null;
+  emit('close');
 }
 </script>
 
@@ -278,6 +295,7 @@ async function handleLoadPreset(preset: PresetMeta): Promise<void> {
             </button>
           </div>
         </div>
+        <p v-if="presetError" class="text-red-400 text-xs text-center animate-pulse">{{ presetError }}</p>
       </div>
 
       <hr class="border-slate-700" />

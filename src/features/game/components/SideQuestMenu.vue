@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import type { Rock } from '@/shared/types';
 import SideQuestCard from './SideQuestCard.vue';
 
@@ -18,12 +18,15 @@ const emit = defineEmits<{
 
 const isOpen = ref(false);
 
+const mainRockCompletedTasks = computed(() => props.mainRock?.tasks.filter(t => t.completed).length ?? 0);
+
 function handleSelect(rockId: number): void {
   emit('select', rockId);
   isOpen.value = false;
 }
 
 function handleCreateNew(): void {
+  if (!props.canAccess) return;
   emit('createNew');
   isOpen.value = false;
 }
@@ -76,7 +79,7 @@ function selectMain(): void {
               :class="activeRockId === mainRock.id ? 'ring-2 ring-amber-500' : ''">
               <p class="text-white font-medium line-clamp-2 break-words">{{ mainRock.goalName }}</p>
               <p class="text-xs text-slate-400 mt-1">
-                {{mainRock.tasks.filter((t) => t.completed).length}}/{{ mainRock.tasks.length }} задач
+                {{ mainRockCompletedTasks }}/{{ mainRock.tasks.length }} задач
               </p>
             </div>
           </div>
@@ -90,7 +93,9 @@ function selectMain(): void {
           </div>
 
           <button @click="handleCreateNew"
-            class="w-full mt-4 py-3 px-4 rounded-xl border-2 border-dashed border-slate-600 hover:border-slate-500 text-slate-400 hover:text-white transition-colors flex items-center justify-center gap-2">
+            :disabled="!canAccess"
+            class="w-full mt-4 py-3 px-4 rounded-xl border-2 border-dashed transition-colors flex items-center justify-center gap-2"
+            :class="canAccess ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-white cursor-pointer' : 'border-slate-700 text-slate-600 cursor-not-allowed'">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
               stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

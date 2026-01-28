@@ -27,12 +27,12 @@ export default defineConfig({
       ]
     }
   },
+  // Явная конфигурация esbuild: Vite использует esbuild для транспиляции TS,
+  // но не читает tsconfig.json напрямую — нужно дублировать критичные опции
   esbuild: {
     tsconfigRaw: {
       compilerOptions: {
         target: 'ES2020',
-        module: 'ESNext',
-        moduleResolution: 'bundler',
         jsx: 'preserve',
       },
     },

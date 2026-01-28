@@ -29,8 +29,9 @@ const placeholderText = computed(() => {
 });
 
 function handleAddTask(): void {
-  if (!newTaskText.value.trim()) return;
-  addTask(newTaskText.value);
+  const trimmed = newTaskText.value.trim();
+  if (!trimmed) return;
+  addTask(trimmed);
   newTaskText.value = '';
 
   nextTick(() => {

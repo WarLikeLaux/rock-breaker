@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onBeforeUnmount } from 'vue';
 
 interface Props {
   rockEmoji: string;
@@ -46,6 +46,13 @@ function showPhraseWithText(text: string): void {
     phraseTimer = null;
   }, 2000);
 }
+
+onBeforeUnmount(() => {
+  if (phraseTimer) {
+    clearTimeout(phraseTimer);
+    phraseTimer = null;
+  }
+});
 
 defineExpose({ showPhraseWithText });
 </script>

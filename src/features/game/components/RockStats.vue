@@ -24,7 +24,9 @@ const dayForm = computed(() => {
   const remainder = n % 10;
   const remainder100 = n % 100;
 
-  if (remainder === 1 && remainder100 !== 11) return 'дня';
+  if (remainder100 >= 11 && remainder100 <= 14) return 'дней';
+  if (remainder === 1) return 'день';
+  if (remainder >= 2 && remainder <= 4) return 'дня';
   return 'дней';
 });
 
@@ -48,11 +50,6 @@ const rockState = computed(() => {
 const hpBarWidth = computed(() => `${props.hpPercent}%`);
 </script>
 
-<style scoped>
-.hp-bar {
-  width: var(--hp-width);
-}
-</style>
 
 <template>
   <div class="text-center select-none">
@@ -76,9 +73,9 @@ const hpBarWidth = computed(() => `${props.hpPercent}%`);
         class="h-5 bg-slate-700/50 rounded-full overflow-hidden backdrop-blur border border-slate-600"
       >
         <div
-          class="hp-bar h-full bg-gradient-to-r transition-all duration-700 ease-out relative overflow-hidden"
+          class="h-full bg-gradient-to-r transition-all duration-700 ease-out relative overflow-hidden"
           :class="hpColor"
-          :style="{ '--hp-width': hpBarWidth }"
+          :style="{ width: hpBarWidth }"
         >
           <div
             class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 animate-shimmer"

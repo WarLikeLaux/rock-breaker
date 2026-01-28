@@ -37,6 +37,7 @@ export function restartRock(
   currentHp.value = newDays * 5;
   tasks.value.forEach((task) => {
     task.completed = false;
+    task.currentExecutions = 0;
   });
   lastActiveDate.value = getTodayDate();
 }
@@ -56,7 +57,7 @@ export function updateRock(
   durationDays.value = newDays;
 
   const newMaxHp = newDays * 5;
-  currentHp.value = Math.max(0, newMaxHp - damageDone);
+  currentHp.value = Math.min(newMaxHp, Math.max(0, newMaxHp - damageDone));
 }
 
 export function resetGame(

@@ -20,6 +20,8 @@ const {
   promoteSideQuestToMain,
   deleteRock,
   focusModeEnabled,
+  subscribeVisualHit,
+  subscribeVisualHeal,
 } = gameStore;
 
 const showSettings = ref<boolean>(false);
@@ -34,12 +36,16 @@ function triggerVisualHeal(): void {
   rockDisplayRef.value?.triggerVisualHeal();
 }
 
-gameStore.triggerVisualHit = triggerVisualHit;
-gameStore.triggerVisualHeal = triggerVisualHeal;
+const unsubscribeHit = subscribeVisualHit(triggerVisualHit);
+const unsubscribeHeal = subscribeVisualHeal(triggerVisualHeal);
 
 onBeforeUnmount(() => {
-  gameStore.triggerVisualHit = undefined;
-  gameStore.triggerVisualHeal = undefined;
+  unsubscribeHit();
+  unsubscribeHeal();
+  if (deleteConfirmTimer) {
+    clearTimeout(deleteConfirmTimer);
+    deleteConfirmTimer = null;
+  }
 });
 
 const isViewingSideQuest = computed(() => {
@@ -80,20 +86,29 @@ function handlePromoteSideQuest(): void {
 }
 
 const deleteConfirmId = ref<number | null>(null);
+let deleteConfirmTimer: ReturnType<typeof setTimeout> | null = null;
 
 function handleDeleteSideQuest(): void {
   if (!activeRock.value || activeRock.value.isMain) return;
 
   if (deleteConfirmId.value === activeRock.value.id) {
+    if (deleteConfirmTimer) {
+      clearTimeout(deleteConfirmTimer);
+      deleteConfirmTimer = null;
+    }
     deleteRock(activeRock.value.id);
     if (mainRock.value) {
       switchRock(mainRock.value.id);
     }
     deleteConfirmId.value = null;
   } else {
+    if (deleteConfirmTimer) {
+      clearTimeout(deleteConfirmTimer);
+    }
     deleteConfirmId.value = activeRock.value.id;
-    setTimeout(() => {
+    deleteConfirmTimer = setTimeout(() => {
       deleteConfirmId.value = null;
+      deleteConfirmTimer = null;
     }, 3000);
   }
 }

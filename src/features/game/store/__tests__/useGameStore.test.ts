@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 vi.mock('../storage', async () => {
   const actual = await vi.importActual<typeof import('../storage')>('../storage');
@@ -32,6 +32,10 @@ describe('useGameStore integration tests', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe('Сценарий: Наступил новый день', () => {
@@ -95,8 +99,9 @@ describe('useGameStore integration tests', () => {
       store.addTask('Джокер', 'joker');
 
       expect(store.tasks.value).toHaveLength(1);
-      expect(store.tasks.value[0]?.type).toBe('joker');
-      expect(store.tasks.value[0]?.originalText).toBeNull();
+      const task = store.tasks.value[0];
+      expect(task?.type).toBe('joker');
+      expect(task?.originalText).toBeNull();
     });
 
     it('джокер не должен влиять на HP при toggle', () => {
@@ -125,7 +130,7 @@ describe('useGameStore integration tests', () => {
       store.setTaskType(store.tasks.value[0]!.id, 'joker');
 
       expect(store.tasks.value[0]?.type).toBe('joker');
-      expect(store.tasks.value[0]?.originalText).toBeNull();
+      expect(store.tasks.value[0]?.originalText).toBe('Обычная задача');
     });
   });
 
@@ -218,14 +223,22 @@ describe('useGameStore integration tests', () => {
   });
 
   describe('Сценарий: Автосохранение', () => {
-    it('должен восстанавливать состояние из localStorage', () => {
+    it('должен восстанавливать состояние из localStorage', async () => {
       vi.setSystemTime(new Date('2026-01-12'));
 
       const store1 = useGameStore();
       store1.createRock('Сохраненная цель', 15);
       store1.addTask('Сохраненная задача');
 
+      await Promise.resolve();
+      vi.runAllTimers();
+
+      store1.isSetupComplete.value = false;
+      store1.rocks.value = [];
+      store1.activeRockId.value = 0;
+
       const store2 = useGameStore();
+      store2.loadFromStorage();
 
       expect(store2.goalName.value).toBe('Сохраненная цель');
       expect(store2.durationDays.value).toBe(15);

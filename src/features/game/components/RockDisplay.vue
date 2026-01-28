@@ -6,7 +6,11 @@ import RockEmoji from './RockEmoji.vue';
 import RockStats from './RockStats.vue';
 
 const { goalName, currentHp, maxHp, hpPercent, isVictory, activeRock } = useGameStore();
-const createdAt = computed(() => activeRock.value?.createdAt ?? new Date().toISOString().split('T')[0]!);
+const createdAt = computed(() => {
+  const isoString = activeRock.value?.createdAt ?? new Date().toISOString();
+  const tIndex = isoString.indexOf('T');
+  return tIndex !== -1 ? isoString.substring(0, tIndex) : isoString;
+});
 const { playRockTap, playHit, playHeal, playVictory, playClick } = useSounds();
 
 const isShaking = ref<boolean>(false);
@@ -54,7 +58,7 @@ const rockState = computed(() => {
 });
 
 watch(currentHp, (newHp, oldHp) => {
-  if (activeRock.value && lastRock.value && activeRock.value === lastRock.value) {
+  if (activeRock.value && lastRock.value && activeRock.value.id === lastRock.value.id) {
     const diff = (oldHp as number) - (newHp as number);
     if (diff === 1) {
       triggerShake();

@@ -58,7 +58,11 @@ export function saveToStorage(state: Omit<StoredState, 'version'>): void {
     version: SCHEMA_VERSION,
     ...state,
   };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(stateWithVersion));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stateWithVersion));
+  } catch (error) {
+    console.warn(`Не удалось сохранить в ${STORAGE_KEY}:`, error);
+  }
 }
 
 export function loadFromStorage(): StoredState | null {
@@ -151,24 +155,32 @@ export function importData(jsonString: string): ImportResult | null {
       return null;
     }
 
-    const normalizedRocks = state.rocks.map((rock: Rock) => ({
-      ...rock,
-      createdAt: rock.createdAt || rock.lastActiveDate || getTodayDate(),
-      tasks: (rock.tasks || []).map((t: Task) => ({
-        ...t,
-        type: t.type || 'standard',
-        originalText: t.originalText || null,
-        requiredExecutions: t.requiredExecutions ?? 1,
-        currentExecutions: t.currentExecutions ?? (t.completed ? 1 : 0),
-      })),
-    }));
+    let idCounter = 1;
+    const normalizedRocks = state.rocks.map((rock: Rock) => {
+      const rockId = typeof rock.id === 'number' && isFinite(rock.id) ? rock.id : idCounter++;
+      return {
+        ...rock,
+        id: rockId,
+        createdAt: rock.createdAt || rock.lastActiveDate || getTodayDate(),
+        tasks: (rock.tasks || []).map((t: Task) => ({
+          ...t,
+          type: t.type || 'standard',
+          originalText: t.originalText || null,
+          requiredExecutions: t.requiredExecutions ?? 1,
+          currentExecutions: t.currentExecutions ?? (t.completed ? 1 : 0),
+        })),
+      };
+    });
 
-    const rockIds = normalizedRocks.map((rock) => rock.id);
+    const rockIds = normalizedRocks.map((rock) => rock.id).filter((id) => isFinite(id));
     const fallbackActiveRockId = normalizedRocks[0]?.id ?? 0;
-    const activeRockId = rockIds.includes(state.activeRockId ?? -1)
-      ? (state.activeRockId as number)
+    const validActiveRockId = typeof state.activeRockId === 'number' && isFinite(state.activeRockId)
+      ? state.activeRockId
+      : -1;
+    const activeRockId = rockIds.includes(validActiveRockId)
+      ? validActiveRockId
       : fallbackActiveRockId;
-    const maxRockId = Math.max(...rockIds);
+    const maxRockId = rockIds.length > 0 ? Math.max(0, ...rockIds) : 0;
 
     return {
       rocks: normalizedRocks,
@@ -186,11 +198,20 @@ export function importData(jsonString: string): ImportResult | null {
 }
 
 export function saveSettings(settings: Settings): void {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  } catch (error) {
+    console.warn(`Не удалось сохранить настройки в ${SETTINGS_KEY}:`, error);
+  }
 }
 
 export function loadSettings(): Settings {
-  return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') as Settings;
+  try {
+    return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') as Settings;
+  } catch {
+    localStorage.removeItem(SETTINGS_KEY);
+    return {};
+  }
 }
 
 export function clearStorage(): void {

@@ -4,6 +4,8 @@ import { useGameStore } from '@/features/game/store';
 
 const { createRock, importData } = useGameStore();
 
+const MS_PER_DAY = 86400000;
+
 const goalInput = ref<string>('');
 const daysInput = ref<number>(30);
 const tasksInput = ref<string[]>(['']);
@@ -44,11 +46,21 @@ function formatDate(date: Date): string {
 function updateDaysFromDate(dateValue: string): void {
   endDateInput.value = dateValue;
   if (!dateValue) return;
+  const parts = dateValue.split('-').map((v) => Number(v));
+  const [year, month, day] = parts;
+  if (!isFinite(year) || !isFinite(month) || !isFinite(day) ||
+      month < 1 || month > 12 || day < 1 || day > 31) {
+    daysInput.value = 0;
+    return;
+  }
   const today = new Date();
   const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const [year, month, day] = dateValue.split('-').map((v) => Number(v));
   const end = new Date(year, month - 1, day);
-  const diffDays = Math.ceil((end.getTime() - start.getTime()) / 86400000);
+  if (!isFinite(end.getTime())) {
+    daysInput.value = 0;
+    return;
+  }
+  const diffDays = Math.ceil((end.getTime() - start.getTime()) / MS_PER_DAY);
   if (diffDays > 0) {
     daysInput.value = diffDays;
   }
@@ -136,7 +148,7 @@ async function handleFileChange(event: Event): Promise<void> {
             class="w-full px-4 py-4 bg-slate-800/80 border border-slate-700 rounded-2xl text-white text-lg placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
           />
           <p class="text-xs text-slate-500 mt-2">
-            Дата рассчитаетcя автоматически при выборе количества дней
+            Дата рассчитается автоматически при выборе количества дней
           </p>
         </div>
 

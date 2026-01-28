@@ -56,6 +56,17 @@ export function setTaskType(tasks: Ref<Task[]>, id: number, newType: Task['type'
   const task = tasks.value.find((t) => t.id === id);
   if (!task) return;
 
+  if (newType === 'joker') {
+    if (task.type === 'standard' || task.type === 'substitute') {
+      task.originalText = task.originalText || task.text;
+    }
+    task.type = newType;
+    task.requiredExecutions = MIN_DAILY_EXECUTIONS;
+    task.currentExecutions = 0;
+    task.completed = false;
+    return;
+  }
+
   if (newType !== 'standard' && task.type === 'standard') {
     task.originalText = task.text;
   } else if (newType === 'standard' && task.originalText) {
@@ -64,13 +75,6 @@ export function setTaskType(tasks: Ref<Task[]>, id: number, newType: Task['type'
   }
 
   task.type = newType;
-
-  if (newType === 'joker') {
-    task.requiredExecutions = MIN_DAILY_EXECUTIONS;
-    task.currentExecutions = 0;
-    task.completed = false;
-    task.originalText = null;
-  }
 }
 
 export function substituteTask(tasks: Ref<Task[]>, id: number, tempText: string): void {

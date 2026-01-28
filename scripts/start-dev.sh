@@ -1,3 +1,3 @@
 #!/bin/bash
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/.." || { echo "Ошибка: не удалось перейти в директорию проекта"; exit 1; }
 pnpm dev

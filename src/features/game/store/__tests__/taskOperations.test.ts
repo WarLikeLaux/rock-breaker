@@ -211,7 +211,7 @@ describe('taskOperations.ts', () => {
 
       const task = tasks.value[0];
       expect(task?.type).toBe('joker');
-      expect(task?.originalText).toBeNull();
+      expect(task?.originalText).toBe('Задача');
     });
 
     it('должен изменять тип с standard на substitute', () => {
@@ -267,7 +267,7 @@ describe('taskOperations.ts', () => {
       expect(tasks.value[0]?.requiredExecutions).toBe(1);
       expect(tasks.value[0]?.currentExecutions).toBe(0);
       expect(tasks.value[0]?.completed).toBe(false);
-      expect(tasks.value[0]?.originalText).toBeNull();
+      expect(tasks.value[0]?.originalText).toBe('Оригинал');
     });
   });
 
@@ -332,7 +332,7 @@ describe('taskOperations.ts', () => {
 
     it('не должен вызывать колбэки для джокера', () => {
       const tasks = ref<Task[]>([
-        { id: 1, text: 'Джокер', completed: false, type: 'joker', originalText: 'Оригинал', requiredExecutions: 1, currentExecutions: 0 },
+        { id: 1, text: 'Джокер', completed: false, type: 'joker', originalText: null, requiredExecutions: 1, currentExecutions: 0 },
       ]);
       const onHit = vi.fn();
       const onHeal = vi.fn();
@@ -589,7 +589,7 @@ describe('taskOperations.ts', () => {
       resetTasksForNewDay(tasks);
 
       const newStandardCount = tasks.value.filter((t) => t.type === 'standard').length;
-      expect(newStandardCount).toBeGreaterThanOrEqual(standardCount);
+      expect(newStandardCount).toBe(standardCount + 1);
     });
 
     it('должен корректно обрабатывать пустой массив', () => {

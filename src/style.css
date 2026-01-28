@@ -173,3 +173,31 @@ body {
     display: none;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .list-enter-active,
+  .list-leave-active,
+  .list-move,
+  .fade-enter-active,
+  .fade-leave-active,
+  .menu-enter-active,
+  .menu-leave-active,
+  .phrase-enter-active,
+  .phrase-leave-active,
+  .animate-wobble {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .list-enter-from,
+  .list-leave-to,
+  .fade-enter-from,
+  .fade-leave-to,
+  .menu-enter-from,
+  .menu-leave-to,
+  .phrase-enter-from,
+  .phrase-leave-to {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

@@ -21,6 +21,10 @@ import {
   decrementExecution as decrementExecutionOp,
   resetTasksForNewDay,
 } from './taskOperations';
+import {
+  restartRock as restartRockOp,
+  updateRock as updateRockOp,
+} from './rockOperations';
 
 export interface GameStore {
   goalName: ComputedRef<string>;
@@ -41,6 +45,8 @@ export interface GameStore {
   mainRock: ComputedRef<Rock | undefined>;
   sideRocks: ComputedRef<Rock[]>;
   isDayWon: ComputedRef<boolean>;
+  subscribeVisualHit: (callback: () => void) => () => void;
+  subscribeVisualHeal: (callback: () => void) => () => void;
 
   canAccessSideQuests: ComputedRef<boolean>;
   hardModeEnabled: Ref<boolean>;
@@ -56,8 +62,6 @@ export interface GameStore {
   setTaskType: (id: number, newType: Task['type']) => void;
   substituteTask: (id: number, tempText: string) => void;
   toggleTask: (id: number) => void;
-  triggerVisualHit: (() => void) | undefined;
-  triggerVisualHeal: (() => void) | undefined;
   setRequiredExecutions: (id: number, count: number) => void;
   decrementExecution: (id: number) => void;
   toggleTooltips: () => void;
@@ -90,8 +94,16 @@ const focusSkipOffset = ref<number>(0);
 const shuffledIndices = ref<number[]>([]);
 
 const rockIdCounter = { value: 0 };
-let visualHitCallback: (() => void) | undefined = undefined;
-let visualHealCallback: (() => void) | undefined = undefined;
+const visualHitListeners = new Set<() => void>();
+const visualHealListeners = new Set<() => void>();
+
+function triggerVisualHit(): void {
+  visualHitListeners.forEach((cb) => cb());
+}
+
+function triggerVisualHeal(): void {
+  visualHealListeners.forEach((cb) => cb());
+}
 
 const activeRock = computed(() => rocks.value.find((r) => r.id === activeRockId.value));
 const mainRock = computed(() => rocks.value.find((r) => r.isMain));
@@ -156,18 +168,16 @@ const canAccessSideQuests = computed(() => {
   return isDayWon.value;
 });
 
-function getActiveRockRef<K extends keyof Rock>(key: K): { value: Rock[K] } {
-  return {
-    get value() {
-      return activeRock.value?.[key] as Rock[K];
-    },
-    set value(val: Rock[K]) {
+function getActiveRockRef<K extends keyof Rock>(key: K): Ref<Rock[K]> {
+  return computed({
+    get: () => activeRock.value?.[key] as Rock[K],
+    set: (val: Rock[K]) => {
       const rock = activeRock.value;
       if (rock) {
         (rock as Record<K, Rock[K]>)[key] = val;
       }
     },
-  };
+  });
 }
 
 function saveState(): void {
@@ -356,28 +366,30 @@ function restartRock(newName: string, newDays: number): void {
   const rock = activeRock.value;
   if (!rock) return;
 
-  rock.goalName = newName;
-  rock.durationDays = newDays;
-  rock.currentHp = newDays * 5;
-  rock.tasks.forEach((task) => {
-    task.completed = false;
-    task.currentExecutions = 0;
-  });
-  rock.lastActiveDate = getTodayDate();
+  restartRockOp(
+    getActiveRockRef('goalName'),
+    getActiveRockRef('durationDays'),
+    getActiveRockRef('currentHp'),
+    getActiveRockRef('tasks') as unknown as Ref<Task[]>,
+    getActiveRockRef('lastActiveDate'),
+    getTodayDate,
+    newName,
+    newDays,
+  );
 }
 
 function updateRock(newName: string, newDays: number): void {
   const rock = activeRock.value;
   if (!rock) return;
 
-  const oldMaxHp = rock.durationDays * 5;
-  const damageDone = oldMaxHp - rock.currentHp;
-
-  rock.goalName = newName;
-  rock.durationDays = newDays;
-
-  const newMaxHp = newDays * 5;
-  rock.currentHp = Math.max(0, newMaxHp - damageDone);
+  updateRockOp(
+    getActiveRockRef('goalName'),
+    getActiveRockRef('durationDays'),
+    getActiveRockRef('currentHp'),
+    maxHp,
+    newName,
+    newDays,
+  );
 }
 
 function hitRock(): void {
@@ -467,13 +479,11 @@ export function useGameStore(): GameStore {
     },
     toggleTask: (id: number) => {
       if (!activeRock.value) return;
-      toggleTaskOp(tasksRef, id, hitRock, healRock, visualHitCallback);
+      toggleTaskOp(tasksRef, id, hitRock, healRock, triggerVisualHit);
     },
-    get triggerVisualHit() {
-      return visualHitCallback;
-    },
-    set triggerVisualHit(callback: (() => void) | undefined) {
-      visualHitCallback = callback;
+    subscribeVisualHit: (callback: () => void) => {
+      visualHitListeners.add(callback);
+      return () => visualHitListeners.delete(callback);
     },
     setRequiredExecutions: (id: number, count: number) => {
       if (!activeRock.value) return;
@@ -481,13 +491,11 @@ export function useGameStore(): GameStore {
     },
     decrementExecution: (id: number) => {
       if (!activeRock.value) return;
-      decrementExecutionOp(tasksRef, id, healRock, visualHealCallback);
+      decrementExecutionOp(tasksRef, id, healRock, triggerVisualHeal);
     },
-    get triggerVisualHeal() {
-      return visualHealCallback;
-    },
-    set triggerVisualHeal(callback: (() => void) | undefined) {
-      visualHealCallback = callback;
+    subscribeVisualHeal: (callback: () => void) => {
+      visualHealListeners.add(callback);
+      return () => visualHealListeners.delete(callback);
     },
     toggleTooltips: () => {
       showTooltips.value = !showTooltips.value;
@@ -505,7 +513,7 @@ export function useGameStore(): GameStore {
 
       focusSkipOffset.value++;
       if (focusSkipOffset.value >= count) {
-        
+
         const lastIndex = shuffledIndices.value[shuffledIndices.value.length - 1];
         const newIndices = generateShuffledIndices(count);
 

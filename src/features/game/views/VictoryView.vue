@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useGameStore } from '@/features/game/store';
 import { useSounds } from '@/shared/composables/useSounds';
+import { calculateMaxHp } from '@/shared/constants/tasks';
 
 const {
   goalName,
@@ -66,7 +67,7 @@ function handlePromoteSideQuest(sideQuestId: number): void {
             <div class="flex-1">
               <p class="text-white font-medium">{{ sideQuest.goalName }}</p>
               <p class="text-xs text-slate-400 mt-1">
-                {{ sideQuest.currentHp }} / {{ sideQuest.durationDays * 5 }} HP
+                {{ sideQuest.currentHp }} / {{ calculateMaxHp(sideQuest.durationDays) }} HP
               </p>
             </div>
             <button
