@@ -35,7 +35,8 @@ function getSlotForm(n: number): string {
 
 const placeholderText = computed(() => {
   const remaining = MAX_TASK_SLOTS - tasks.value.length;
-  return `Добавить задачу (осталось ${remaining} ${getSlotForm(remaining)})`;
+  const verb = (remaining % 10 === 1 && remaining % 100 !== 11) ? 'остался' : 'осталось';
+  return `Добавить задачу (${verb} ${remaining} ${getSlotForm(remaining)})`;
 });
 
 function handleAddTask(): void {
