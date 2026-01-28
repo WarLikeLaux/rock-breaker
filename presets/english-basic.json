@@ -9,10 +9,10 @@
 				{ "id": 2, "text": "Прочитать одну статью/страницу", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
 				{ "id": 3, "text": "Послушать подкаст или аудио", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
 				{ "id": 4, "text": "Попрактиковать разговор (хотя бы с собой)", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
-				{ "id": 5, "text": "Wild card - любая активность на английском", "completed": false, "type": "joker", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
+				{ "id": 5, "text": "Джокер - любая активность на английском", "completed": false, "type": "joker", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
 			],
 			"currentHp": 150,
-			"lastActiveDate": "2026-01-25",
+			"lastActiveDate": null,
 			"taskIdCounter": 6,
 			"isMain": true
 		},
@@ -28,7 +28,7 @@
 				{ "id": 5, "text": "Найти и разобрать один мем на английском", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
 			],
 			"currentHp": 150,
-			"lastActiveDate": "2026-01-25",
+			"lastActiveDate": null,
 			"taskIdCounter": 6,
 			"isMain": false
 		},
@@ -44,7 +44,7 @@
 				{ "id": 5, "text": "Объяснить правило вслух (метод Фейнмана)", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
 			],
 			"currentHp": 150,
-			"lastActiveDate": "2026-01-25",
+			"lastActiveDate": null,
 			"taskIdCounter": 6,
 			"isMain": false
 		}
@@ -54,5 +54,5 @@
 	"rockIdCounter": 4,
 	"showTooltips": true,
 	"hardModeEnabled": false,
-	"exportedAt": "2026-01-25T12:00:00.000Z"
+	"exportedAt": null
 }
