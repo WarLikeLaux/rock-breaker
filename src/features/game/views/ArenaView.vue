@@ -112,6 +112,10 @@ function handleDeleteSideQuest(): void {
     }, 3000);
   }
 }
+function handleOpenCreateModal(): void {
+  showSettings.value = false;
+  showCreateModal.value = true;
+}
 </script>
 
 <template>
@@ -282,8 +286,7 @@ function handleDeleteSideQuest(): void {
     </div>
 
     <Transition name="fade">
-      <SettingsPanel v-if="showSettings" @close="showSettings = false"
-        @create-side-quest="showSettings = false; showCreateModal = true" />
+      <SettingsPanel v-if="showSettings" @close="showSettings = false" @create-side-quest="handleOpenCreateModal" />
     </Transition>
 
     <Transition name="fade">

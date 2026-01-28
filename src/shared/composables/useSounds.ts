@@ -61,14 +61,14 @@ async function playTone(
   }
 }
 
-function playHit(): void {
+async function playHit(): Promise<void> {
   if (!soundEnabled.value) return;
 
   try {
     const ctx = getAudioContext();
     if (!ctx) return;
     if (ctx.state === 'suspended') {
-      ctx.resume();
+      await ctx.resume();
     }
     const t = ctx.currentTime;
 

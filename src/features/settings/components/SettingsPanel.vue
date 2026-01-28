@@ -84,15 +84,21 @@ async function handleFileChange(event: Event): Promise<void> {
   const file = target.files?.[0];
   if (!file) return;
 
-  const text = await file.text();
-  const success = importData(text);
-  if (success) {
-    importError.value = '';
-    emit('close');
-  } else {
-    importError.value = 'Ошибка импорта. Проверьте файл.';
+  try {
+    const text = await file.text();
+    const success = importData(text);
+    if (success) {
+      importError.value = '';
+      emit('close');
+    } else {
+      importError.value = 'Ошибка импорта. Проверьте файл.';
+    }
+  } catch (error) {
+    console.error('Ошибка чтения файла:', error);
+    importError.value = 'Не удалось прочитать файл.';
+  } finally {
+    target.value = '';
   }
-  target.value = '';
 }
 
 function toggleEditGoal(): void {
@@ -148,23 +154,25 @@ async function handleLoadPreset(preset: PresetMeta): Promise<void> {
 
   presetLoading.value = true;
   presetError.value = '';
-  const jsonString = await loadPreset(preset.file);
-  presetLoading.value = false;
+  try {
+    const jsonString = await loadPreset(preset.file);
+    if (!jsonString) {
+      presetError.value = 'Не удалось загрузить пресет';
+      return;
+    }
 
-  if (!jsonString) {
+    if (!importData(jsonString)) {
+      presetError.value = 'Ошибка импорта пресета';
+      return;
+    }
+    emit('close');
+  } catch (error) {
+    console.error('Ошибка загрузки пресета:', error);
+    presetError.value = 'Произошла непредвиденная ошибка при загрузке';
+  } finally {
+    presetLoading.value = false;
     presetConfirmId.value = null;
-    presetError.value = 'Не удалось загрузить пресет';
-    return;
   }
-
-  if (!importData(jsonString)) {
-    presetConfirmId.value = null;
-    presetError.value = 'Ошибка импорта пресета';
-    return;
-  }
-
-  presetConfirmId.value = null;
-  emit('close');
 }
 </script>
 
