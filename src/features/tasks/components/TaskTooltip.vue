@@ -1,11 +1,4 @@
 <script setup lang="ts">
-import type { Task } from '@/shared/types';
-
-interface Props {
-  task: Task;
-}
-
-defineProps<Props>();
 </script>
 
 <template>

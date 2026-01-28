@@ -16,6 +16,22 @@ const isEmptyJoker = computed(() => props.task.type === 'joker' && !props.task.t
 const isRepeatable = computed(() => props.task.requiredExecutions > 1);
 const toggleDisabled = computed(() => isEmptyJoker.value || props.task.completed);
 const toggleCursorClass = computed(() => (toggleDisabled.value ? 'cursor-default' : 'cursor-pointer'));
+
+const buttonStateClass = computed(() => {
+  if (props.task.completed && !isRepeatable.value) {
+    return 'bg-emerald-500 border-emerald-500 text-white scale-110';
+  }
+  if (props.task.completed && isRepeatable.value) {
+    return 'bg-emerald-500 border-emerald-500 text-white';
+  }
+  if (isRepeatable.value) {
+    return 'border-amber-500/50 bg-amber-500/10';
+  }
+  if (isEmptyJoker.value) {
+    return 'border-slate-600 opacity-50 cursor-not-allowed';
+  }
+  return 'border-slate-500 hover:border-amber-400 hover:scale-110';
+});
 </script>
 
 <template>
@@ -23,18 +39,7 @@ const toggleCursorClass = computed(() => (toggleDisabled.value ? 'cursor-default
     @click="emit('toggle')"
     :disabled="toggleDisabled"
     class="flex-shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all duration-300 select-none"
-    :class="[
-      toggleCursorClass,
-      task.completed && !isRepeatable
-        ? 'bg-emerald-500 border-emerald-500 text-white scale-110'
-        : task.completed && isRepeatable
-          ? 'bg-emerald-500 border-emerald-500 text-white'
-          : isRepeatable
-            ? 'border-amber-500/50 bg-amber-500/10'
-            : isEmptyJoker
-              ? 'border-slate-600 opacity-50 cursor-not-allowed'
-              : 'border-slate-500 hover:border-amber-400 hover:scale-110',
-    ]"
+    :class="[toggleCursorClass, buttonStateClass]"
   >
     <span v-if="task.completed && !isRepeatable" class="text-sm font-bold">✓</span>
     <span

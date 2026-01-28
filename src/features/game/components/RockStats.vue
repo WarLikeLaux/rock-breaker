@@ -25,8 +25,7 @@ const dayForm = computed(() => {
   const remainder100 = n % 100;
 
   if (remainder100 >= 11 && remainder100 <= 14) return 'дней';
-  if (remainder === 1) return 'день';
-  if (remainder >= 2 && remainder <= 4) return 'дня';
+  if (remainder === 1) return 'дня';
   return 'дней';
 });
 
@@ -40,11 +39,11 @@ const hpColor = computed(() => {
 
 const rockState = computed(() => {
   const percent = props.hpPercent;
-  if (percent > 75) return { emoji: '🪨', scale: 'scale-100', label: 'Непокоренная' };
-  if (percent > 50) return { emoji: '⛰️', scale: 'scale-95', label: 'Треснула' };
-  if (percent > 25) return { emoji: '🏔️', scale: 'scale-90', label: 'Крошится' };
-  if (percent > 0) return { emoji: '💥', scale: 'scale-85', label: 'Почти всё!' };
-  return { emoji: '✨', scale: 'scale-75', label: 'Разрушена!' };
+  if (percent > 75) return 'Непокоренная';
+  if (percent > 50) return 'Треснула';
+  if (percent > 25) return 'Крошится';
+  if (percent > 0) return 'Почти всё!';
+  return 'Разрушена!';
 });
 
 const hpBarWidth = computed(() => `${props.hpPercent}%`);
@@ -53,7 +52,7 @@ const hpBarWidth = computed(() => `${props.hpPercent}%`);
 
 <template>
   <div class="text-center select-none">
-    <p class="text-xs text-slate-500 uppercase tracking-wider mb-3">{{ rockState.label }}</p>
+    <p class="text-xs text-slate-500 uppercase tracking-wider mb-3">{{ rockState }}</p>
 
     <h2 class="text-2xl font-bold text-white mb-3">{{ goalName }}</h2>
 

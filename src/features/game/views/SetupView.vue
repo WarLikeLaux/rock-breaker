@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { useGameStore } from '@/features/game/store';
+import { HP_PER_DAY } from '@/shared/constants/tasks';
 
 const { createRock, importData } = useGameStore();
 
@@ -13,7 +14,7 @@ const endDateInput = ref<string>('');
 const importError = ref<string>('');
 const fileInput = ref<HTMLInputElement | null>(null);
 
-const calculatedHp = computed(() => daysInput.value * 5);
+const calculatedHp = computed(() => daysInput.value * HP_PER_DAY);
 const minEndDate = computed(() => {
   const today = new Date();
   const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
@@ -47,7 +48,13 @@ function updateDaysFromDate(dateValue: string): void {
   endDateInput.value = dateValue;
   if (!dateValue) return;
   const parts = dateValue.split('-').map((v) => Number(v));
-  const [year, month, day] = parts;
+  if (parts.length < 3) {
+    daysInput.value = 0;
+    return;
+  }
+  const year = parts[0] as number;
+  const month = parts[1] as number;
+  const day = parts[2] as number;
   if (!isFinite(year) || !isFinite(month) || !isFinite(day) ||
       month < 1 || month > 12 || day < 1 || day > 31) {
     daysInput.value = 0;
@@ -63,6 +70,8 @@ function updateDaysFromDate(dateValue: string): void {
   const diffDays = Math.ceil((end.getTime() - start.getTime()) / MS_PER_DAY);
   if (diffDays > 0) {
     daysInput.value = diffDays;
+  } else {
+    daysInput.value = 0;
   }
 }
 
@@ -94,7 +103,9 @@ async function handleFileChange(event: Event): Promise<void> {
 
   const text = await file.text();
   const success = importData(text);
-  if (!success) {
+  if (success) {
+    importError.value = '';
+  } else {
     importError.value = 'Ошибка импорта. Проверьте файл.';
   }
   target.value = '';

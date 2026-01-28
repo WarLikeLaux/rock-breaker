@@ -19,14 +19,6 @@ const emit = defineEmits<{
 const wrapperRef = ref<HTMLDivElement | null>(null);
 const openUp = ref(false);
 
-watch(() => props.show, (isShowing) => {
-  if (isShowing && wrapperRef.value) {
-    const rect = wrapperRef.value.getBoundingClientRect();
-    const spaceBelow = window.innerHeight - rect.bottom;
-    openUp.value = spaceBelow < 250;
-  }
-});
-
 const menuPositionClass = computed(() =>
   openUp.value ? 'bottom-10' : 'top-10'
 );
@@ -41,6 +33,11 @@ function handleClickOutside(e: MouseEvent): void {
 
 watch(() => props.show, (isShowing) => {
   if (isShowing) {
+    if (wrapperRef.value) {
+      const rect = wrapperRef.value.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      openUp.value = spaceBelow < 250;
+    }
     document.addEventListener('click', handleClickOutside);
   } else {
     document.removeEventListener('click', handleClickOutside);

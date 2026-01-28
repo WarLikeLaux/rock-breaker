@@ -26,7 +26,8 @@ function handleNewRock(): void {
 }
 
 function handleRestartRock(): void {
-  restartRock(newGoalName.value.trim() || goalName.value, newDays.value);
+  const sanitizedDays = Math.max(1, Math.min(365, Math.floor(Number(newDays.value) || 1)));
+  restartRock(newGoalName.value.trim() || goalName.value, sanitizedDays);
 }
 
 function handlePromoteSideQuest(sideQuestId: number): void {
@@ -101,7 +102,7 @@ function handlePromoteSideQuest(sideQuestId: number): void {
               max="365"
               class="w-28 px-4 py-3 bg-slate-700/80 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
             />
-            <span class="text-slate-400 flex-1">дней → {{ newDays * 5 }} HP</span>
+            <span class="text-slate-400 flex-1">дней → {{ calculateMaxHp(newDays) }} HP</span>
           </div>
 
           <button

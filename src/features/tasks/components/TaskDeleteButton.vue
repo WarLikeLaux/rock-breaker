@@ -40,6 +40,7 @@ onBeforeUnmount(() => {
     <Transition name="fade">
       <button
         v-if="deleteConfirm"
+        type="button"
         @click="handleClick"
         class="absolute inset-0 w-full h-full rounded-md flex items-center justify-center bg-red-500 text-white hover:bg-red-600 scale-110 z-10 shadow-sm"
       >
@@ -48,6 +49,7 @@ onBeforeUnmount(() => {
     </Transition>
     <button
       v-show="!deleteConfirm"
+      type="button"
       @click="handleClick"
       class="absolute inset-0 w-full h-full rounded-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 border border-rose-500/50 bg-slate-900/30 text-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.25)] hover:text-rose-300 hover:bg-slate-900/60 cursor-pointer"
     >

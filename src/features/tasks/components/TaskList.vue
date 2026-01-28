@@ -22,10 +22,20 @@ const {
 const newTaskText = ref<string>('');
 const taskInput = ref<HTMLInputElement | null>(null);
 
+const MAX_TASK_SLOTS = 5;
+
+function getSlotForm(n: number): string {
+  const remainder = n % 10;
+  const remainder100 = n % 100;
+  if (remainder100 >= 11 && remainder100 <= 14) return 'слотов';
+  if (remainder === 1) return 'слот';
+  if (remainder >= 2 && remainder <= 4) return 'слота';
+  return 'слотов';
+}
+
 const placeholderText = computed(() => {
-  const remaining = 5 - tasks.value.length;
-  const slotForm = remaining === 1 ? 'слот' : remaining <= 4 ? 'слота' : 'слотов';
-  return `Добавить задачу (осталось ${remaining} ${slotForm})`;
+  const remaining = MAX_TASK_SLOTS - tasks.value.length;
+  return `Добавить задачу (осталось ${remaining} ${getSlotForm(remaining)})`;
 });
 
 function handleAddTask(): void {
@@ -46,7 +56,7 @@ function handleAddTask(): void {
   <div class="space-y-4">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-bold text-white whitespace-nowrap">
-        Экипировка ({{ tasks.length }}/5)
+        Экипировка ({{ tasks.length }}/{{ MAX_TASK_SLOTS }})
       </h3>
 
       <button @click="toggleFocusMode"

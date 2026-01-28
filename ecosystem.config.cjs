@@ -6,7 +6,7 @@ module.exports = {
       cwd: './',
       interpreter: 'bash',
       watch: false,
-      autorestart: true,
+      autorestart: process.env.NODE_ENV !== 'development',
       max_memory_restart: '1G',
       env: {
         NODE_ENV: 'development',

@@ -28,17 +28,20 @@ function getAudioContext(): AudioContext | null {
   return audioContext;
 }
 
-function playTone(
+async function playTone(
   frequency: number,
   duration: number,
   type: OscillatorType = 'sine',
   volume: number = 0.3,
-): void {
+): Promise<void> {
   if (!soundEnabled.value) return;
 
   try {
     const ctx = getAudioContext();
     if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      await ctx.resume();
+    }
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
 

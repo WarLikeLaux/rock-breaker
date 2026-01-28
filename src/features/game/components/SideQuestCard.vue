@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { Rock } from '@/shared/types';
+import { calculateMaxHp } from '@/shared/constants/tasks';
 
 interface Props {
   rock: Rock;
@@ -13,7 +14,7 @@ const emit = defineEmits<{
   select: [rockId: number];
 }>();
 
-const maxHp = computed(() => props.rock.durationDays * 5);
+const maxHp = computed(() => calculateMaxHp(props.rock.durationDays));
 const hpPercent = computed(() => (maxHp.value > 0 ? (props.rock.currentHp / maxHp.value) * 100 : 0));
 const completedTasks = computed(() => props.rock.tasks.filter((t) => t.completed).length);
 const totalTasks = computed(() => props.rock.tasks.length);

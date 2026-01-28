@@ -3,5 +3,8 @@ export const MAX_DAILY_EXECUTIONS = 3;
 export const HP_PER_DAY = 5;
 
 export function calculateMaxHp(days: number): number {
-  return days * HP_PER_DAY;
+  if (!Number.isFinite(days) || days < 0) {
+    return 0;
+  }
+  return Math.floor(days) * HP_PER_DAY;
 }

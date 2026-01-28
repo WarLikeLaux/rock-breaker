@@ -44,9 +44,14 @@ function formatDate(date: Date): string {
 function updateDaysFromDate(dateValue: string): void {
   endDateInput.value = dateValue;
   if (!dateValue) return;
+  const parts = dateValue.split('-').map((v) => Number(v));
+  if (parts.length < 3) return;
+  const year = parts[0] as number;
+  const month = parts[1] as number;
+  const day = parts[2] as number;
+  if (!isFinite(year) || !isFinite(month) || !isFinite(day)) return;
   const today = new Date();
   const startUtc = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
-  const [year, month, day] = dateValue.split('-').map((v) => Number(v));
   const endUtc = Date.UTC(year, month - 1, day);
   const diffDays = Math.round((endUtc - startUtc) / 86400000);
   if (diffDays > 0) {

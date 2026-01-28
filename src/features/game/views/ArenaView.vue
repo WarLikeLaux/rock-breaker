@@ -147,7 +147,7 @@ function handleDeleteSideQuest(): void {
             :can-access="canAccessSideQuests" :main-rock="mainRock" @select="handleSwitchRock"
             @create-new="showCreateModal = true" />
 
-          <a href="https://github.com/WarLikeLaux/rock-breaker" target="_blank"
+          <a href="https://github.com/WarLikeLaux/rock-breaker" target="_blank" rel="noopener noreferrer"
             class="flex w-10 h-10 sm:w-11 sm:h-11 bg-slate-800/80 hover:bg-slate-700 backdrop-blur rounded-xl items-center justify-center text-slate-400 hover:text-white transition-all hover:scale-110 active:scale-95 border border-slate-700 hover:border-slate-500"
             title="GitHub Repository">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">

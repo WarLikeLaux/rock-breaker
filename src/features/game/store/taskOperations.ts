@@ -26,15 +26,14 @@ export function addTask(
 }
 
 export function removeTask(tasks: Ref<Task[]>, id: number, onHeal?: () => void): void {
-  const task = tasks.value.find((t) => t.id === id);
-  if (!task) return;
+  const index = tasks.value.findIndex((t) => t.id === id);
+  if (index === -1) return;
 
+  const task = tasks.value[index];
+  if (!task) return;
   const wasCompleted = task.completed && task.type !== 'joker';
 
-  const index = tasks.value.findIndex((t) => t.id === id);
-  if (index !== -1) {
-    tasks.value.splice(index, 1);
-  }
+  tasks.value.splice(index, 1);
 
   if (wasCompleted && onHeal) {
     onHeal();
@@ -155,17 +154,14 @@ export function decrementExecution(
 }
 
 export function resetTasksForNewDay(tasks: Ref<Task[]>): void {
-  tasks.value = tasks.value.filter((task) => {
+  tasks.value.forEach((task) => {
     task.completed = false;
     task.currentExecutions = 0;
-
-    if (task.type === 'joker') {
-      return false;
-    } else if (task.type === 'substitute') {
+    if (task.type === 'substitute') {
       task.text = task.originalText || '';
       task.originalText = null;
       task.type = 'standard';
     }
-    return true;
   });
+  tasks.value = tasks.value.filter((task) => task.type !== 'joker');
 }

@@ -5,14 +5,55 @@
 			"goalName": "Осознанность и Ментальное здоровье",
 			"durationDays": 30,
 			"tasks": [
-				{ "id": 1, "text": "10 минут медитации", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
-				{ "id": 2, "text": "Запись в дневник (рефлексия)", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
-				{ "id": 3, "text": "Растяжка или йога", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
-				{ "id": 4, "text": "Цифровой детокс (без экрана за час до сна)", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
-				{ "id": 5, "text": "Wild card - время на хобби или отдых", "completed": false, "type": "joker", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
+				{
+					"id": 1,
+					"text": "10 минут медитации",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 2,
+					"text": "Запись в дневник (рефлексия)",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 3,
+					"text": "Растяжка или йога",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 4,
+					"text": "Цифровой детокс (без экрана за час до сна)",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 5,
+					"text": "Wild card - время на хобби или отдых",
+					"completed": false,
+					"type": "joker",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				}
 			],
 			"currentHp": 150,
-			"lastActiveDate": "2026-01-25",
+			"lastActiveDate": null,
+			"createdAt": "2026-01-29T00:00:00.000Z",
 			"taskIdCounter": 6,
 			"isMain": true
 		},
@@ -21,14 +62,55 @@
 			"goalName": "Цифровая гигиена",
 			"durationDays": 30,
 			"tasks": [
-				{ "id": 1, "text": "Удалить 10 ненужных фото/файлов", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
-				{ "id": 2, "text": "Отписаться от одного бесполезного канала", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
-				{ "id": 3, "text": "Разобрать входящую почту/уведомления", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
-				{ "id": 4, "text": "Очистить рабочий стол (физический/экран)", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
-				{ "id": 5, "text": "Без соцсетей в первый час после сна", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
+				{
+					"id": 1,
+					"text": "Удалить 10 ненужных фото/файлов",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 2,
+					"text": "Отписаться от одного бесполезного канала",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 3,
+					"text": "Разобрать входящую почту/уведомления",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 4,
+					"text": "Очистить рабочий стол (физический/экран)",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 5,
+					"text": "Без соцсетей в первый час после сна",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				}
 			],
 			"currentHp": 150,
-			"lastActiveDate": "2026-01-25",
+			"lastActiveDate": null,
+			"createdAt": "2026-01-29T00:00:00.000Z",
 			"taskIdCounter": 6,
 			"isMain": false
 		},
@@ -37,14 +119,55 @@
 			"goalName": "Связь с Природой",
 			"durationDays": 30,
 			"tasks": [
-				{ "id": 1, "text": "Прогулка в парке или лесу", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
-				{ "id": 2, "text": "Побыть в тишине без гаджетов на улице", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
-				{ "id": 3, "text": "Поухаживать за растением/животным", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
-				{ "id": 4, "text": "Наблюдение за небом или закатом", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
-				{ "id": 5, "text": "Сделать глубокий вдох свежим воздухом", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
+				{
+					"id": 1,
+					"text": "Прогулка в парке или лесу",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 2,
+					"text": "Побыть в тишине без гаджетов на улице",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 3,
+					"text": "Поухаживать за растением/животным",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 4,
+					"text": "Наблюдение за небом или закатом",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 5,
+					"text": "Сделать глубокий вдох свежим воздухом",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				}
 			],
 			"currentHp": 150,
-			"lastActiveDate": "2026-01-25",
+			"lastActiveDate": null,
+			"createdAt": null,
 			"taskIdCounter": 6,
 			"isMain": false
 		}
@@ -54,5 +177,5 @@
 	"rockIdCounter": 4,
 	"showTooltips": true,
 	"hardModeEnabled": false,
-	"exportedAt": "2026-01-25T12:00:00.000Z"
+	"exportedAt": null
 }

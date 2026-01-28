@@ -184,7 +184,15 @@ body {
   .menu-leave-active,
   .phrase-enter-active,
   .phrase-leave-active,
-  .animate-wobble {
+  .animate-wobble,
+  .animate-shake,
+  .animate-glow,
+  .animate-shimmer,
+  .animate-pulse,
+  .animate-bounce-slow,
+  .animate-fade-in,
+  .animate-complete,
+  .animate-heal {
     transition: none !important;
     animation: none !important;
   }

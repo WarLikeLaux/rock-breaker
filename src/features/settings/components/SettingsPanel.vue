@@ -4,6 +4,7 @@ import SettingsToggle from '@/shared/components/SettingsToggle.vue';
 import { useGameStore } from '@/features/game/store';
 import { useSounds } from '@/shared/composables/useSounds';
 import { fetchPresets, loadPreset, type PresetMeta } from '../services/presets';
+import { calculateMaxHp } from '@/shared/constants/tasks';
 
 const {
   goalName,
@@ -103,7 +104,8 @@ function toggleEditGoal(): void {
 }
 
 function saveGoalEdit(): void {
-  updateRock(editGoalName.value.trim() || goalName.value, editDays.value);
+  const sanitizedDays = Math.max(1, Math.min(365, Math.floor(Number(editDays.value) || 1)));
+  updateRock(editGoalName.value.trim() || goalName.value, sanitizedDays);
   showEditGoal.value = false;
   emit('close');
 }
@@ -250,7 +252,7 @@ async function handleLoadPreset(preset: PresetMeta): Promise<void> {
             <div class="flex-1 min-w-0">
               <p class="text-sm text-white truncate">{{ rock.goalName }}</p>
               <p class="text-xs text-slate-400">
-                {{ rock.currentHp }}/{{ rock.durationDays * 5 }} HP
+                {{ rock.currentHp }}/{{ calculateMaxHp(rock.durationDays) }} HP
               </p>
             </div>
             <div class="flex items-center gap-2 ml-2">

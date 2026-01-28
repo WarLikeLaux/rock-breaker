@@ -12,7 +12,8 @@
 				{ "id": 5, "text": "Wild card - работа над пет-проектом", "completed": false, "type": "joker", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
 			],
 			"currentHp": 450,
-			"lastActiveDate": "2026-01-25",
+			"lastActiveDate": null,
+			"createdAt": null,
 			"taskIdCounter": 6,
 			"isMain": true
 		},
@@ -28,7 +29,8 @@
 				{ "id": 5, "text": "Прослушать IT-подкаст", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
 			],
 			"currentHp": 450,
-			"lastActiveDate": "2026-01-25",
+			"lastActiveDate": null,
+			"createdAt": null,
 			"taskIdCounter": 6,
 			"isMain": false
 		},
@@ -44,7 +46,8 @@
 				{ "id": 5, "text": "Провести Code Review своего старого кода", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
 			],
 			"currentHp": 450,
-			"lastActiveDate": "2026-01-25",
+			"lastActiveDate": null,
+			"createdAt": null,
 			"taskIdCounter": 6,
 			"isMain": false
 		}
@@ -54,5 +57,5 @@
 	"rockIdCounter": 4,
 	"showTooltips": true,
 	"hardModeEnabled": false,
-	"exportedAt": "2026-01-25T12:00:00.000Z"
+	"exportedAt": null
 }

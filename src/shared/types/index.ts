@@ -28,11 +28,19 @@ export interface Rock {
   createdAt: string;
 }
 
+export interface TaskV2 {
+  id: number;
+  text: string;
+  completed: boolean;
+  type?: 'standard' | 'joker' | 'substitute';
+  originalText?: string | null;
+}
+
 export interface StoredStateV2 {
-  version: number;
+  version: 2;
   goalName: string;
   durationDays: number;
-  tasks: Task[];
+  tasks: TaskV2[];
   isSetupComplete: boolean;
   currentHp: number;
   lastActiveDate: string;
@@ -52,7 +60,7 @@ export interface RockV3 {
 }
 
 export interface StoredStateV3 {
-  version: number;
+  version: 3;
   rocks: RockV3[];
   activeRockId: number;
   isSetupComplete: boolean;
@@ -60,7 +68,7 @@ export interface StoredStateV3 {
 }
 
 export interface StoredState {
-  version: number;
+  version: 4;
   rocks: Rock[];
   activeRockId: number;
   isSetupComplete: boolean;

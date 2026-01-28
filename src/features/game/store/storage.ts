@@ -155,7 +155,12 @@ export function importData(jsonString: string): ImportResult | null {
       return null;
     }
 
-    let idCounter = 1;
+    const existingIds = state.rocks
+      .map((rock: Rock) => rock.id)
+      .filter((id): id is number => typeof id === 'number' && isFinite(id));
+    const maxExistingId = existingIds.length > 0 ? Math.max(0, ...existingIds) : 0;
+    let idCounter = maxExistingId + 1;
+
     const normalizedRocks = state.rocks.map((rock: Rock) => {
       const rockId = typeof rock.id === 'number' && isFinite(rock.id) ? rock.id : idCounter++;
       return {
@@ -185,9 +190,7 @@ export function importData(jsonString: string): ImportResult | null {
     return {
       rocks: normalizedRocks,
       activeRockId,
-      rockIdCounter: state.rockIdCounter && state.rockIdCounter >= maxRockId
-        ? state.rockIdCounter
-        : maxRockId,
+      rockIdCounter: Math.max(state.rockIdCounter ?? 0, maxRockId),
       showTooltips: state.showTooltips,
       hardModeEnabled: state.hardModeEnabled,
       focusModeEnabled: state.focusModeEnabled,
