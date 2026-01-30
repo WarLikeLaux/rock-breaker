@@ -1,5 +1,6 @@
 import type { StoredState, StoredStateV2, StoredStateV3, Rock, Task, Settings } from '@/shared/types';
 import { getTodayDate } from '@/shared/utils/date';
+import { deflateRaw, inflateRaw } from 'pako';
 
 const STORAGE_KEY = 'rock-breaker-state';
 const SETTINGS_KEY = 'rock-breaker-settings';
@@ -186,6 +187,49 @@ function fromBase64Url(base64url: string): Uint8Array | null {
   const normalized = base64url.replace(/-/g, '+').replace(/_/g, '/');
   const padding = normalized.length % 4 === 0 ? '' : '='.repeat(4 - (normalized.length % 4));
   return fromBase64(`${normalized}${padding}`);
+}
+
+function stripBackticks(input: string): string {
+  const trimmed = input.trim();
+  if (!trimmed) return '';
+
+  if (trimmed.startsWith('```')) {
+    const withoutStart = trimmed.replace(/^```[^\n]*\n?/, '');
+    return withoutStart.replace(/```$/, '').trim();
+  }
+
+  if (trimmed.startsWith('`') && trimmed.endsWith('`')) {
+    return trimmed.replace(/^`+/, '').replace(/`+$/, '').trim();
+  }
+
+  return trimmed;
+}
+
+export function exportKey(data: ExportData): string | null {
+  try {
+    const json = JSON.stringify(buildExportPayload(data));
+    const encoded = new TextEncoder().encode(json);
+    const compressed = deflateRaw(encoded);
+    return toBase64Url(compressed);
+  } catch {
+    return null;
+  }
+}
+
+export function importKey(key: string): ImportResult | null {
+  const trimmed = stripBackticks(key);
+  if (!trimmed) return null;
+
+  const bytes = fromBase64Url(trimmed);
+  if (!bytes) return null;
+
+  try {
+    const inflated = inflateRaw(bytes);
+    const json = new TextDecoder().decode(inflated);
+    return importData(json);
+  } catch {
+    return null;
+  }
 }
 
 export function importData(jsonString: string): ImportResult | null {
