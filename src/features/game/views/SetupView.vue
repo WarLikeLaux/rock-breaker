@@ -209,7 +209,7 @@ async function handleFileChange(event: Event): Promise<void> {
               v-if="tasksInput.length < 5"
               type="button"
               @click="addTaskField"
-              class="text-xs text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
+              class="text-xs text-amber-400 hover:text-amber-300 transition-colors"
             >
               + Добавить задачу
             </button>
