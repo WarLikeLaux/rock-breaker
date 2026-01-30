@@ -40,12 +40,17 @@ function selectMain(): void {
 </script>
 
 <template>
-  <div class="lg:hidden">
-    <button @click="isOpen = true"
-      class="w-10 h-10 sm:w-11 sm:h-11 bg-slate-800/80 hover:bg-slate-700 backdrop-blur rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-slate-700 hover:border-slate-500"
-      :class="canAccess ? 'text-amber-400' : 'text-slate-400'">
-      <span class="text-base leading-none">{{ canAccess ? '🔓' : '🔒' }}</span>
-    </button>
+  <div>
+    <VTooltip placement="bottom" :delay="{ show: 600, hide: 0 }">
+      <button @click="isOpen = true"
+        class="w-10 h-10 sm:w-11 sm:h-11 bg-slate-800/80 hover:bg-slate-700 backdrop-blur rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-slate-700 hover:border-slate-500"
+        :class="canAccess ? 'text-amber-400' : 'text-slate-400'" aria-label="Открыть список сайд-квестов">
+        <span class="text-base leading-none">{{ canAccess ? '📜' : '🔒' }}</span>
+      </button>
+      <template #popper>
+        <div class="text-sm">Список сайд-квестов</div>
+      </template>
+    </VTooltip>
 
     <Transition name="fade">
       <div v-if="isOpen" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" @click="isOpen = false"></div>
@@ -92,10 +97,9 @@ function selectMain(): void {
             </div>
           </div>
 
-          <button @click="handleCreateNew"
-            :disabled="!canAccess"
+          <button @click="handleCreateNew" :disabled="!canAccess"
             class="w-full mt-4 py-3 px-4 rounded-xl border-2 border-dashed transition-colors flex items-center justify-center gap-2"
-            :class="canAccess ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-white cursor-pointer' : 'border-slate-700 text-slate-600 cursor-not-allowed'">
+            :class="canAccess ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-white' : 'border-slate-700 text-slate-600'">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
               stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
