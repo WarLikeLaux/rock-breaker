@@ -34,6 +34,10 @@ if (prValue.startsWith('http')) {
 	pullNumber = parseInt(urlMatch[3], 10);
 } else {
 	pullNumber = parseInt(prValue, 10);
+	if (Number.isNaN(pullNumber)) {
+		console.error('Ошибка: PR_NUMBER должен быть числом');
+		process.exit(1);
+	}
 	try {
 		const remoteUrl = execSync('git remote get-url origin', { encoding: 'utf8' }).trim();
 		const repoMatch = remoteUrl.match(/github\.com[:/]([^/]+)\/([^/.]+?)(?:\.git)?$/);

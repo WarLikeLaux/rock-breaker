@@ -46,17 +46,18 @@
 ## 🚀 Как запустить
 
 1. Установите зависимости:
-    ```bash
-    pnpm install
-    ```
+   ```bash
+   pnpm install
+   ```
 2. Запустите сервер разработки:
-    ```bash
-    pnpm dev
-    ```
+   ```bash
+   pnpm dev
+   ```
 3. Сборка проекта:
-    ```bash
-    pnpm build
-    ```
+   ```bash
+   pnpm build
+   ```
 
 ---
-*Strike V — превратите «надо» в «удар»!*
+
+_Strike V — превратите «надо» в «удар»!_
