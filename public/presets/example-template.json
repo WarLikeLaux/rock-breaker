@@ -1,0 +1,31 @@
+{
+	"_comment": "Example template for generating new presets",
+	"rocks": [
+		{
+			"id": 1,
+			"goalName": "Your Goal Name",
+			"durationDays": 30,
+			"tasks": [
+				{
+					"id": 1,
+					"text": "Task description",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				}
+			],
+			"currentHp": 30,
+			"lastActiveDate": null,
+			"taskIdCounter": 2,
+			"isMain": true
+		}
+	],
+	"activeRockId": 1,
+	"isSetupComplete": true,
+	"rockIdCounter": 2,
+	"showTooltips": true,
+	"hardModeEnabled": false,
+	"exportedAt": null
+}

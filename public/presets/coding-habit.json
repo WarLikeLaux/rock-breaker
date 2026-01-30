@@ -1,0 +1,181 @@
+{
+	"rocks": [
+		{
+			"id": 1,
+			"goalName": "Путь Программиста",
+			"durationDays": 90,
+			"tasks": [
+				{
+					"id": 1,
+					"text": "Кодинг (минимум 1 час)",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 2,
+					"text": "Сделать коммит в Git",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 3,
+					"text": "Решить задачу на LeetCode/Codewars",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 4,
+					"text": "Почитать тех. документацию/статью",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 5,
+					"text": "Wild card - работа над пет-проектом",
+					"completed": false,
+					"type": "joker",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				}
+			],
+			"currentHp": 450,
+			"lastActiveDate": null,
+			"createdAt": "2026-01-29T00:00:00.000Z",
+			"taskIdCounter": 6,
+			"isMain": true
+		},
+		{
+			"id": 2,
+			"goalName": "Фундаментальные знания",
+			"durationDays": 90,
+			"tasks": [
+				{
+					"id": 1,
+					"text": "Прочитать 5 страниц профильной книги",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 2,
+					"text": "Посмотреть тех. доклад или туториал",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 3,
+					"text": "Изучить один метод/функцию языка",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 4,
+					"text": "Написать конспект новой темы",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 5,
+					"text": "Прослушать IT-подкаст",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				}
+			],
+			"currentHp": 450,
+			"lastActiveDate": null,
+			"createdAt": "2026-01-29T00:00:00.000Z",
+			"taskIdCounter": 6,
+			"isMain": false
+		},
+		{
+			"id": 3,
+			"goalName": "Мастер Рефакторинга",
+			"durationDays": 90,
+			"tasks": [
+				{
+					"id": 1,
+					"text": "Улучшить старый код (чистка, тесты)",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 2,
+					"text": "Разобраться в новом паттерне проектирования",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 3,
+					"text": "Удалить мертвый код/комментарии",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 4,
+					"text": "Оптимизировать производительность участка",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				},
+				{
+					"id": 5,
+					"text": "Провести Code Review своего старого кода",
+					"completed": false,
+					"type": "standard",
+					"originalText": null,
+					"requiredExecutions": 1,
+					"currentExecutions": 0
+				}
+			],
+			"currentHp": 450,
+			"lastActiveDate": null,
+			"createdAt": null,
+			"taskIdCounter": 6,
+			"isMain": false
+		}
+	],
+	"activeRockId": 1,
+	"isSetupComplete": true,
+	"rockIdCounter": 4,
+	"showTooltips": true,
+	"hardModeEnabled": false,
+	"exportedAt": null
+}

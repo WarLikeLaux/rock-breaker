@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.local
 
 # Editor directories and files
 .vscode/*
@@ -30,6 +32,12 @@ repomix-all.xml
 
 # Docs
 docs/*
-!docs/PURPOSE.md
-!docs/STYLEGUIDE.md
+!docs/purpose.md
 !docs/hero.png
+!docs/rolldown.md
+!docs/ai
+.aider*
+
+# Tests
+.coverage/*
+coverage/*

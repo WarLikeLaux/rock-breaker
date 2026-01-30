@@ -1,0 +1,58 @@
+{
+	"rocks": [
+		{
+			"id": 1,
+			"goalName": "Английский: Базовый уровень",
+			"durationDays": 30,
+			"tasks": [
+				{ "id": 1, "text": "Выучить 5 новых слов", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 2, "text": "Прочитать одну статью/страницу", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 3, "text": "Послушать подкаст или аудио", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 4, "text": "Попрактиковать разговор (хотя бы с собой)", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 5, "text": "Джокер - любая активность на английском", "completed": false, "type": "joker", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
+			],
+			"currentHp": 150,
+			"lastActiveDate": null,
+			"taskIdCounter": 6,
+			"isMain": true
+		},
+		{
+			"id": 2,
+			"goalName": "Медиа-погружение",
+			"durationDays": 30,
+			"tasks": [
+				{ "id": 1, "text": "Посмотреть серию сериала в оригинале", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 2, "text": "Выписать 3 фразы из видео/песни", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 3, "text": "Перевести текст любимой песни", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 4, "text": "Посмотреть короткое видео на YouTube", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 5, "text": "Найти и разобрать один мем на английском", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
+			],
+			"currentHp": 150,
+			"lastActiveDate": null,
+			"taskIdCounter": 6,
+			"isMain": false
+		},
+		{
+			"id": 3,
+			"goalName": "Грамматический ниндзя",
+			"durationDays": 30,
+			"tasks": [
+				{ "id": 1, "text": "Разобраться в одной грамматической теме", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 2, "text": "Выполнить 3 упражнения на грамматику", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 3, "text": "Составить 5 предложений с новым правилом", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 4, "text": "Пройти тест в приложении или учебнике", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 },
+				{ "id": 5, "text": "Объяснить правило вслух (метод Фейнмана)", "completed": false, "type": "standard", "originalText": null, "requiredExecutions": 1, "currentExecutions": 0 }
+			],
+			"currentHp": 150,
+			"lastActiveDate": null,
+			"taskIdCounter": 6,
+			"isMain": false
+		}
+	],
+	"activeRockId": 1,
+	"isSetupComplete": true,
+	"rockIdCounter": 4,
+	"showTooltips": true,
+	"hardModeEnabled": false,
+	"exportedAt": null
+}
