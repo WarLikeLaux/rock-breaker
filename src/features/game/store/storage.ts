@@ -118,6 +118,7 @@ interface ExportData {
   showTooltips: boolean;
   hardModeEnabled: boolean;
   focusModeEnabled: boolean;
+  dayStartHour: number;
 }
 
 export function exportData(data: ExportData): void {
@@ -141,6 +142,7 @@ interface ImportResult {
   showTooltips?: boolean;
   hardModeEnabled?: boolean;
   focusModeEnabled?: boolean;
+  dayStartHour?: number;
 }
 
 export function importData(jsonString: string): ImportResult | null {
@@ -193,6 +195,7 @@ export function importData(jsonString: string): ImportResult | null {
       showTooltips: state.showTooltips,
       hardModeEnabled: state.hardModeEnabled,
       focusModeEnabled: state.focusModeEnabled,
+      dayStartHour: state.dayStartHour,
     };
   } catch {
     return null;

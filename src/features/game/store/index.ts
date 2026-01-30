@@ -51,6 +51,7 @@ export interface GameStore {
   canAccessSideQuests: ComputedRef<boolean>;
   hardModeEnabled: Ref<boolean>;
   focusModeEnabled: Ref<boolean>;
+  dayStartHour: Ref<number>;
   visibleTasks: ComputedRef<Task[]>;
 
   createRock: (name: string, days: number, initialTasks?: string[]) => void;
@@ -68,6 +69,7 @@ export interface GameStore {
 
   toggleHardMode: () => void;
   toggleFocusMode: () => void;
+  setDayStartHour: (hour: number) => void;
   skipCurrentFocusTask: () => void;
   hitRock: () => void;
   resetGame: () => void;
@@ -90,6 +92,7 @@ const showTooltips = ref<boolean>(initialSettings.showTooltips ?? true);
 
 const hardModeEnabled = ref<boolean>(initialSettings.hardModeEnabled ?? false);
 const focusModeEnabled = ref<boolean>(initialSettings.focusModeEnabled ?? false);
+const dayStartHour = ref<number>(initialSettings.dayStartHour ?? 0);
 const focusSkipOffset = ref<number>(0);
 const shuffledIndices = ref<number[]>([]);
 
@@ -200,7 +203,7 @@ function startNewDay(): void {
     const tasksRef = ref(rock.tasks);
     resetTasksForNewDay(tasksRef);
     rock.tasks = tasksRef.value;
-    rock.lastActiveDate = getTodayDate();
+    rock.lastActiveDate = getTodayDate(dayStartHour.value);
   });
   focusSkipOffset.value = 0;
   if (mainRock.value) {
@@ -218,7 +221,7 @@ function loadFromStorageWrapper(): boolean {
   isSetupComplete.value = state.isSetupComplete;
   rockIdCounter.value = state.rockIdCounter;
 
-  const today = getTodayDate();
+  const today = getTodayDate(dayStartHour.value);
   const anyRockNeedsReset = rocks.value.some(
     (rock) => rock.lastActiveDate && rock.lastActiveDate !== today,
   );
@@ -262,6 +265,12 @@ watch(focusModeEnabled, (val) => {
   saveSettings(settings);
 });
 
+watch(dayStartHour, (val) => {
+  const settings = loadSettings();
+  settings.dayStartHour = val;
+  saveSettings(settings);
+});
+
 loadFromStorageWrapper();
 
 function createRock(name: string, days: number, initialTasks: string[] = []): void {
@@ -284,10 +293,10 @@ function createRock(name: string, days: number, initialTasks: string[] = []): vo
     durationDays: days,
     tasks,
     currentHp: days * 5,
-    lastActiveDate: getTodayDate(),
+    lastActiveDate: getTodayDate(dayStartHour.value),
     taskIdCounter: tasks.length,
     isMain: true,
-    createdAt: getTodayDate(),
+    createdAt: getTodayDate(dayStartHour.value),
   };
   rocks.value = [newRock];
   activeRockId.value = newRock.id;
@@ -314,10 +323,10 @@ function createSideQuest(name: string, days: number, initialTasks: string[] = []
     durationDays: days,
     tasks,
     currentHp: days * 5,
-    lastActiveDate: getTodayDate(),
+    lastActiveDate: getTodayDate(dayStartHour.value),
     taskIdCounter: tasks.length,
     isMain: false,
-    createdAt: getTodayDate(),
+    createdAt: getTodayDate(dayStartHour.value),
   };
   rocks.value.push(newRock);
 }
@@ -357,7 +366,7 @@ function promoteSideQuestToMain(sideQuestId: number): boolean {
   sideQuest.isMain = true;
   activeRockId.value = sideQuestId;
 
-  const today = getTodayDate();
+  const today = getTodayDate(dayStartHour.value);
   if (sideQuest.lastActiveDate !== today) {
     const tasksRef = ref(sideQuest.tasks);
     resetTasksForNewDay(tasksRef);
@@ -458,6 +467,7 @@ export function useGameStore(): GameStore {
     canAccessSideQuests,
     hardModeEnabled,
     focusModeEnabled,
+    dayStartHour,
     visibleTasks,
 
     createRock,
@@ -513,6 +523,9 @@ export function useGameStore(): GameStore {
       focusModeEnabled.value = !focusModeEnabled.value;
       focusSkipOffset.value = 0;
     },
+    setDayStartHour: (hour: number) => {
+      dayStartHour.value = Math.max(0, Math.min(23, Math.floor(hour)));
+    },
     skipCurrentFocusTask: () => {
       const count = incompleteTaskCount.value;
       if (count <= 1) return;
@@ -544,6 +557,7 @@ export function useGameStore(): GameStore {
 
         hardModeEnabled: hardModeEnabled.value,
         focusModeEnabled: focusModeEnabled.value,
+        dayStartHour: dayStartHour.value,
       }),
     importData: (jsonString: string) => {
       const state = importFromFile(jsonString);
@@ -560,6 +574,9 @@ export function useGameStore(): GameStore {
       }
       if (state.focusModeEnabled !== undefined) {
         focusModeEnabled.value = state.focusModeEnabled;
+      }
+      if (state.dayStartHour !== undefined) {
+        dayStartHour.value = state.dayStartHour;
       }
       isSetupComplete.value = true;
       saveState();

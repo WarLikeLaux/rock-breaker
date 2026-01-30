@@ -80,4 +80,5 @@ export interface Settings {
   soundEnabled?: boolean;
   hardModeEnabled?: boolean;
   focusModeEnabled?: boolean;
+  dayStartHour?: number;
 }

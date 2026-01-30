@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import SettingsToggle from '@/shared/components/SettingsToggle.vue';
 import { useGameStore } from '@/features/game/store';
 import { useSounds } from '@/shared/composables/useSounds';
-import { fetchPresets, loadPreset, type PresetMeta } from '../services/presets';
-import { calculateMaxHp } from '@/shared/constants/tasks';
 
 const {
   goalName,
@@ -18,43 +16,35 @@ const {
   switchRock,
   showTooltips,
   toggleTooltips,
-  sideRocks,
-  deleteRock,
-  promoteSideQuestToMain,
   hardModeEnabled,
   toggleHardMode,
   focusModeEnabled,
   toggleFocusMode,
+  dayStartHour,
+  setDayStartHour,
 } = useGameStore();
 const { soundEnabled, toggleSound } = useSounds();
 
 const emit = defineEmits<{
   close: [];
-  createSideQuest: [];
+  openHelp: [];
+  openPresets: [];
 }>();
 
+const showNewDayConfirm = ref<boolean>(false);
 const showResetConfirm = ref<boolean>(false);
 const showEditGoal = ref<boolean>(false);
 const importError = ref<string>('');
 const fileInput = ref<HTMLInputElement | null>(null);
-const deleteConfirmId = ref<number | null>(null);
 
 const editGoalName = ref<string>(goalName.value);
 const editDays = ref<number>(durationDays.value);
 
-const presets = ref<PresetMeta[]>([]);
-const presetConfirmId = ref<string | null>(null);
-const presetLoading = ref<boolean>(false);
-
-onMounted(async () => {
-  try {
-    presets.value = await fetchPresets();
-  } catch {
-    presets.value = [];
-  }
-});
-
 function handleNewDay(): void {
+  if (!showNewDayConfirm.value) {
+    showNewDayConfirm.value = true;
+    return;
+  }
   startNewDay();
   if (mainRock.value) {
     switchRock(mainRock.value.id);
@@ -115,65 +105,6 @@ function saveGoalEdit(): void {
   showEditGoal.value = false;
   emit('close');
 }
-
-function handleDeleteSideQuest(id: number): void {
-  if (deleteConfirmId.value === id) {
-    deleteRock(id);
-    deleteConfirmId.value = null;
-  } else {
-    deleteConfirmId.value = id;
-    setTimeout(() => {
-      if (deleteConfirmId.value === id) {
-        deleteConfirmId.value = null;
-      }
-    }, 3000);
-  }
-}
-
-function handleCreateSideQuest(): void {
-  emit('createSideQuest');
-}
-
-function handlePromoteSideQuest(id: number): void {
-  promoteSideQuestToMain(id);
-  emit('close');
-}
-
-const presetError = ref<string>('');
-
-async function handleLoadPreset(preset: PresetMeta): Promise<void> {
-  if (presetConfirmId.value !== preset.id) {
-    presetConfirmId.value = preset.id;
-    setTimeout(() => {
-      if (presetConfirmId.value === preset.id) {
-        presetConfirmId.value = null;
-      }
-    }, 3000);
-    return;
-  }
-
-  presetLoading.value = true;
-  presetError.value = '';
-  try {
-    const jsonString = await loadPreset(preset.file);
-    if (!jsonString) {
-      presetError.value = 'Не удалось загрузить пресет';
-      return;
-    }
-
-    if (!importData(jsonString)) {
-      presetError.value = 'Ошибка импорта пресета';
-      return;
-    }
-    emit('close');
-  } catch (error) {
-    console.error('Ошибка загрузки пресета:', error);
-    presetError.value = 'Произошла непредвиденная ошибка при загрузке';
-  } finally {
-    presetLoading.value = false;
-    presetConfirmId.value = null;
-  }
-}
 </script>
 
 <template>
@@ -204,22 +135,37 @@ async function handleLoadPreset(preset: PresetMeta): Promise<void> {
         </button>
       </div>
 
-      <button @click="handleNewDay"
-        class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
-        🌅 Новый день
+      <button @click="handleNewDay" class="w-full py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+        :class="showNewDayConfirm
+          ? 'bg-amber-600 hover:bg-amber-500 text-white'
+          : 'bg-slate-700 hover:bg-slate-600 text-white'
+          ">
+        {{ showNewDayConfirm ? '⚠️ Точно начать новый день?' : '🌅 Новый день' }}
       </button>
 
-      <button @click="handleExport"
-        class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
-        📤 Экспорт
-      </button>
+      <div class="flex gap-2">
+        <button @click="handleExport"
+          class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
+          📤 Экспорт
+        </button>
 
-      <button @click="handleImportClick"
-        class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
-        📥 Импорт
-      </button>
+        <button @click="handleImportClick"
+          class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
+          📥 Импорт
+        </button>
+      </div>
       <input ref="fileInput" type="file" accept=".json" class="hidden" @change="handleFileChange" />
       <p v-if="importError" class="text-red-400 text-sm text-center">{{ importError }}</p>
+
+      <button @click="emit('openPresets')"
+        class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
+        📦 Пресеты
+      </button>
+
+      <button @click="emit('openHelp')"
+        class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
+        ❓ Справка
+      </button>
 
       <SettingsToggle label="Подсказки" icon="💡" :model-value="showTooltips" @update:model-value="toggleTooltips" />
 
@@ -240,73 +186,26 @@ async function handleLoadPreset(preset: PresetMeta): Promise<void> {
         </template>
       </VTooltip>
 
-      <hr class="border-slate-700" />
-
-      <div class="space-y-3">
-        <div class="flex items-center justify-between">
-          <h4 class="text-sm font-medium text-slate-300">Сайд-квесты</h4>
-          <button @click="handleCreateSideQuest" class="text-xs text-amber-400 hover:text-amber-300 transition-colors">
-            + Добавить
-          </button>
-        </div>
-
-        <div v-if="sideRocks.length === 0" class="text-sm text-slate-500 text-center py-2">
-          Нет сайд-квестов
-        </div>
-
-        <div v-else class="space-y-2">
-          <div v-for="rock in sideRocks" :key="rock.id"
-            class="flex items-center justify-between bg-slate-700/50 rounded-lg px-3 py-2">
-            <div class="flex-1 min-w-0">
-              <p class="text-sm text-white truncate">{{ rock.goalName }}</p>
-              <p class="text-xs text-slate-400">
-                {{ rock.currentHp }}/{{ calculateMaxHp(rock.durationDays) }} HP
-              </p>
-            </div>
-            <div class="flex items-center gap-2 ml-2">
-              <VTooltip placement="top" :delay="{ show: 600, hide: 0 }">
-                <button @click="handlePromoteSideQuest(rock.id)"
-                  class="px-2 py-1 rounded text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 hover:text-amber-300 transition-colors">
-                  ⭐
-                </button>
-                <template #popper>
-                  <div class="text-sm">Сделать основной целью</div>
-                </template>
-              </VTooltip>
-              <button @click="handleDeleteSideQuest(rock.id)" class="px-2 py-1 rounded text-xs transition-colors"
-                :class="deleteConfirmId === rock.id
-                  ? 'bg-red-600 text-white'
-                  : 'text-slate-400 hover:text-red-400'
-                  ">
-                {{ deleteConfirmId === rock.id ? 'Удалить?' : '🗑️' }}
-              </button>
-            </div>
+      <VTooltip placement="top" :delay="{ show: 600, hide: 0 }">
+        <div class="flex items-center justify-between bg-slate-700/50 rounded-xl px-4 py-3">
+          <div class="flex items-center gap-2">
+            <span>🕐</span>
+            <span class="text-white text-sm">Начало дня</span>
           </div>
+          <select
+            :value="dayStartHour"
+            @change="setDayStartHour(Number(($event.target as HTMLSelectElement).value))"
+            class="bg-slate-600 text-white text-sm rounded-lg px-2 py-1 border border-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+            <option v-for="h in 24" :key="h - 1" :value="h - 1">
+              {{ String(h - 1).padStart(2, '0') }}:00
+            </option>
+          </select>
         </div>
-      </div>
-
-      <hr class="border-slate-700" />
-
-      <div v-if="presets.length > 0" class="space-y-3">
-        <h4 class="text-sm font-medium text-slate-300">📦 Пресеты</h4>
-        <div class="space-y-2">
-          <div v-for="preset in presets" :key="preset.id"
-            class="flex items-center justify-between bg-slate-700/50 rounded-lg px-3 py-2">
-            <div class="flex-1 min-w-0">
-              <p class="text-sm text-white truncate">{{ preset.name }}</p>
-              <p class="text-xs text-slate-400">{{ preset.description }}</p>
-            </div>
-            <button @click="handleLoadPreset(preset)" :disabled="presetLoading"
-              class="px-3 py-1 rounded text-xs transition-colors ml-2" :class="presetConfirmId === preset.id
-                ? 'bg-red-600 text-white'
-                : 'bg-slate-600 hover:bg-slate-500 text-white'
-                ">
-              {{ presetConfirmId === preset.id ? '⚠️ Перезаписать?' : 'Загрузить' }}
-            </button>
-          </div>
-        </div>
-        <p v-if="presetError" class="text-red-400 text-xs text-center animate-pulse">{{ presetError }}</p>
-      </div>
+        <template #popper>
+          <div class="text-sm">Во сколько начинается новый день</div>
+        </template>
+      </VTooltip>
 
       <hr class="border-slate-700" />
 
