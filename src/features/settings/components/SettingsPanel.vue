@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onBeforeUnmount } from 'vue';
 import SettingsToggle from '@/shared/components/SettingsToggle.vue';
 import { useGameStore } from '@/features/game/store';
 import { useSounds } from '@/shared/composables/useSounds';
@@ -11,6 +11,8 @@ const {
   resetGame,
   exportData,
   importData,
+  exportKey,
+  importKey,
   updateRock,
   mainRock,
   switchRock,
@@ -36,6 +38,8 @@ const showResetConfirm = ref<boolean>(false);
 const showEditGoal = ref<boolean>(false);
 const importError = ref<string>('');
 const fileInput = ref<HTMLInputElement | null>(null);
+const clipboardMessage = ref<string>('');
+let clipboardTimer: ReturnType<typeof setTimeout> | null = null;
 
 const editGoalName = ref<string>(goalName.value);
 const editDays = ref<number>(durationDays.value);
@@ -63,6 +67,57 @@ function handleReset(): void {
 
 function handleExport(): void {
   exportData();
+}
+
+async function handleCopyKey(): Promise<void> {
+  const key = exportKey();
+  if (!key) {
+    showClipboardMessage('Не удалось создать строку.');
+    return;
+  }
+
+  const clipboard = navigator?.clipboard;
+  if (!clipboard?.writeText) {
+    showClipboardMessage('Нет доступа к копированию.');
+    return;
+  }
+
+  try {
+    await clipboard.writeText(`\`${key}\``);
+    showClipboardMessage('Скопировано.');
+  } catch (error) {
+    console.error('Ошибка копирования ключа:', error);
+    showClipboardMessage('Не удалось скопировать.');
+  }
+}
+
+async function handleImportKey(): Promise<void> {
+  const clipboard = navigator?.clipboard;
+  if (!clipboard?.readText) {
+    showClipboardMessage('Нет доступа к вставке.');
+    return;
+  }
+
+  try {
+    const text = (await clipboard.readText()).trim();
+    if (!text) {
+      showClipboardMessage('Нечего вставлять.');
+      return;
+    }
+
+    const success = importKey(text);
+    if (success) {
+      importError.value = '';
+      showClipboardMessage('Импортировано.');
+      emit('close');
+      return;
+    }
+
+    showClipboardMessage('Ошибка импорта.');
+  } catch (error) {
+    console.error('Ошибка чтения буфера:', error);
+    showClipboardMessage('Не удалось прочитать.');
+  }
 }
 
 function handleImportClick(): void {
@@ -105,6 +160,24 @@ function saveGoalEdit(): void {
   showEditGoal.value = false;
   emit('close');
 }
+
+function showClipboardMessage(text: string): void {
+  clipboardMessage.value = text;
+  if (clipboardTimer) {
+    clearTimeout(clipboardTimer);
+  }
+  clipboardTimer = setTimeout(() => {
+    clipboardMessage.value = '';
+    clipboardTimer = null;
+  }, 2000);
+}
+
+onBeforeUnmount(() => {
+  if (clipboardTimer) {
+    clearTimeout(clipboardTimer);
+    clipboardTimer = null;
+  }
+});
 </script>
 
 <template>
@@ -153,6 +226,31 @@ function saveGoalEdit(): void {
           class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
           📥 Импорт
         </button>
+      </div>
+      <div class="space-y-2">
+        <div class="flex gap-2">
+          <button @click="handleCopyKey"
+            class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
+            🔑 Скопировать
+          </button>
+          <button @click="handleImportKey"
+            class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl transition-all flex items-center justify-center gap-2">
+            🔑 Вставить
+          </button>
+        </div>
+        <Transition
+          enter-active-class="transition ease-out duration-200"
+          enter-from-class="opacity-0 -translate-y-1"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition ease-in duration-150"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 -translate-y-1"
+        >
+          <div v-if="clipboardMessage"
+            class="text-amber-100 text-xs text-center px-3 py-2 rounded-lg border border-amber-500/60 backdrop-blur-sm shadow-lg bg-gradient-to-r from-amber-600/30 to-amber-500/20">
+            {{ clipboardMessage }}
+          </div>
+        </Transition>
       </div>
       <input ref="fileInput" type="file" accept=".json" class="hidden" @change="handleFileChange" />
       <p v-if="importError" class="text-red-400 text-sm text-center">{{ importError }}</p>
