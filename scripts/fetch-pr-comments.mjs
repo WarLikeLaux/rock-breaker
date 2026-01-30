@@ -51,10 +51,14 @@ if (prValue.startsWith('http')) {
 }
 
 const query = `
-query($owner: String!, $repo: String!, $pullNumber: Int!) {
+query($owner: String!, $repo: String!, $pullNumber: Int!, $cursor: String) {
   repository(owner: $owner, name: $repo) {
     pullRequest(number: $pullNumber) {
-      reviewThreads(first: 100) {
+      reviewThreads(first: 100, after: $cursor) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
         nodes {
           id
           isResolved
@@ -115,23 +119,52 @@ function cleanBody(body) {
 
 async function main() {
 	try {
-		console.log(`Получение открытых обсуждений для PR #${pullNumber} (${owner}/${repo})...`);
+		const args = process.argv.slice(2);
+		const includeResolved = args.includes('--include-resolved');
 
-		const result = await fetchGraphQL(query, { owner, repo, pullNumber });
+		console.log(`Получение ВСЕХ обсуждений для PR #${pullNumber} (${owner}/${repo})...`);
 
-		if (!result.repository || !result.repository.pullRequest) {
-			console.error(`Ошибка: PR #${pullNumber} не найден в репозитории ${owner}/${repo}`);
-			process.exit(1);
+		let allThreads = [];
+		let hasNextPage = true;
+		let cursor = null;
+
+		while (hasNextPage) {
+			const result = await fetchGraphQL(query, { owner, repo, pullNumber, cursor });
+
+			if (!result.repository || !result.repository.pullRequest) {
+				console.error(`Ошибка: PR #${pullNumber} не найден в репозитории ${owner}/${repo}`);
+				process.exit(1);
+			}
+
+			const { nodes, pageInfo } = result.repository.pullRequest.reviewThreads;
+			allThreads = allThreads.concat(nodes);
+
+			hasNextPage = pageInfo.hasNextPage;
+			cursor = pageInfo.endCursor;
+
+			if (hasNextPage) {
+				process.stdout.write('.');
+			}
 		}
+		console.log(' Готово.');
 
-		const threads = result.repository.pullRequest.reviewThreads.nodes;
+		const threads = allThreads;
 		const unresolvedThreads = threads.filter(thread => !thread.isResolved);
+		const resolvedThreads = threads.filter(thread => thread.isResolved);
 
+		console.log(`Всего тредов: ${threads.length}`);
+		console.log(`Открытых: ${unresolvedThreads.length}`);
+		console.log(`Разрешенных: ${resolvedThreads.length}`);
+
+		const threadsToProcess = includeResolved ? threads : unresolvedThreads;
 
 		const outputPath = path.resolve(process.cwd(), 'docs/REVIEW.md');
 
-		if (unresolvedThreads.length === 0) {
-			console.log('Открытых комментариев не найдено!');
+		if (threadsToProcess.length === 0) {
+			console.log('Нет комментариев для обработки.');
+			if (resolvedThreads.length > 0 && !includeResolved) {
+				console.log('💡 Совет: Запустите с флагом `--include-resolved`, чтобы включить разрешенные комментарии.');
+			}
 			const emptyMarkdown = `# Задачи по ревью PR - #${pullNumber}\n\n`;
 			fs.writeFileSync(outputPath, emptyMarkdown + '✅ Все комментарии закрыты!\n');
 			return;
@@ -143,7 +176,7 @@ async function main() {
 		markdown += `> [!NOTE]\n`;
 		markdown += `> Этот файл создан автоматически. Отмечайте выполненные пункты как [x].\n\n`;
 
-		const threadsByFile = unresolvedThreads.reduce((acc, thread) => {
+		const threadsByFile = threadsToProcess.reduce((acc, thread) => {
 			const file = thread.path || 'Общие замечания';
 			if (!acc[file]) acc[file] = [];
 			acc[file].push(thread);
@@ -162,8 +195,9 @@ async function main() {
 				const line = thread.line || 'diff';
 				const url = firstComment.url;
 				const threadId = thread.id;
+				const status = thread.isResolved ? '✅ (RESOLVED)' : '⭕ (OPEN)';
 
-				markdown += `### 💬 Комментарий на строке ${line}\n`;
+				markdown += `### 💬 Комментарий на строке ${line} ${status}\n`;
 				markdown += `<!-- threadId: ${threadId} -->\n`;
 				markdown += `- [ ] **Задача:** ${body}\n`;
 				markdown += `  - **Перевод:** [ждет вашего описания]\n`;
@@ -173,11 +207,9 @@ async function main() {
 			}
 		}
 
-
-
 		fs.writeFileSync(outputPath, markdown.replace(/—/g, '-'));
 
-		console.log(`\nГотово! Создан чеклист для ${unresolvedThreads.length} веток обсуждения.`);
+		console.log(`\nГотово! Создан чеклист для ${threadsToProcess.length} веток обсуждения.`);
 		console.log(`Файл: ${outputPath}`);
 
 	} catch (error) {
