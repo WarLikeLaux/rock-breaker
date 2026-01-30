@@ -113,6 +113,12 @@ async function main() {
 		console.log(`Получение открытых обсуждений для PR #${pullNumber} (${owner}/${repo})...`);
 
 		const result = await fetchGraphQL(query, { owner, repo, pullNumber });
+
+		if (!result.repository || !result.repository.pullRequest) {
+			console.error(`Ошибка: PR #${pullNumber} не найден в репозитории ${owner}/${repo}`);
+			process.exit(1);
+		}
+
 		const threads = result.repository.pullRequest.reviewThreads.nodes;
 		const unresolvedThreads = threads.filter(thread => !thread.isResolved);
 
@@ -138,7 +144,9 @@ async function main() {
 			markdown += `## 📄 Файл: ${file}\n\n`;
 
 			for (const thread of fileThreads) {
-				const firstComment = thread.comments.nodes[0];
+				const firstComment = thread.comments?.nodes?.[0];
+				if (!firstComment) continue;
+
 				const rawBody = firstComment.body;
 				const body = cleanBody(rawBody);
 				const line = thread.line || 'diff';

@@ -35,6 +35,7 @@ docs/*
 !docs/PURPOSE.md
 !docs/STYLEGUIDE.md
 !docs/hero.png
+!docs/ROLLDOWN.md
 .aider*
 
 # Tests
