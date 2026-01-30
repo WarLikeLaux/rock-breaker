@@ -117,7 +117,8 @@ function handleUpdate(id: number, text: string): void {
       <TaskTextField :task="task" v-model:editing="isEditing" @toggle="handleToggle" @update="handleUpdate" />
 
       <button v-if="canDecrement" @click="handleDecrement"
-        class="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center border border-amber-500/60 bg-slate-900/40 text-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.25)] hover:text-amber-200 hover:bg-slate-900/70 transition-all cursor-pointer">
+        class="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center border border-amber-500/60 bg-slate-900/40 text-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.25)] hover:text-amber-200 hover:bg-slate-900/70 transition-all cursor-pointer"
+        aria-label="Уменьшить количество">
         <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round">
           <path d="M4 8h8" />

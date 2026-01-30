@@ -25,7 +25,8 @@ const dayForm = computed(() => {
   const remainder100 = n % 100;
 
   if (remainder100 >= 11 && remainder100 <= 14) return 'дней';
-  if (remainder === 1) return 'дня';
+  if (remainder === 1) return 'день';
+  if (remainder >= 2 && remainder <= 4) return 'дня';
   return 'дней';
 });
 
@@ -57,10 +58,8 @@ const hpBarWidth = computed(() => `${props.hpPercent}%`);
     <h2 class="text-2xl font-bold text-white mb-3">{{ goalName }}</h2>
 
     <div class="flex items-center justify-center gap-2 mb-4">
-      <span
-        class="text-4xl font-bold transition-all duration-300"
-        :class="hpPercent > 25 ? 'text-amber-400' : 'text-red-400'"
-      >
+      <span class="text-4xl font-bold transition-all duration-300"
+        :class="hpPercent > 25 ? 'text-amber-400' : 'text-red-400'">
         {{ currentHp }}
       </span>
       <span class="text-slate-600">/</span>
@@ -68,23 +67,16 @@ const hpBarWidth = computed(() => `${props.hpPercent}%`);
     </div>
 
     <div class="relative w-full max-w-xs mx-auto">
-      <div
-        class="h-5 bg-slate-700/50 rounded-full overflow-hidden backdrop-blur border border-slate-600"
-      >
-        <div
-          class="h-full bg-gradient-to-r transition-all duration-700 ease-out relative overflow-hidden"
-          :class="hpColor"
-          :style="{ width: hpBarWidth }"
-        >
-          <div
-            class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 animate-shimmer"
-          ></div>
+      <div class="h-5 bg-slate-700/50 rounded-full overflow-hidden backdrop-blur border border-slate-600">
+        <div class="h-full bg-gradient-to-r transition-all duration-700 ease-out relative overflow-hidden"
+          :class="hpColor" :style="{ width: hpBarWidth }">
+          <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 animate-shimmer"></div>
         </div>
       </div>
     </div>
 
     <p class="text-xs text-slate-500 mt-4">
-      Результат {{ daysWorkedOn }} {{ dayForm }} работы
+      Ты работаешь над этим {{ daysWorkedOn }} {{ dayForm }}
     </p>
   </div>
 </template>
