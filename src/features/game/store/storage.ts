@@ -121,11 +121,15 @@ interface ExportData {
   dayStartHour: number;
 }
 
-export function exportData(data: ExportData): void {
-  const state = {
+function buildExportPayload(data: ExportData): ExportData & { exportedAt: string } {
+  return {
     ...data,
     exportedAt: new Date().toISOString(),
   };
+}
+
+export function exportData(data: ExportData): void {
+  const state = buildExportPayload(data);
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -135,7 +139,7 @@ export function exportData(data: ExportData): void {
   URL.revokeObjectURL(url);
 }
 
-interface ImportResult {
+export interface ImportResult {
   rocks: Rock[];
   activeRockId: number;
   rockIdCounter: number;
@@ -143,6 +147,45 @@ interface ImportResult {
   hardModeEnabled?: boolean;
   focusModeEnabled?: boolean;
   dayStartHour?: number;
+}
+
+function toBase64(bytes: Uint8Array): string {
+  if (typeof Buffer !== 'undefined') {
+    return Buffer.from(bytes).toString('base64');
+  }
+
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary);
+}
+
+function fromBase64(base64: string): Uint8Array | null {
+  if (typeof Buffer !== 'undefined') {
+    return new Uint8Array(Buffer.from(base64, 'base64'));
+  }
+
+  try {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  } catch {
+    return null;
+  }
+}
+
+function toBase64Url(bytes: Uint8Array): string {
+  return toBase64(bytes).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function fromBase64Url(base64url: string): Uint8Array | null {
+  const normalized = base64url.replace(/-/g, '+').replace(/_/g, '/');
+  const padding = normalized.length % 4 === 0 ? '' : '='.repeat(4 - (normalized.length % 4));
+  return fromBase64(`${normalized}${padding}`);
 }
 
 export function importData(jsonString: string): ImportResult | null {
