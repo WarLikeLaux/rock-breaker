@@ -98,7 +98,8 @@ function handleUpdate(id: number, text: string): void {
 
 <template>
   <VTooltip placement="top" :delay="{ show: 600, hide: 0 }" :disabled="!showTooltips || isEditing || showTypeMenu">
-    <div class="group flex items-center gap-3 p-4 rounded-[1.25rem] border transition-all duration-300 min-h-[72px]"
+    <div
+      class="group flex items-center gap-2 min-[401px]:gap-3 p-3 min-[401px]:p-4 rounded-[1.25rem] border transition-all duration-300 min-h-[60px] min-[401px]:min-h-[72px]"
       :class="[
         borderClass,
         { 'animate-complete': isAnimating },
@@ -106,7 +107,7 @@ function handleUpdate(id: number, text: string): void {
       ]">
       <div class="relative select-none">
         <button @click="handleTypeClick"
-          class="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-base transition-all hover:scale-110 hover:bg-slate-700/50">
+          class="flex-shrink-0 w-7 h-7 min-[401px]:w-8 min-[401px]:h-8 rounded-lg flex items-center justify-center text-sm min-[401px]:text-base transition-all hover:scale-110 hover:bg-slate-700/50">
           {{ typeIcon }}
         </button>
 
