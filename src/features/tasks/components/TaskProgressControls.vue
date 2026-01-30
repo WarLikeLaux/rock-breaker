@@ -14,7 +14,7 @@ const emit = defineEmits<{
 
 const isEmptyJoker = computed(() => props.task.type === 'joker' && !props.task.text);
 const isRepeatable = computed(() => props.task.requiredExecutions > 1);
-const toggleDisabled = computed(() => isEmptyJoker.value || props.task.completed);
+const toggleDisabled = computed(() => isEmptyJoker.value);
 const toggleCursorClass = computed(() => (toggleDisabled.value ? 'cursor-default' : 'cursor-pointer'));
 
 const buttonStateClass = computed(() => {

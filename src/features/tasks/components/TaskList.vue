@@ -56,19 +56,19 @@ function handleAddTask(): void {
 <template>
   <div class="space-y-4">
     <div class="flex items-center justify-between">
-      <h3 class="text-lg font-bold text-white whitespace-nowrap">
+      <h3 class="text-base font-bold text-white whitespace-nowrap">
         Экипировка ({{ tasks.length }}/{{ MAX_TASK_SLOTS }})
       </h3>
 
       <button @click="toggleFocusMode"
-        class="flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-wide transition-all duration-300 border whitespace-nowrap"
+        class="flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-black uppercase tracking-wide transition-all duration-300 border whitespace-nowrap"
         :class="focusModeEnabled
           ? 'bg-amber-500/10 border-amber-500/50 text-amber-500 hover:bg-amber-500/20'
           : 'bg-slate-800/50 border-slate-700 text-slate-500 hover:border-slate-600 hover:text-slate-400'">
         <span class="w-1.5 h-1.5 rounded-full shrink-0"
           :class="focusModeEnabled ? 'bg-amber-500 animate-pulse' : 'bg-slate-600'"></span>
-        <span class="hidden sm:inline">Фокус-режим:</span>
-        <span class="sm:hidden">Фокус:</span>
+        <span class="hidden min-[400px]:inline">Фокус-режим:</span>
+        <span class="min-[400px]:hidden">Фокус:</span>
         {{ focusModeEnabled ? 'ВКЛ' : 'ВЫКЛ' }}
       </button>
     </div>

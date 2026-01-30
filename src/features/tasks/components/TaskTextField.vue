@@ -23,10 +23,8 @@ const isEmptyJoker = computed(() => props.task.type === 'joker' && !props.task.t
 let clickTimer: ReturnType<typeof setTimeout> | null = null;
 
 function handleClick(): void {
-  if (isEmptyJoker.value || props.task.completed) {
-    if (isEmptyJoker.value) {
-      startEdit();
-    }
+  if (isEmptyJoker.value) {
+    startEdit();
     return;
   }
 
@@ -75,9 +73,9 @@ onBeforeUnmount(() => {
       class="w-full bg-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:ring-2 focus:ring-amber-500 transition-all" />
     <div v-else class="flex flex-col justify-center">
       <span @click="handleClick()"
-        class="block line-clamp-3 break-words select-text text-sm min-[401px]:text-base sm:text-lg transition-all duration-300"
+        class="block line-clamp-3 break-words select-none text-sm min-[401px]:text-base sm:text-lg transition-all duration-300"
         :class="[
-          task.completed ? 'line-through text-slate-500 cursor-default' : 'text-white hover:text-amber-300 cursor-pointer',
+          task.completed ? 'line-through text-slate-500 cursor-pointer' : 'text-white hover:text-amber-300 cursor-pointer',
           { 'text-slate-500 cursor-pointer': isEmptyJoker },
         ]">
         {{ task.text || 'Нажми чтобы добавить...' }}

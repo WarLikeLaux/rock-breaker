@@ -62,8 +62,6 @@ const canDecrement = computed(
 );
 
 function handleToggle(): void {
-  if (props.task.completed) return;
-
   isAnimating.value = true;
   setTimeout(() => {
     isAnimating.value = false;
