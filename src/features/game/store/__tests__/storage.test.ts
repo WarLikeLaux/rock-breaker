@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { saveToStorage, loadFromStorage, importData, clearStorage, exportData } from '../storage';
+import { saveToStorage, loadFromStorage, importData, clearStorage, exportData, exportKey, importKey } from '../storage';
 import type { Task, Rock } from '@/shared/types';
 
 const mockLocalStorage = (() => {
@@ -283,6 +283,47 @@ describe('storage.ts', () => {
       createObjectURL.mockRestore();
       revokeObjectURL.mockRestore();
       createElement.mockRestore();
+    });
+  });
+
+  describe('exportKey / importKey', () => {
+    it('должен экспортировать и импортировать ключ с данными', () => {
+      const key = exportKey({
+        rocks: [createRock({ id: 2, goalName: 'Key Test' })],
+        activeRockId: 2,
+        isSetupComplete: true,
+        rockIdCounter: 3,
+        showTooltips: false,
+        hardModeEnabled: true,
+        focusModeEnabled: true,
+        dayStartHour: 6,
+      });
+
+      expect(key).toBeDefined();
+      expect(typeof key).toBe('string');
+
+      if (!key) {
+        throw new Error('Ключ экспорта не создан');
+      }
+
+      const imported = importKey(key);
+      expect(imported).not.toBeNull();
+
+      if (!imported) {
+        throw new Error('Ключ импорта не распознан');
+      }
+
+      expect(imported.activeRockId).toBe(2);
+      expect(imported.rocks[0]?.goalName).toBe('Key Test');
+      expect(imported.showTooltips).toBe(false);
+      expect(imported.hardModeEnabled).toBe(true);
+      expect(imported.focusModeEnabled).toBe(true);
+      expect(imported.dayStartHour).toBe(6);
+    });
+
+    it('должен возвращать null для пустого ключа', () => {
+      const imported = importKey('   ');
+      expect(imported).toBeNull();
     });
   });
 
