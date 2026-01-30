@@ -53,7 +53,7 @@ onBeforeUnmount(() => {
       type="button"
       aria-label="Удалить задачу"
       @click="handleClick"
-      class="absolute inset-0 w-full h-full rounded-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 border border-rose-500/50 bg-slate-900/30 text-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.25)] hover:text-rose-300 hover:bg-slate-900/60 cursor-pointer"
+      class="absolute inset-0 w-full h-full rounded-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 border border-rose-500/50 bg-slate-900/30 text-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.25)] hover:text-rose-300 hover:bg-slate-900/60"
     >
       <svg
         class="w-3.5 h-3.5"

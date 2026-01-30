@@ -5,6 +5,16 @@ body {
   scrollbar-gutter: stable;
 }
 
+button:not(:disabled),
+a[href],
+[role="button"] {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 @theme {
   --animate-shake: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
   --animate-bounce-slow: bounce 3s infinite;

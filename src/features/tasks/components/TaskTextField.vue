@@ -76,7 +76,7 @@ onBeforeUnmount(() => {
         class="block line-clamp-3 break-words select-none text-sm min-[401px]:text-base sm:text-lg transition-all duration-300"
         :class="[
           task.completed ? 'line-through text-slate-500 cursor-pointer' : 'text-white hover:text-amber-300 cursor-pointer',
-          { 'text-slate-500 cursor-pointer': isEmptyJoker },
+          { 'text-slate-500': isEmptyJoker },
         ]">
         {{ task.text || 'Нажми чтобы добавить...' }}
       </span>

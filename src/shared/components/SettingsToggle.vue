@@ -19,7 +19,7 @@ function toggle(event: Event): void {
 
 <template>
   <label
-    class="flex items-center justify-between py-3 px-4 bg-slate-700 hover:bg-slate-600 rounded-xl cursor-pointer transition-all">
+    class="flex items-center justify-between py-3 px-4 bg-slate-700 hover:bg-slate-600 rounded-xl transition-all cursor-pointer">
     <span class="text-white flex items-center gap-2">{{ icon }} {{ label }}</span>
     <div class="relative">
       <input type="checkbox" :checked="modelValue" @change="toggle" class="sr-only peer" />
