@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/WarLikeLaux/strike-v/main/docs/hero.png" width="800" alt="Hero Banner">
 
-[![Status](https://img.shields.io/badge/status-stable-green?style=flat-square)]()
+![Status](https://img.shields.io/badge/status-stable-green?style=flat-square)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Vue 3](https://img.shields.io/badge/vuejs-%2335495e.svg?style=flat-square&logo=vuedotjs&logoColor=%234FC08D)](https://vuejs.org/)
 [![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
