@@ -79,8 +79,8 @@ function selectMain(): void {
 
           <div v-if="mainRock" class="mb-4">
             <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Главная скала</p>
-            <div @click="selectMain"
-              class="p-3 rounded-xl bg-slate-800/80 border border-amber-500/50 cursor-pointer hover:bg-slate-800 transition-colors"
+            <div role="button" tabindex="0" @click="selectMain" @keydown.enter="selectMain"
+              class="p-3 rounded-xl bg-slate-800/80 border border-amber-500/50 cursor-pointer hover:bg-slate-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               :class="activeRockId === mainRock.id ? 'ring-2 ring-amber-500' : ''">
               <p class="text-white font-medium line-clamp-2 break-words">{{ mainRock.goalName }}</p>
               <p class="text-xs text-slate-400 mt-1">

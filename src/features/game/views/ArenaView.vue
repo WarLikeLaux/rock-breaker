@@ -145,8 +145,11 @@ function handleOpenPresets(): void {
       <div class="quest-grid">
         <SideQuestCard v-for="rock in leftSideRocks" :key="rock.id" :rock="rock" :is-locked="!canAccessSideQuests"
           :is-active="activeRockId === rock.id" @select="handleSwitchRock" />
-        <button @click="showCreateModal = true"
-          class="add-quest-btn rounded-2xl border-2 border-dashed border-slate-700/60 hover:border-amber-500/50 text-slate-600/70 hover:text-amber-500 transition-all duration-300 text-3xl active:scale-95 hover:bg-slate-800/30 flex items-center justify-center">
+        <button @click="showCreateModal = true" :disabled="!canAccessSideQuests"
+          class="add-quest-btn rounded-2xl border-2 border-dashed border-slate-700/60 transition-all duration-300 text-3xl active:scale-95 flex items-center justify-center"
+          :class="canAccessSideQuests
+            ? 'hover:border-amber-500/50 text-slate-600/70 hover:text-amber-500 hover:bg-slate-800/30'
+            : 'text-slate-800 border-slate-800/50 cursor-not-allowed'">
           +
         </button>
       </div>
@@ -337,8 +340,11 @@ function handleOpenPresets(): void {
       <div class="quest-grid quest-grid-right">
         <SideQuestCard v-for="rock in rightSideRocks" :key="rock.id" :rock="rock" :is-locked="!canAccessSideQuests"
           :is-active="activeRockId === rock.id" @select="handleSwitchRock" />
-        <button @click="showCreateModal = true"
-          class="add-quest-btn rounded-2xl border-2 border-dashed border-slate-700/60 hover:border-amber-500/50 text-slate-600/70 hover:text-amber-500 transition-all duration-300 text-3xl active:scale-95 hover:bg-slate-800/30 flex items-center justify-center">
+        <button @click="showCreateModal = true" :disabled="!canAccessSideQuests"
+          class="add-quest-btn rounded-2xl border-2 border-dashed border-slate-700/60 transition-all duration-300 text-3xl active:scale-95 flex items-center justify-center"
+          :class="canAccessSideQuests
+            ? 'hover:border-amber-500/50 text-slate-600/70 hover:text-amber-500 hover:bg-slate-800/30'
+            : 'text-slate-800 border-slate-800/50 cursor-not-allowed'">
           +
         </button>
       </div>

@@ -276,7 +276,6 @@ watch(dayStartHour, (val) => {
   saveSettings(settings);
 });
 
-loadFromStorageWrapper();
 
 function createRock(name: string, days: number, initialTasks: string[] = []): void {
   const tasks: Task[] = initialTasks
@@ -468,6 +467,10 @@ export function useGameStore(): GameStore {
       if (rock) rock.taskIdCounter = val;
     },
   };
+
+  if (!isSetupComplete.value) {
+    loadFromStorageWrapper();
+  }
 
   return {
     goalName,
