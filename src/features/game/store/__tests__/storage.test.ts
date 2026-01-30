@@ -1,5 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { saveToStorage, loadFromStorage, importData, clearStorage, exportData, exportKey, importKey } from '../storage';
+import {
+  saveToStorage,
+  loadFromStorage,
+  importData,
+  clearStorage,
+  exportData,
+  exportKey,
+  importKey,
+  saveSettings,
+  loadSettings,
+} from '../storage';
 import type { Task, Rock } from '@/shared/types';
 
 const mockLocalStorage = (() => {
@@ -324,6 +334,51 @@ describe('storage.ts', () => {
     it('должен возвращать null для пустого ключа', () => {
       const imported = importKey('   ');
       expect(imported).toBeNull();
+    });
+
+    it('должен импортировать ключ с обрамлением в бэктики', () => {
+      const key = exportKey({
+        rocks: [createRock({ id: 3, goalName: 'Backtick' })],
+        activeRockId: 3,
+        isSetupComplete: true,
+        rockIdCounter: 4,
+        showTooltips: true,
+        hardModeEnabled: false,
+        focusModeEnabled: false,
+        dayStartHour: 0,
+      });
+
+      if (!key) {
+        throw new Error('Ключ экспорта не создан');
+      }
+
+      const imported = importKey(`\`${key}\``);
+      expect(imported?.activeRockId).toBe(3);
+    });
+  });
+
+  describe('saveSettings', () => {
+    it('должен логировать ошибку при падении localStorage', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const originalSetItem = localStorage.setItem;
+      localStorage.setItem = () => {
+        throw new Error('fail');
+      };
+
+      saveSettings({ showTooltips: true });
+
+      expect(warn).toHaveBeenCalledOnce();
+      warn.mockRestore();
+      localStorage.setItem = originalSetItem;
+    });
+  });
+
+  describe('loadSettings', () => {
+    it('должен очищать битые настройки', () => {
+      localStorage.setItem('rock-breaker-settings', '{broken');
+
+      const settings = loadSettings();
+      expect(settings).toEqual({});
     });
   });
 
