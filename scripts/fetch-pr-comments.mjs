@@ -129,6 +129,8 @@ async function main() {
 
 		if (unresolvedThreads.length === 0) {
 			console.log('Открытых комментариев не найдено!');
+			const emptyMarkdown = `# Задачи по ревью PR - #${pullNumber}\n\n`;
+			fs.writeFileSync(outputPath, emptyMarkdown + '✅ Все комментарии закрыты!\n');
 			return;
 		}
 
