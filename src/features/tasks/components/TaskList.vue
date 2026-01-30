@@ -100,7 +100,7 @@ function handleAddTask(): void {
     </div>
 
     <div v-if="!canAddTask && !focusModeEnabled" class="mt-6 text-center">
-      <p class="text-sm sm:text-base uppercase tracking-[0.2em] font-bold text-amber-500/90">
+      <p class="text-[10px] sm:text-base uppercase tracking-[0.2em] font-bold text-amber-500/90">
         ⚔️ Экипировка собрана. В бой!
       </p>
     </div>
