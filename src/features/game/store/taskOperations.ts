@@ -80,8 +80,11 @@ export function substituteTask(tasks: Ref<Task[]>, id: number, tempText: string)
   const task = tasks.value.find((t) => t.id === id);
   if (!task || task.type !== 'standard') return;
 
+  const trimmedText = tempText.trim();
+  if (!trimmedText) return;
+
   task.originalText = task.text;
-  task.text = tempText.trim();
+  task.text = trimmedText;
   task.type = 'substitute';
 }
 

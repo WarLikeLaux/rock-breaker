@@ -139,12 +139,18 @@ const visibleTasks = computed(() => {
   const incompleteTasks = allTasks.filter((t) => !t.completed);
   if (incompleteTasks.length === 0) return allTasks;
 
-  if (shuffledIndices.value.length !== incompleteTasks.length) {
-    return [incompleteTasks[0] as Task];
+  const firstTask = incompleteTasks[0];
+  if (!firstTask || shuffledIndices.value.length !== incompleteTasks.length) {
+    return firstTask ? [firstTask] : allTasks;
   }
 
-  const index = shuffledIndices.value[focusSkipOffset.value] ?? 0;
-  return [incompleteTasks[index] as Task];
+  const index = shuffledIndices.value[focusSkipOffset.value];
+  if (typeof index !== 'number' || index < 0 || index >= incompleteTasks.length) {
+    return [firstTask];
+  }
+
+  const task = incompleteTasks[index];
+  return task ? [task] : [firstTask];
 });
 const currentHp = computed(() => activeRock.value?.currentHp ?? 0);
 const lastActiveDate = computed(() => activeRock.value?.lastActiveDate ?? '');

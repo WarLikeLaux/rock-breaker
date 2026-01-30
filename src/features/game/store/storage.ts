@@ -177,20 +177,19 @@ export function importData(jsonString: string): ImportResult | null {
       };
     });
 
-    const rockIds = normalizedRocks.map((rock) => rock.id).filter((id) => isFinite(id));
+    const allRockIds = normalizedRocks.map((rock) => rock.id).filter((id) => isFinite(id));
     const fallbackActiveRockId = normalizedRocks[0]?.id ?? 0;
     const validActiveRockId = typeof state.activeRockId === 'number' && isFinite(state.activeRockId)
       ? state.activeRockId
       : -1;
-    const activeRockId = rockIds.includes(validActiveRockId)
+    const activeRockId = allRockIds.includes(validActiveRockId)
       ? validActiveRockId
       : fallbackActiveRockId;
-    const maxRockId = rockIds.length > 0 ? Math.max(0, ...rockIds) : 0;
 
     return {
       rocks: normalizedRocks,
       activeRockId,
-      rockIdCounter: Math.max(state.rockIdCounter ?? 0, maxRockId),
+      rockIdCounter: Math.max(state.rockIdCounter ?? 0, idCounter),
       showTooltips: state.showTooltips,
       hardModeEnabled: state.hardModeEnabled,
       focusModeEnabled: state.focusModeEnabled,

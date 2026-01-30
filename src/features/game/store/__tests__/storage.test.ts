@@ -252,7 +252,7 @@ describe('storage.ts', () => {
 
       const result = importData(data);
       expect(result!.activeRockId).toBe(5);
-      expect(result!.rockIdCounter).toBe(9);
+      expect(result!.rockIdCounter).toBe(10);
     });
   });
 
