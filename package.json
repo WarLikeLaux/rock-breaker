@@ -28,7 +28,8 @@
     "lint:docs": "prettier --check --no-ignore docs/*.md README.md .agent/workflows/*.md",
     "diff": "git add -N . && git diff",
     "deploy": "vite build && gh-pages -d dist",
-    "review:fetch": "node scripts/fetch-pr-comments.mjs"
+    "review:fetch": "node scripts/fetch-pr-comments.mjs",
+    "review:resolve": "node scripts/resolve-pr-threads.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",

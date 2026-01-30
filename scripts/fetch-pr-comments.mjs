@@ -56,6 +56,7 @@ query($owner: String!, $repo: String!, $pullNumber: Int!) {
     pullRequest(number: $pullNumber) {
       reviewThreads(first: 100) {
         nodes {
+          id
           isResolved
           path
           line
@@ -155,8 +156,10 @@ async function main() {
 				const body = cleanBody(rawBody);
 				const line = thread.line || 'diff';
 				const url = firstComment.url;
+				const threadId = thread.id;
 
 				markdown += `### 💬 Комментарий на строке ${line}\n`;
+				markdown += `<!-- threadId: ${threadId} -->\n`;
 				markdown += `- [ ] **Задача:** ${body}\n`;
 				markdown += `  - **Перевод:** [ждет вашего описания]\n`;
 				markdown += `  - **Оценка сложности (1-10):** [ ]\n`;

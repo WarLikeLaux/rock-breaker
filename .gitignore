@@ -32,10 +32,12 @@ repomix-all.xml
 
 # Docs
 docs/*
-!docs/PURPOSE.md
-!docs/STYLEGUIDE.md
+!docs/purpose.md
+!docs/styleguide.md
 !docs/hero.png
-!docs/ROLLDOWN.md
+!docs/rolldown.md
+!docs/contract.md
+!docs/codestyleguide.md
 .aider*
 
 # Tests
