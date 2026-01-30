@@ -5,7 +5,7 @@
 - ❌ `as Type` — unsafe assertion
 - ❌ `any`
 - ❌ `!` — non-null assertion
-- ❌ Комментарии в коде
+- ❌ Избыточные комментарии, дублирующие очевидный код
 - ❌ Inline-стили в Vue
 
 ## Обязательно
@@ -36,5 +36,5 @@ pnpm lint && pnpm test
 
 ## См. также
 
-- `docs/styleguide.md` — правила текста
-- `docs/codestyleguide.md` — стиль кода
+- `docs/ai/style-guide/text.md` — правила текста
+- `docs/ai/style-guide/code.md` — стиль кода

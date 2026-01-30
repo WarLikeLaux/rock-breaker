@@ -127,6 +127,9 @@ async function main() {
 		const threads = result.repository.pullRequest.reviewThreads.nodes;
 		const unresolvedThreads = threads.filter(thread => !thread.isResolved);
 
+
+		const outputPath = path.resolve(process.cwd(), 'docs/REVIEW.md');
+
 		if (unresolvedThreads.length === 0) {
 			console.log('Открытых комментариев не найдено!');
 			const emptyMarkdown = `# Задачи по ревью PR - #${pullNumber}\n\n`;
@@ -170,7 +173,8 @@ async function main() {
 			}
 		}
 
-		const outputPath = path.resolve(process.cwd(), 'docs/REVIEW.md');
+
+
 		fs.writeFileSync(outputPath, markdown.replace(/—/g, '-'));
 
 		console.log(`\nГотово! Создан чеклист для ${unresolvedThreads.length} веток обсуждения.`);

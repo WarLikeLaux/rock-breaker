@@ -60,7 +60,7 @@ async function main() {
 
 	// Находим все выполненные задачи с threadId
 	// Паттерн: <!-- threadId: ID --> после которого идёт - [x] **Задача:**
-	const threadPattern = /<!-- threadId: ([^\s]+) -->\n- \[x\] \*\*Задача:\*\*/g;
+	const threadPattern = /<!-- threadId: ([^\s]+) -->\r?\n- \[x\] \*\*Задача:\*\*/g;
 	const matches = [...content.matchAll(threadPattern)];
 
 	if (matches.length === 0) {
