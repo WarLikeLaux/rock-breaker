@@ -21,7 +21,6 @@ const emit = defineEmits<{
   update: [id: number, text: string];
   remove: [id: number];
   setType: [id: number, type: Task['type']];
-  substitute: [id: number, text: string];
   setRequiredExecutions: [id: number, count: number];
   decrementExecution: [id: number];
 }>();

@@ -101,14 +101,19 @@ async function handleFileChange(event: Event): Promise<void> {
   const file = target.files?.[0];
   if (!file) return;
 
-  const text = await file.text();
-  const success = importData(text);
-  if (success) {
-    importError.value = '';
-  } else {
-    importError.value = 'Ошибка импорта. Проверьте файл.';
+  try {
+    const text = await file.text();
+    const success = importData(text);
+    if (success) {
+      importError.value = '';
+    } else {
+      importError.value = 'Ошибка импорта. Проверьте файл.';
+    }
+  } catch (error) {
+    importError.value = error instanceof Error ? error.message : 'Ошибка чтения файла.';
+  } finally {
+    target.value = '';
   }
-  target.value = '';
 }
 </script>
 
