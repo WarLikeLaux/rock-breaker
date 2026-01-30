@@ -104,7 +104,7 @@ function cleanBody(body) {
 
 	if (mainPart.length > 0) {
 		const firstChar = mainPart[0];
-		if (firstChar === firstChar.toUpperCase() && mainPart.length > 1) {
+		if (/^\p{Lu}$/u.test(firstChar) && mainPart.length > 1) {
 			mainPart = firstChar.toLowerCase() + mainPart.slice(1);
 		}
 	}
