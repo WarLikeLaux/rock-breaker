@@ -71,6 +71,25 @@ async function main() {
 
 	console.log(`Найдено ${matches.length} выполненных задач для закрытия на GitHub...\n`);
 
+	const { createInterface } = await import('readline');
+	const rl = createInterface({
+		input: process.stdin,
+		output: process.stdout,
+	});
+
+	const answer = await new Promise(resolve => {
+		rl.question(`Вы уверены, что хотите закрыть ${matches.length} тредов? [y/N] `, resolve);
+	});
+
+	rl.close();
+
+	if (!answer.trim().toLowerCase().startsWith('y')) {
+		console.log('Отмена.');
+		return;
+	}
+
+	console.log('\nЗакрытие тредов...');
+
 	let resolved = 0;
 	let failed = 0;
 
