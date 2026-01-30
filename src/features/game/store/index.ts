@@ -6,6 +6,9 @@ import {
   loadFromStorage,
   exportData as exportToFile,
   importData as importFromFile,
+  exportKey as exportToKey,
+  importKey as importFromKey,
+  type ImportResult,
   saveSettings,
   loadSettings,
   clearStorage,
@@ -75,7 +78,9 @@ export interface GameStore {
   resetGame: () => void;
   startNewDay: () => void;
   exportData: () => void;
+  exportKey: () => string | null;
   importData: (jsonString: string) => boolean;
+  importKey: (key: string) => boolean;
   loadFromStorage: () => boolean;
 
   createSideQuest: (name: string, days: number, initialTasks?: string[]) => void;
@@ -432,6 +437,26 @@ function resetGame(): void {
   clearStorage();
 }
 
+function applyImportedState(state: ImportResult): void {
+  rocks.value = state.rocks;
+  activeRockId.value = state.activeRockId;
+  rockIdCounter.value = state.rockIdCounter;
+  if (state.showTooltips !== undefined) {
+    showTooltips.value = state.showTooltips;
+  }
+  if (state.hardModeEnabled !== undefined) {
+    hardModeEnabled.value = state.hardModeEnabled;
+  }
+  if (state.focusModeEnabled !== undefined) {
+    focusModeEnabled.value = state.focusModeEnabled;
+  }
+  if (state.dayStartHour !== undefined) {
+    dayStartHour.value = state.dayStartHour;
+  }
+  isSetupComplete.value = true;
+  saveState();
+}
+
 export function useGameStore(): GameStore {
   const tasksRef = getActiveRockRef('tasks') as unknown as Ref<Task[]>;
   const taskIdCounterRef = {
@@ -559,27 +584,29 @@ export function useGameStore(): GameStore {
         focusModeEnabled: focusModeEnabled.value,
         dayStartHour: dayStartHour.value,
       }),
+    exportKey: () =>
+      exportToKey({
+        rocks: rocks.value,
+        activeRockId: activeRockId.value,
+        isSetupComplete: isSetupComplete.value,
+        rockIdCounter: rockIdCounter.value,
+        showTooltips: showTooltips.value,
+        hardModeEnabled: hardModeEnabled.value,
+        focusModeEnabled: focusModeEnabled.value,
+        dayStartHour: dayStartHour.value,
+      }),
     importData: (jsonString: string) => {
       const state = importFromFile(jsonString);
       if (!state) return false;
 
-      rocks.value = state.rocks;
-      activeRockId.value = state.activeRockId;
-      rockIdCounter.value = state.rockIdCounter;
-      if (state.showTooltips !== undefined) {
-        showTooltips.value = state.showTooltips;
-      }
-      if (state.hardModeEnabled !== undefined) {
-        hardModeEnabled.value = state.hardModeEnabled;
-      }
-      if (state.focusModeEnabled !== undefined) {
-        focusModeEnabled.value = state.focusModeEnabled;
-      }
-      if (state.dayStartHour !== undefined) {
-        dayStartHour.value = state.dayStartHour;
-      }
-      isSetupComplete.value = true;
-      saveState();
+      applyImportedState(state);
+      return true;
+    },
+    importKey: (key: string) => {
+      const state = importFromKey(key);
+      if (!state) return false;
+
+      applyImportedState(state);
       return true;
     },
     loadFromStorage: loadFromStorageWrapper,
