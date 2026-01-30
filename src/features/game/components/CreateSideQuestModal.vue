@@ -95,7 +95,7 @@ function handleClose(): void {
     <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="handleClose"></div>
 
     <div role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc"
-      class="relative w-full max-w-md bg-slate-900 rounded-2xl border border-slate-700 p-6">
+      class="relative w-full max-w-md bg-slate-900 rounded-2xl border border-slate-700 p-6 max-h-full overflow-y-auto">
       <button @click="handleClose" aria-label="Закрыть диалог"
         class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
